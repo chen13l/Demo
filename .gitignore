@@ -361,3 +361,8 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/Blaster/Binaries/Win64
+/Blaster/Intermediate
+/Blaster/Plugins/MultiplayerSessions/Binaries/Win64
+/Blaster/Saved
+/Blaster/Blaster.sln

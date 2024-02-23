@@ -26,6 +26,14 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UFUNCTION()
+		virtual void OnSphereOverlap(UPrimitiveComponent* OverlappedComponent,
+			AActor* OtherActor,
+			UPrimitiveComponent* OtherComponnet,
+			int32 OtherBodyIndex,
+			bool bFromSweep,
+			const FHitResult& SweepResult
+		);
 private:
 	UPROPERTY(VisibleAnywhere, Category = "WeaponProperties")
 		USkeletalMeshComponent* WeaponMesh;
@@ -33,8 +41,12 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "WeaponProperties")
 		class USphereComponent* AreaSphere;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, Category = "WeaponProperties")
 		EWeaponState WeaponState;
+
+	UPROPERTY(VisibleAnywhere, Category = "WeaponProperties")
+		class UWidgetComponent* PickupWidget;
+
 public:
 
 
