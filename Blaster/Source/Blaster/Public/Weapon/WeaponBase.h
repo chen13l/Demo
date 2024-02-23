@@ -23,6 +23,8 @@ class BLASTER_API AWeaponBase : public AActor
 public:
 	AWeaponBase();
 	virtual void Tick(float DeltaTime) override;
+	void ShowPickupWidget(bool bShouldShowWidget);
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps)const override;
 protected:
 	virtual void BeginPlay() override;
 
@@ -34,6 +36,12 @@ protected:
 			bool bFromSweep,
 			const FHitResult& SweepResult
 		);
+
+	UFUNCTION()
+		virtual void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent,
+			AActor* OtherActor,
+			UPrimitiveComponent* OtherComponent,
+			int32 OtherBodyIndex);
 private:
 	UPROPERTY(VisibleAnywhere, Category = "WeaponProperties")
 		USkeletalMeshComponent* WeaponMesh;
@@ -41,13 +49,15 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "WeaponProperties")
 		class USphereComponent* AreaSphere;
 
-	UPROPERTY(VisibleAnywhere, Category = "WeaponProperties")
+	UPROPERTY(ReplicatedUsing = OnRep_WeaponState, VisibleAnywhere, Category = "WeaponProperties")
 		EWeaponState WeaponState;
+	UFUNCTION()
+		void OnRep_WeaponState();
 
 	UPROPERTY(VisibleAnywhere, Category = "WeaponProperties")
 		class UWidgetComponent* PickupWidget;
 
 public:
-
+	void SetWeaponState(EWeaponState State);
 
 };
