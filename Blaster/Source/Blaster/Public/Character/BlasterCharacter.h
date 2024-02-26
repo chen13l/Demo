@@ -51,6 +51,11 @@ private:
 		UInputAction* CrouchAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MovementBase", meta = (AllowPrivateAccess))
 		UInputAction* EquipAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MovementBase", meta = (AllowPrivateAccess))
+		UInputAction* AimingAction;
+
+	UFUNCTION()
+	void OnPressedCrouch();
 
 	UPROPERTY(ReplicatedUsing = OnRep_OverlappingWeapon)
 		class AWeaponBase* OverlappingWeapon;
@@ -66,5 +71,5 @@ private:
 
 public:
 	void SetOverlappingWeapon(AWeaponBase* Weapon);
-
+	bool IsEquippedWeapon()const;
 };

@@ -12,12 +12,15 @@
 #include "Net/UnrealNetwork.h"
 #include "Weapon/WeaponBase.h"
 #include "BlasterComponents/CombatComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 ABlasterCharacter::ABlasterCharacter()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(GetMesh());
@@ -87,6 +90,7 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 			EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
 			EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 			EnhancedInputComponent->BindAction(EquipAction, ETriggerEvent::Triggered, this, &ThisClass::EquipButtonPressed);
+			EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Triggered, this, &ThisClass::OnPressedCrouch);
 		}
 
 	}
@@ -123,6 +127,19 @@ void ABlasterCharacter::EquipButtonPressed()
 		if (HasAuthority()) {
 			CombatComponent->EquipWeapon(OverlappingWeapon);
 		}
+		else {
+			ServerEquipButtonPressed();
+		}
+	}
+}
+
+void ABlasterCharacter::OnPressedCrouch()
+{
+	if (bIsCrouched) {
+		UnCrouch();
+	}
+	else {
+		Crouch();
 	}
 }
 
@@ -154,4 +171,8 @@ void ABlasterCharacter::SetOverlappingWeapon(AWeaponBase* Weapon)
 			OverlappingWeapon->ShowPickupWidget(true);
 		}
 	}
+}
+
+bool ABlasterCharacter::IsEquippedWeapon()const {
+	return (CombatComponent && CombatComponent->EquippedWeapon);
 }
