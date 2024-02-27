@@ -31,6 +31,7 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(UCombatComponent, EquippedWeapon);
+	DOREPLIFETIME(UCombatComponent, bIsAiming);
 }
 
 void UCombatComponent::EquipWeapon(AWeaponBase* WeaponToEquip)
@@ -45,6 +46,22 @@ void UCombatComponent::EquipWeapon(AWeaponBase* WeaponToEquip)
 		EquippedWeapon->SetOwner(BlasterCharacter);
 
 	}
+}
+
+void UCombatComponent::SetAiming(bool bAiming)
+{
+	/*
+	* call RPC on client - owner actor will run on server,
+	* 加这一行能使client在收到server信息前先执行动画
+	*/
+	bIsAiming = bAiming;
+
+	ServerSetAiming(bAiming);
+}
+
+void UCombatComponent::ServerSetAiming_Implementation(bool bAinming)
+{
+	bIsAiming = bAinming;
 }
 
 
