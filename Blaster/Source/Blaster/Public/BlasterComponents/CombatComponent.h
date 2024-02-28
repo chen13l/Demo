@@ -27,14 +27,19 @@ protected:
 	UFUNCTION(Server, Reliable)
 		void ServerSetAiming(bool bAinming);
 
+	UFUNCTION()
+		void OnRep_EquippedWeapon();
+
 private:
 	class ABlasterCharacter* BlasterCharacter;
 
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon)
 		AWeaponBase* EquippedWeapon;
 
 	UPROPERTY(Replicated)
 		bool bIsAiming;
+
+
 
 public:
 
