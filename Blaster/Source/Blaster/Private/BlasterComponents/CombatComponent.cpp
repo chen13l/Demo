@@ -12,6 +12,9 @@ UCombatComponent::UCombatComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 
+	BaseWalkkSpeed = 450.f;
+	AimWalkSpeed = 300.f;
+
 }
 
 void UCombatComponent::BeginPlay()
@@ -65,14 +68,19 @@ void UCombatComponent::SetAiming(bool bAiming)
 	* 加这一行能使client在收到server信息前先执行动画
 	*/
 	bIsAiming = bAiming;
-
 	ServerSetAiming(bAiming);
+	if (BlasterCharacter) {
+		BlasterCharacter->GetCharacterMovement()->MaxWalkSpeed = bAiming ? AimWalkSpeed : BaseWalkkSpeed;
+	}
 }
 
 
-void UCombatComponent::ServerSetAiming_Implementation(bool bAinming)
+void UCombatComponent::ServerSetAiming_Implementation(bool bAiming)
 {
-	bIsAiming = bAinming;
+	bIsAiming = bAiming;
+	if (BlasterCharacter) {
+		BlasterCharacter->GetCharacterMovement()->MaxWalkSpeed = bAiming ? AimWalkSpeed : BaseWalkkSpeed;
+	}
 }
 
 

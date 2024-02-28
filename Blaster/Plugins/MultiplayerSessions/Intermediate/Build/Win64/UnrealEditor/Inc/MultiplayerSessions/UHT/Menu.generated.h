@@ -14,8 +14,8 @@ PRAGMA_DISABLE_DEPRECATION_WARNINGS
 #endif
 #define MULTIPLAYERSESSIONS_Menu_generated_h
 
-#define FID_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_SPARSE_DATA
-#define FID_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_RPC_WRAPPERS \
+#define FID_Demo_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_SPARSE_DATA
+#define FID_Demo_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_RPC_WRAPPERS \
  \
 	DECLARE_FUNCTION(execOnJoinButtonClicked); \
 	DECLARE_FUNCTION(execOnHostButtonClicked); \
@@ -25,7 +25,7 @@ PRAGMA_DISABLE_DEPRECATION_WARNINGS
 	DECLARE_FUNCTION(execMenuSetup);
 
 
-#define FID_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_RPC_WRAPPERS_NO_PURE_DECLS \
+#define FID_Demo_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_RPC_WRAPPERS_NO_PURE_DECLS \
  \
 	DECLARE_FUNCTION(execOnJoinButtonClicked); \
 	DECLARE_FUNCTION(execOnHostButtonClicked); \
@@ -35,8 +35,8 @@ PRAGMA_DISABLE_DEPRECATION_WARNINGS
 	DECLARE_FUNCTION(execMenuSetup);
 
 
-#define FID_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_ACCESSORS
-#define FID_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_INCLASS_NO_PURE_DECLS \
+#define FID_Demo_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_ACCESSORS
+#define FID_Demo_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_INCLASS_NO_PURE_DECLS \
 private: \
 	static void StaticRegisterNativesUMenu(); \
 	friend struct Z_Construct_UClass_UMenu_Statics; \
@@ -45,7 +45,7 @@ public: \
 	DECLARE_SERIALIZER(UMenu)
 
 
-#define FID_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_INCLASS \
+#define FID_Demo_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_INCLASS \
 private: \
 	static void StaticRegisterNativesUMenu(); \
 	friend struct Z_Construct_UClass_UMenu_Statics; \
@@ -54,7 +54,7 @@ public: \
 	DECLARE_SERIALIZER(UMenu)
 
 
-#define FID_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_STANDARD_CONSTRUCTORS \
+#define FID_Demo_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_STANDARD_CONSTRUCTORS \
 	/** Standard constructor, called after all reflected properties have been initialized */ \
 	NO_API UMenu(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get()); \
 	DEFINE_DEFAULT_OBJECT_INITIALIZER_CONSTRUCTOR_CALL(UMenu) \
@@ -68,7 +68,7 @@ public: \
 	NO_API virtual ~UMenu();
 
 
-#define FID_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_ENHANCED_CONSTRUCTORS \
+#define FID_Demo_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_ENHANCED_CONSTRUCTORS \
 	/** Standard constructor, called after all reflected properties have been initialized */ \
 	NO_API UMenu(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get()); \
 private: \
@@ -82,27 +82,27 @@ public: \
 	NO_API virtual ~UMenu();
 
 
-#define FID_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_16_PROLOG
-#define FID_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_GENERATED_BODY_LEGACY \
+#define FID_Demo_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_16_PROLOG
+#define FID_Demo_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_GENERATED_BODY_LEGACY \
 PRAGMA_DISABLE_DEPRECATION_WARNINGS \
 public: \
-	FID_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_SPARSE_DATA \
-	FID_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_RPC_WRAPPERS \
-	FID_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_ACCESSORS \
-	FID_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_INCLASS \
-	FID_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_STANDARD_CONSTRUCTORS \
+	FID_Demo_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_SPARSE_DATA \
+	FID_Demo_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_RPC_WRAPPERS \
+	FID_Demo_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_ACCESSORS \
+	FID_Demo_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_INCLASS \
+	FID_Demo_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_STANDARD_CONSTRUCTORS \
 public: \
 PRAGMA_ENABLE_DEPRECATION_WARNINGS
 
 
-#define FID_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_GENERATED_BODY \
+#define FID_Demo_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_GENERATED_BODY \
 PRAGMA_DISABLE_DEPRECATION_WARNINGS \
 public: \
-	FID_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_SPARSE_DATA \
-	FID_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_RPC_WRAPPERS_NO_PURE_DECLS \
-	FID_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_ACCESSORS \
-	FID_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_INCLASS_NO_PURE_DECLS \
-	FID_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_ENHANCED_CONSTRUCTORS \
+	FID_Demo_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_SPARSE_DATA \
+	FID_Demo_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_RPC_WRAPPERS_NO_PURE_DECLS \
+	FID_Demo_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_ACCESSORS \
+	FID_Demo_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_INCLASS_NO_PURE_DECLS \
+	FID_Demo_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_ENHANCED_CONSTRUCTORS \
 private: \
 PRAGMA_ENABLE_DEPRECATION_WARNINGS
 
@@ -110,7 +110,7 @@ PRAGMA_ENABLE_DEPRECATION_WARNINGS
 template<> MULTIPLAYERSESSIONS_API UClass* StaticClass<class UMenu>();
 
 #undef CURRENT_FILE_ID
-#define CURRENT_FILE_ID FID_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h
+#define CURRENT_FILE_ID FID_Demo_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h
 
 
 PRAGMA_ENABLE_DEPRECATION_WARNINGS
