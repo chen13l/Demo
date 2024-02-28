@@ -369,15 +369,15 @@ void EmptyLinkFunctionForGeneratedCodeMenu() {}
 	UMenu::UMenu(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer) {}
 	DEFINE_VTABLE_PTR_HELPER_CTOR(UMenu);
 	UMenu::~UMenu() {}
-	struct Z_CompiledInDeferFile_FID_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_Statics
+	struct Z_CompiledInDeferFile_FID_Demo_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_Statics
 	{
 		static const FClassRegisterCompiledInInfo ClassInfo[];
 	};
-	const FClassRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_Statics::ClassInfo[] = {
+	const FClassRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Demo_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_Statics::ClassInfo[] = {
 		{ Z_Construct_UClass_UMenu, UMenu::StaticClass, TEXT("UMenu"), &Z_Registration_Info_UClass_UMenu, CONSTRUCT_RELOAD_VERSION_INFO(FClassReloadVersionInfo, sizeof(UMenu), 3545143395U) },
 	};
-	static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_4070815213(TEXT("/Script/MultiplayerSessions"),
-		Z_CompiledInDeferFile_FID_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_Statics::ClassInfo, UE_ARRAY_COUNT(Z_CompiledInDeferFile_FID_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_Statics::ClassInfo),
+	static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Demo_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_4070815213(TEXT("/Script/MultiplayerSessions"),
+		Z_CompiledInDeferFile_FID_Demo_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_Statics::ClassInfo, UE_ARRAY_COUNT(Z_CompiledInDeferFile_FID_Demo_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_Statics::ClassInfo),
 		nullptr, 0,
 		nullptr, 0);
 PRAGMA_ENABLE_DEPRECATION_WARNINGS
