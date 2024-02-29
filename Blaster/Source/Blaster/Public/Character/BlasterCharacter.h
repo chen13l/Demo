@@ -30,6 +30,8 @@ protected:
 	void Look(const FInputActionValue& Value);
 	void EquipButtonPressed();
 
+	void AimOffset(float DeltaSeconds);
+
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 		class USpringArmComponent* CameraBoom;
@@ -70,8 +72,15 @@ private:
 	UFUNCTION(Server,Reliable)
 	void ServerEquipButtonPressed();
 
+	float AO_Yaw;
+	float AO_Pitch;
+	FRotator BaseRotation;
+
 public:
 	void SetOverlappingWeapon(AWeaponBase* Weapon);
 	bool IsEquippedWeapon()const;
 	bool IsAiming()const;
+
+	FORCEINLINE float GetAO_Yaw()const { return AO_Yaw; }
+	FORCEINLINE float GetAO_Picth()const { return AO_Pitch; }
 };

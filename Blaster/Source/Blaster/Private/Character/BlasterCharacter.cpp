@@ -14,6 +14,7 @@
 #include "BlasterComponents/CombatComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 ABlasterCharacter::ABlasterCharacter()
@@ -64,6 +65,37 @@ void ABlasterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	AimOffset(DeltaTime);
+}
+
+void ABlasterCharacter::AimOffset(float DeltaSeconds)
+{
+	if (CombatComponent || CombatComponent->EquippedWeapon) { return; }
+
+	FVector Velocity = GetVelocity();
+	Velocity.Z = 0.f;
+	float Speed = Velocity.Size();
+	bool bIsInAir = GetCharacterMovement()->IsFalling();
+
+	if (Speed == 0.f && !bIsInAir) {
+		FRotator CurrentRotation(0.f, GetBaseAimRotation().Yaw, 0.f);
+		FRotator DeltaRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrentRotation, BaseRotation);
+		AO_Yaw = DeltaRotation.Yaw;
+		bUseControllerRotationYaw = true;
+	}
+	if (Speed != 0.f || bIsInAir) {
+		BaseRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+		AO_Yaw = 0.f;
+		bUseControllerRotationYaw = false;
+	}
+
+	AO_Pitch = GetBaseAimRotation().Pitch;
+	//在数据通过网络发送前会进行压缩,变为无符号即[0,360)
+	if (AO_Pitch > 90.f && !IsLocallyControlled()) {
+		FVector2D InRange(270.f, 360.f);
+		FVector2D OutRange(-90.f, 0.f);
+		AO_Pitch = FMath::GetMappedRangeValueClamped(InRange, OutRange, AO_Pitch);
+	}
 }
 
 void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
