@@ -83,4 +83,6 @@ public:
 
 	FORCEINLINE float GetAO_Yaw()const { return AO_Yaw; }
 	FORCEINLINE float GetAO_Picth()const { return AO_Pitch; }
+
+	AWeaponBase* GetEquippedWeapon()const;
 };
