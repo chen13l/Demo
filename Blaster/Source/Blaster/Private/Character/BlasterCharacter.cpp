@@ -21,8 +21,9 @@ ABlasterCharacter::ABlasterCharacter()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
+	bUseControllerRotationYaw = false;
 	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
+	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(GetMesh());
@@ -42,6 +43,8 @@ ABlasterCharacter::ABlasterCharacter()
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+
+	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 }
 
 void ABlasterCharacter::PostInitializeComponents()
@@ -68,9 +71,9 @@ void ABlasterCharacter::Tick(float DeltaTime)
 	AimOffset(DeltaTime);
 }
 
-void ABlasterCharacter::AimOffset(float DeltaSeconds)
+void ABlasterCharacter::AimOffset(float DeltaTime)
 {
-	if (CombatComponent || CombatComponent->EquippedWeapon) { return; }
+	if (CombatComponent && CombatComponent->EquippedWeapon == nullptr) { return; }
 
 	FVector Velocity = GetVelocity();
 	Velocity.Z = 0.f;
@@ -81,12 +84,18 @@ void ABlasterCharacter::AimOffset(float DeltaSeconds)
 		FRotator CurrentRotation(0.f, GetBaseAimRotation().Yaw, 0.f);
 		FRotator DeltaRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrentRotation, BaseRotation);
 		AO_Yaw = DeltaRotation.Yaw;
+		if (TurningInPlace == ETurningInPlace::ETIP_NotTurning) {
+			InterpYaw = AO_Yaw;
+		}
 		bUseControllerRotationYaw = true;
+
+		TurnInPlace(DeltaTime);
 	}
 	if (Speed != 0.f || bIsInAir) {
 		BaseRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 		AO_Yaw = 0.f;
-		bUseControllerRotationYaw = false;
+		bUseControllerRotationYaw = true;
+		TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 	}
 
 	AO_Pitch = GetBaseAimRotation().Pitch;
@@ -97,6 +106,25 @@ void ABlasterCharacter::AimOffset(float DeltaSeconds)
 		AO_Pitch = FMath::GetMappedRangeValueClamped(InRange, OutRange, AO_Pitch);
 	}
 }
+
+void ABlasterCharacter::TurnInPlace(float DeltaTime)
+{
+	if (AO_Yaw > 90.f) {
+		TurningInPlace = ETurningInPlace::ETIP_Right;
+	}
+	else if (AO_Yaw < -90.f) {
+		TurningInPlace = ETurningInPlace::ETIP_Left;
+	}
+	if (TurningInPlace != ETurningInPlace::ETIP_NotTurning) {
+		InterpYaw = FMath::FInterpTo(InterpYaw, 0.f, DeltaTime, 4.f);
+		AO_Yaw = InterpYaw;
+		if (FMath::Abs(AO_Yaw) < 30.f) {
+			TurningInPlace = ETurningInPlace::ETIP_NotTurning;
+			BaseRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+		}
+	}
+}
+
 
 void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
 {

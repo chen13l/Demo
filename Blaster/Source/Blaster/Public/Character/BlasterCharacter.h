@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
+#include "Blaster/BlasterTypes/TurningInPlace.h"
 #include "BlasterCharacter.generated.h"
 
 class UInputAction;
@@ -30,7 +31,7 @@ protected:
 	void Look(const FInputActionValue& Value);
 	void EquipButtonPressed();
 
-	void AimOffset(float DeltaSeconds);
+	void AimOffset(float DeltaTime);
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
@@ -73,8 +74,12 @@ private:
 	void ServerEquipButtonPressed();
 
 	float AO_Yaw;
+	float InterpYaw;
 	float AO_Pitch;
 	FRotator BaseRotation;
+
+	ETurningInPlace TurningInPlace;
+	void TurnInPlace(float DeltaTime);
 
 public:
 	void SetOverlappingWeapon(AWeaponBase* Weapon);
@@ -85,4 +90,6 @@ public:
 	FORCEINLINE float GetAO_Picth()const { return AO_Pitch; }
 
 	AWeaponBase* GetEquippedWeapon()const;
+
+	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; }
 };

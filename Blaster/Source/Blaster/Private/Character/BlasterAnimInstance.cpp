@@ -29,11 +29,11 @@ void UBlasterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	UCharacterMovementComponent* CharacterMovement = BlasterCharacter->GetCharacterMovement();
 	bIsInAir = CharacterMovement->IsFalling();
 	bIsAccelerating = CharacterMovement->GetCurrentAcceleration().Size() > 0.f ? true : false;
-
 	bWeaponEquipped = BlasterCharacter->IsEquippedWeapon();
 	EquippedWeapon = BlasterCharacter->GetEquippedWeapon();
 	bIsCrouching = CharacterMovement->bWantsToCrouch;
 	bIsAiming = BlasterCharacter->IsAiming();
+	TurningInPlace = BlasterCharacter->GetTurningInPlace();
 
 	//offset Yaw fro Strafing
 	FRotator AimRotation = BlasterCharacter->GetBaseAimRotation();
