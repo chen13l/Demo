@@ -207,7 +207,9 @@ void ABlasterCharacter::Jump()
 	if (bIsCrouched) {
 		UnCrouch();
 	}
-	Super::Jump();
+	else {
+		Super::Jump();
+	}
 }
 
 void ABlasterCharacter::OnPressedCrouch()
