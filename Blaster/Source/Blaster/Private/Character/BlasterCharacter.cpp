@@ -46,6 +46,7 @@ ABlasterCharacter::ABlasterCharacter()
 
 	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 
+	GetCharacterMovement()->RotationRate = FRotator(0.f, 0.f, 850.f);
 	NetUpdateFrequency = 66.f;
 	MinNetUpdateFrequency = 33.f;
 }
@@ -153,7 +154,7 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 			EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ThisClass::Move);
 			EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ThisClass::Look);
-			EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
+			EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ThisClass::Jump);
 			EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 			EnhancedInputComponent->BindAction(EquipAction, ETriggerEvent::Triggered, this, &ThisClass::EquipButtonPressed);
 			EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Triggered, this, &ThisClass::OnPressedCrouch);
@@ -199,6 +200,14 @@ void ABlasterCharacter::EquipButtonPressed()
 			ServerEquipButtonPressed();
 		}
 	}
+}
+
+void ABlasterCharacter::Jump()
+{
+	if (bIsCrouched) {
+		UnCrouch();
+	}
+	Super::Jump();
 }
 
 void ABlasterCharacter::OnPressedCrouch()

@@ -30,6 +30,7 @@ protected:
 	void Move(const FInputActionValue& Vaule);
 	void Look(const FInputActionValue& Value);
 	void EquipButtonPressed();
+	virtual void Jump() override;
 
 	void AimOffset(float DeltaTime);
 
