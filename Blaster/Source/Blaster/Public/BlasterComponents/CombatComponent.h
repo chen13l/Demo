@@ -30,6 +30,11 @@ protected:
 	UFUNCTION()
 		void OnRep_EquippedWeapon();
 
+	void OnFiredButtonPressed(bool bPressed);
+	UFUNCTION(Server, Reliable)
+		void ServerFire();
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastFire();
 private:
 	class ABlasterCharacter* BlasterCharacter;
 
@@ -41,6 +46,7 @@ private:
 
 	float BaseWalkkSpeed;
 	float AimWalkSpeed;
+	bool bWantFire;
 
 public:
 

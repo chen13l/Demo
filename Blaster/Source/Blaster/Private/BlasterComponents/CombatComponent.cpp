@@ -21,7 +21,7 @@ void UCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	
+
 }
 
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -46,7 +46,7 @@ void UCombatComponent::EquipWeapon(AWeaponBase* WeaponToEquip)
 	EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
 	const USkeletalMeshSocket* HandSocket = BlasterCharacter->GetMesh()->GetSocketByName(FName("RightHandSocket"));
 	if (HandSocket) {
-		HandSocket->AttachActor(EquippedWeapon,BlasterCharacter->GetMesh());
+		HandSocket->AttachActor(EquippedWeapon, BlasterCharacter->GetMesh());
 		EquippedWeapon->SetOwner(BlasterCharacter);
 		BlasterCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
 		BlasterCharacter->bUseControllerRotationYaw = true;
@@ -58,6 +58,28 @@ void UCombatComponent::OnRep_EquippedWeapon()
 	if (EquippedWeapon && BlasterCharacter) {
 		BlasterCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
 		BlasterCharacter->bUseControllerRotationYaw = true;
+	}
+}
+
+void UCombatComponent::OnFiredButtonPressed(bool bPressed)
+{
+	bWantFire = bPressed;
+	if (bWantFire) {
+		ServerFire();
+	}
+}
+
+void UCombatComponent::ServerFire_Implementation()
+{
+	MulticastFire();
+}
+
+void UCombatComponent::MulticastFire_Implementation()
+{
+	if (EquippedWeapon == nullptr) { return; }
+	if (BlasterCharacter && bWantFire) {
+		BlasterCharacter->PlayFireMontage(bWantFire);
+		EquippedWeapon->Fire();
 	}
 }
 

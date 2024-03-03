@@ -23,7 +23,7 @@ class BLASTER_API AWeaponBase : public AActor
 public:
 	AWeaponBase();
 	virtual void Tick(float DeltaTime) override;
-	void ShowPickupWidget(bool bShouldShowWidget);
+
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps)const override;
 protected:
 	virtual void BeginPlay() override;
@@ -57,7 +57,12 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "WeaponProperties")
 		class UWidgetComponent* PickupWidget;
 
+	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties")
+		class UAnimationAsset* FireAnimation;
+
 public:
+	void ShowPickupWidget(bool bShouldShowWidget);
 	void SetWeaponState(EWeaponState State);
 	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh()const { return WeaponMesh; }
+	void Fire();
 };

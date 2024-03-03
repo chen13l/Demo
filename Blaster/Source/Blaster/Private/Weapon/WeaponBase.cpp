@@ -6,6 +6,7 @@
 #include "Components/WidgetComponent.h"
 #include "Character/BlasterCharacter.h"
 #include "Net/UnrealNetwork.h"
+#include "Animation/AnimationAsset.h"
 
 AWeaponBase::AWeaponBase()
 {
@@ -115,5 +116,12 @@ void AWeaponBase::SetWeaponState(EWeaponState State)
 		break;
 	default:
 		break;
+	}
+}
+
+void AWeaponBase::Fire()
+{
+	if (WeaponMesh && FireAnimation) {
+		WeaponMesh->PlayAnimation(FireAnimation, false);
 	}
 }

@@ -15,6 +15,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Animation/AnimInstance.h"
 
 // Sets default values
 ABlasterCharacter::ABlasterCharacter()
@@ -160,8 +161,9 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 			EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Triggered, this, &ThisClass::OnPressedCrouch);
 			EnhancedInputComponent->BindAction(AimingAction, ETriggerEvent::Triggered, this, &ThisClass::OnPressedAiming);
 			EnhancedInputComponent->BindAction(AimingAction, ETriggerEvent::Completed, this, &ThisClass::OnReleaseAiming);
+			EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &ThisClass::OnFiredButtonPressed);
+			EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Completed, this, &ThisClass::OnFiredButtonRelease);
 		}
-
 	}
 }
 
@@ -233,6 +235,39 @@ void ABlasterCharacter::OnReleaseAiming()
 {
 	if (CombatComponent) {
 		CombatComponent->SetAiming(false);
+	}
+}
+
+void ABlasterCharacter::OnFiredButtonPressed()
+{
+	if (CombatComponent)
+	{
+		if (GetWorldTimerManager().GetTimerRemaining(FireTimer) > 0.f) { return; }
+		CombatComponent->OnFiredButtonPressed(true);
+		GetWorldTimerManager().SetTimer(FireTimer, this, &ThisClass::OnFiredButtonPressed, 0.25f);
+	}
+}
+
+void ABlasterCharacter::OnFiredButtonRelease()
+{
+	if (CombatComponent)
+	{
+		CombatComponent->OnFiredButtonPressed(false);
+		GetWorldTimerManager().ClearTimer(FireTimer);
+	}
+}
+
+void ABlasterCharacter::PlayFireMontage(bool bAiming)
+{
+	if (CombatComponent == nullptr || CombatComponent->EquippedWeapon == nullptr) { return; }
+	
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && FireWeaponMontage) {
+		AnimInstance->Montage_Play(FireWeaponMontage);
+		FName SectionName;
+		SectionName = bAiming ? FName("RifleAim") : FName("RifleHip");
+		AnimInstance->Montage_JumpToSection(SectionName);
+		//PlayAnimMontage(FireWeaponMontage, 1.f, SectionName);
 	}
 }
 

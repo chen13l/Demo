@@ -24,6 +24,8 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps)const override;
 	virtual void PostInitializeComponents()override;
 
+	void PlayFireMontage(bool bAiming);
+	FTimerHandle FireTimer;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -53,14 +55,18 @@ private:
 		UInputAction* JumpAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MovementBase", meta = (AllowPrivateAccess))
 		UInputAction* CrouchAction;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MovementBase", meta = (AllowPrivateAccess))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MovementBase|Weapon", meta = (AllowPrivateAccess))
 		UInputAction* EquipAction;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MovementBase", meta = (AllowPrivateAccess))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MovementBase|Weapon", meta = (AllowPrivateAccess))
 		UInputAction* AimingAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MovementBase|Weapon", meta = (AllowPrivateAccess))
+		UInputAction* FireAction;
 
 	void OnPressedCrouch();
 	void OnPressedAiming();
 	void OnReleaseAiming();
+	void OnFiredButtonPressed();
+	void OnFiredButtonRelease();
 
 	UPROPERTY(ReplicatedUsing = OnRep_OverlappingWeapon)
 		class AWeaponBase* OverlappingWeapon;
@@ -71,8 +77,8 @@ private:
 	UPROPERTY(VisibleAnywhere)
 		class UCombatComponent* CombatComponent;
 
-	UFUNCTION(Server,Reliable)
-	void ServerEquipButtonPressed();
+	UFUNCTION(Server, Reliable)
+		void ServerEquipButtonPressed();
 
 	float AO_Yaw;
 	float InterpYaw;
@@ -81,6 +87,9 @@ private:
 
 	ETurningInPlace TurningInPlace;
 	void TurnInPlace(float DeltaTime);
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+		class UAnimMontage* FireWeaponMontage;
 
 public:
 	void SetOverlappingWeapon(AWeaponBase* Weapon);
