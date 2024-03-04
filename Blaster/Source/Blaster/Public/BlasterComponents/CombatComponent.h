@@ -8,6 +8,8 @@
 
 class AWeaponBase;
 
+#define TRACE_LENGTH 80000;
+
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class BLASTER_API UCombatComponent : public UActorComponent
 {
@@ -35,6 +37,9 @@ protected:
 		void ServerFire();
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastFire();
+
+	void TraceUnderCrossHair(FHitResult& TraceResult);
+
 private:
 	class ABlasterCharacter* BlasterCharacter;
 
@@ -48,6 +53,7 @@ private:
 	float AimWalkSpeed;
 	bool bWantFire;
 
+	FHitResult TraceResult;
 public:
 
 };
