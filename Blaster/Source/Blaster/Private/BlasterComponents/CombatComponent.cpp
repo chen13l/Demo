@@ -23,14 +23,11 @@ void UCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-
 }
 
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	TraceUnderCrossHair(TraceResult);
 }
 
 void UCombatComponent::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
@@ -68,21 +65,22 @@ void UCombatComponent::OnFiredButtonPressed(bool bPressed)
 {
 	bWantFire = bPressed;
 	if (bWantFire) {
-		ServerFire();
+		TraceUnderCrossHair(TraceResult);
+		ServerFire(TraceResult.ImpactPoint);
 	}
 }
 
-void UCombatComponent::ServerFire_Implementation()
+void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
 {
-	MulticastFire();
+	MulticastFire(TraceHitTarget);
 }
 
-void UCombatComponent::MulticastFire_Implementation()
+void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
 {
 	if (EquippedWeapon == nullptr) { return; }
 	if (BlasterCharacter && bWantFire) {
 		BlasterCharacter->PlayFireMontage(bWantFire);
-		EquippedWeapon->Fire();
+		EquippedWeapon->Fire(TraceHitTarget);
 	}
 }
 
@@ -137,15 +135,6 @@ void UCombatComponent::TraceUnderCrossHair(FHitResult& TraceHitResult)
 
 		if (!TraceHitResult.bBlockingHit) {
 			TraceHitResult.ImpactPoint = End;
-		}
-		else {
-			DrawDebugSphere(
-				GetWorld(),
-				TraceHitResult.ImpactPoint,
-				12.f,
-				12.f,
-				FColor::Red
-			);
 		}
 	}
 }

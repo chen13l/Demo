@@ -64,5 +64,5 @@ public:
 	void ShowPickupWidget(bool bShouldShowWidget);
 	void SetWeaponState(EWeaponState State);
 	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh()const { return WeaponMesh; }
-	void Fire();
+	virtual void Fire(const FVector& HitTarget);
 };

@@ -119,7 +119,7 @@ void AWeaponBase::SetWeaponState(EWeaponState State)
 	}
 }
 
-void AWeaponBase::Fire()
+void AWeaponBase::Fire(const FVector& HitTarget)
 {
 	if (WeaponMesh && FireAnimation) {
 		WeaponMesh->PlayAnimation(FireAnimation, false);

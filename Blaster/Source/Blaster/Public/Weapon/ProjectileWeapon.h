@@ -7,11 +7,16 @@
 #include "ProjectileWeapon.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class BLASTER_API AProjectileWeapon : public AWeaponBase
 {
 	GENERATED_BODY()
-	
+public:
+	virtual void Fire(const FVector& HitTarget)override;
+
+private:
+	UPROPERTY(EditDefaultsOnly)
+		TSubclassOf<class AProjectile> ProjectileClass;
 };
