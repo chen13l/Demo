@@ -60,6 +60,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties")
 		class UAnimationAsset* FireAnimation;
 
+	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties")
+		TSubclassOf<class ACasing> CasingClass;
 public:
 	void ShowPickupWidget(bool bShouldShowWidget);
 	void SetWeaponState(EWeaponState State);
