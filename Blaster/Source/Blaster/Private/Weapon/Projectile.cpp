@@ -67,6 +67,7 @@ void AProjectile::Tick(float DeltaTime)
 
 void AProjectile::Destroyed()
 {
+	Super::Destroy();
 	if (ImpactParticle) {
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticle, GetActorTransform());
 	}

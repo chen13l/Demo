@@ -26,7 +26,11 @@ void ACasing::BeginPlay()
 	CasingMesh->AddImpulse(GetActorForwardVector() * ShellEjectionImpulse);
 }
 
-void ACasing::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& HitResult)
+void ACasing::OnHit(UPrimitiveComponent* HitComp,
+	AActor* OtherActor,
+	UPrimitiveComponent* OtherComp,
+	FVector NormalImpulse,
+	const FHitResult& HitResult)
 {
 	if (ShellSound) {
 		UGameplayStatics::PlaySoundAtLocation(this, ShellSound, GetActorLocation());

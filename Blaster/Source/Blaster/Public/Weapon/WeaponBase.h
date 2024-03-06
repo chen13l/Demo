@@ -62,7 +62,19 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties")
 		TSubclassOf<class ACasing> CasingClass;
+
 public:
+	UPROPERTY(EditDefaultsOnly, Category = "Crosshairs")
+		class UTexture2D* CrosshairsCenter;
+	UPROPERTY(EditDefaultsOnly, Category = "Crosshairs")
+		UTexture2D* CrosshairsLeft;
+	UPROPERTY(EditDefaultsOnly, Category = "Crosshairs")
+		UTexture2D* CrosshairsRight;
+	UPROPERTY(EditDefaultsOnly, Category = "Crosshairs")
+		UTexture2D* CrosshairsTop;
+	UPROPERTY(EditDefaultsOnly, Category = "Crosshairs")
+		UTexture2D* CrosshairsBottom;
+
 	void ShowPickupWidget(bool bShouldShowWidget);
 	void SetWeaponState(EWeaponState State);
 	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh()const { return WeaponMesh; }

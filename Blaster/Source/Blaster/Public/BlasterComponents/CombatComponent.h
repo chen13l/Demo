@@ -42,6 +42,8 @@ protected:
 
 private:
 	class ABlasterCharacter* BlasterCharacter;
+	class ABlasterPlayerController* BlasterController;
+	class ABlasterHUD* BlasterHUD;
 
 	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon)
 		AWeaponBase* EquippedWeapon;
@@ -53,8 +55,10 @@ private:
 	float AimWalkSpeed;
 	bool bWantFire;
 
-	FHitResult TraceResult;
+	//HUD and Crosshair
+	float CrosshairVelocityFactor;
+	float CrosshairInAirFactor;
 
 public:
-
+	void SetHUDCrosshair(float DeltaTime);
 };

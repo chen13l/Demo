@@ -9,6 +9,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
+#include "PlayerController/BlasterPlayerController.h"
+#include "HUD/BlasterHUD.h"
 
 UCombatComponent::UCombatComponent()
 {
@@ -23,12 +25,62 @@ void UCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (BlasterCharacter) {
+		BlasterCharacter->GetCharacterMovement()->MaxWalkSpeed = BaseWalkkSpeed;
+	}
 }
 
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	SetHUDCrosshair(DeltaTime);
 }
+
+void UCombatComponent::SetHUDCrosshair(float DeltaTime)
+{
+
+	if (BlasterCharacter == nullptr || BlasterCharacter->Controller == nullptr) { return; }
+	BlasterController = BlasterController == nullptr ? Cast<ABlasterPlayerController>(BlasterCharacter->Controller) : BlasterController;
+	if (BlasterController) {
+		BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(BlasterController->GetHUD()) : BlasterHUD;
+		if (BlasterHUD) {
+			FHUDPackage HUDPackage;
+			if (EquippedWeapon) {
+				HUDPackage.CrosshairCenter = EquippedWeapon->CrosshairsCenter;
+				HUDPackage.CrosshairTop = EquippedWeapon->CrosshairsTop;
+				HUDPackage.CrosshairBottom = EquippedWeapon->CrosshairsBottom;
+				HUDPackage.CrosshairLeft = EquippedWeapon->CrosshairsLeft;
+				HUDPackage.CrosshairRight = EquippedWeapon->CrosshairsRight;
+			}
+			else {
+				HUDPackage.CrosshairCenter = nullptr;
+				HUDPackage.CrosshairTop = nullptr;
+				HUDPackage.CrosshairBottom = nullptr;
+				HUDPackage.CrosshairLeft = nullptr;
+				HUDPackage.CrosshairRight = nullptr;
+			}
+			//speed mapped to [0,1]
+			FVector2D WalkSpeedRange(0.f, BlasterCharacter->GetCharacterMovement()->MaxWalkSpeed);
+			FVector2D VelocityMultiplierRange(0.f, 1.f);
+			FVector Velocity = BlasterCharacter->GetVelocity();
+			Velocity.Z = 0.f;
+			CrosshairVelocityFactor = FMath::GetMappedRangeValueClamped(WalkSpeedRange, VelocityMultiplierRange, Velocity.Size());
+
+			if (BlasterCharacter->GetCharacterMovement()->IsFalling()) {
+				CrosshairInAirFactor = FMath::FInterpTo(CrosshairInAirFactor, 2.f, DeltaTime, 2.f);
+			}
+			else {
+				CrosshairInAirFactor = FMath::FInterpTo(CrosshairInAirFactor, 0.f, DeltaTime, 30.f);
+			}
+
+			HUDPackage.CrosshairSpread = CrosshairVelocityFactor + CrosshairInAirFactor;
+
+			BlasterHUD->SetHUDPackage(HUDPackage);
+		}
+	}
+}
+
 
 void UCombatComponent::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -65,6 +117,7 @@ void UCombatComponent::OnFiredButtonPressed(bool bPressed)
 {
 	bWantFire = bPressed;
 	if (bWantFire) {
+		FHitResult TraceResult;
 		TraceUnderCrossHair(TraceResult);
 		ServerFire(TraceResult.ImpactPoint);
 	}
@@ -112,19 +165,19 @@ void UCombatComponent::TraceUnderCrossHair(FHitResult& TraceHitResult)
 	if (GEngine && GEngine->GameViewport) {
 		GEngine->GameViewport->GetViewportSize(ViewportSize);
 	}
-	FVector2D CorssHair(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
-	FVector CrossHairWorldPosition;
-	FVector CrossHairWorldDirection;
+	FVector2D Corsshair(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
+	FVector CrosshairWorldPosition;
+	FVector CrosshairWorldDirection;
 	bool bScreenToWorld = UGameplayStatics::DeprojectScreenToWorld(
 		UGameplayStatics::GetPlayerController(this, 0),
-		CorssHair,
-		CrossHairWorldPosition,
-		CrossHairWorldDirection
+		Corsshair,
+		CrosshairWorldPosition,
+		CrosshairWorldDirection
 	);
 
 	if (bScreenToWorld) {
-		FVector Start = CrossHairWorldPosition;
-		FVector End = Start + CrossHairWorldDirection * TRACE_LENGTH;
+		FVector Start = CrosshairWorldPosition;
+		FVector End = Start + CrosshairWorldDirection * TRACE_LENGTH;
 
 		GetWorld()->LineTraceSingleByChannel(
 			TraceHitResult,
@@ -138,3 +191,4 @@ void UCombatComponent::TraceUnderCrossHair(FHitResult& TraceHitResult)
 		}
 	}
 }
+
