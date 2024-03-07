@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
 #include "Blaster/BlasterTypes/TurningInPlace.h"
+#include "Camera/CameraComponent.h"
 #include "BlasterCharacter.generated.h"
 
 class UInputAction;
@@ -40,7 +41,7 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 		class USpringArmComponent* CameraBoom;
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
-		class UCameraComponent* FollowCamera;
+		UCameraComponent* FollowCamera;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess))
 		class UWidgetComponent* OverheadWidget;
@@ -102,4 +103,8 @@ public:
 	AWeaponBase* GetEquippedWeapon()const;
 
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; }
+
+	FVector GetHitTarget()const;
+
+	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 };

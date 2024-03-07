@@ -5,7 +5,6 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/MovementComponent.h"
 #include "GameFramework/Controller.h"
-#include "Camera/CameraComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "Components/WidgetComponent.h"
@@ -28,7 +27,7 @@ ABlasterCharacter::ABlasterCharacter()
 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(GetMesh());
-	CameraBoom->TargetArmLength = 600.f;
+	CameraBoom->TargetArmLength = 350.f;
 	CameraBoom->bUsePawnControlRotation = true;
 	CameraBoom->SetRelativeRotation(FRotator(-45.f, 0.f, 0.f));
 
@@ -313,4 +312,10 @@ bool ABlasterCharacter::IsAiming() const
 AWeaponBase* ABlasterCharacter::GetEquippedWeapon() const
 {
 	return CombatComponent == nullptr ? nullptr : CombatComponent->EquippedWeapon;
+}
+
+FVector ABlasterCharacter::GetHitTarget() const
+{
+	if(CombatComponent==nullptr)return FVector();
+	return CombatComponent->HitTarget;
 }

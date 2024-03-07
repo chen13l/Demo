@@ -63,6 +63,11 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties")
 		TSubclassOf<class ACasing> CasingClass;
 
+	//Zoomed FOV when Aiming
+	UPROPERTY(EditDefaultsOnly)
+		float ZoomedFOV = 30.f;
+	UPROPERTY(EditDefaultsOnly)
+		float ZoomInterpSpeed = 20.f;
 public:
 	UPROPERTY(EditDefaultsOnly, Category = "Crosshairs")
 		class UTexture2D* CrosshairsCenter;
@@ -79,4 +84,6 @@ public:
 	void SetWeaponState(EWeaponState State);
 	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh()const { return WeaponMesh; }
 	virtual void Fire(const FVector& HitTarget);
+	FORCEINLINE float GetZoomedFOV()const { return ZoomedFOV; }
+	FORCEINLINE float GetZoomInterpSpeed() const { return ZoomInterpSpeed; }
 };
