@@ -15,7 +15,7 @@ void UBlasterAnimInstance::NativeInitializeAnimation()
 }
 
 
-void UBlasterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
+void UBlasterAnimInstance::NativeUpdateAnimation(float DeltaTime)
 {
 	if (BlasterCharacter == nullptr) {
 		BlasterCharacter = Cast<ABlasterCharacter>(TryGetPawnOwner());
@@ -40,15 +40,15 @@ void UBlasterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	FRotator MoveRotation = UKismetMathLibrary::MakeRotFromX(Velocity);
 	FRotator TemRot = UKismetMathLibrary::NormalizedDeltaRotator(MoveRotation, AimRotation);
 	//使smooth time不使用bs(-180<->0<->180)的转换，而是-180<->180,避免-180到180的转换问题
-	DeltaRotation = FMath::RInterpTo(DeltaRotation, TemRot, DeltaSeconds, 6.f);
+	DeltaRotation = FMath::RInterpTo(DeltaRotation, TemRot, DeltaTime, 6.f);
 	YawOffset = DeltaRotation.Yaw;
 
 	CharacterRotationLastFrame = CharacterRotation;
 	CharacterRotation = BlasterCharacter->GetActorRotation();
 	const FRotator Delta = UKismetMathLibrary::NormalizedDeltaRotator(CharacterRotation, CharacterRotationLastFrame);
 	//make small value Lean bigger & have frame rate independency
-	const float Target = Delta.Yaw / DeltaSeconds;
-	const float Interp = FMath::FInterpTo(Lean, Target, DeltaSeconds, 6.f);
+	const float Target = Delta.Yaw / DeltaTime;
+	const float Interp = FMath::FInterpTo(Lean, Target, DeltaTime, 6.f);
 	Lean = FMath::Clamp(Interp, -90.f, 90.f);
 
 	AO_Yaw = BlasterCharacter->GetAO_Yaw();
@@ -67,7 +67,8 @@ void UBlasterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 			FTransform RightHandTransform = BlasterCharacter->GetMesh()->GetSocketTransform(FName("hand_r"), ERelativeTransformSpace::RTS_World);
 			FVector RightVector = RightHandTransform.GetLocation();
-			RightHandRotation = UKismetMathLibrary::FindLookAtRotation(RightVector, RightVector + (RightVector - BlasterCharacter->GetHitTarget()));
+			FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(RightVector, RightVector + (RightVector - BlasterCharacter->GetHitTarget()));
+			RightHandRotation = FMath::RInterpTo(RightHandRotation, LookAtRotation, DeltaTime, 30.f);
 			
 		}
 	}

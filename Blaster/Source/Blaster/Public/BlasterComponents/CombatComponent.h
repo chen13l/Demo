@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "HUD/BlasterHUD.h"
 #include "CombatComponent.generated.h"
 
 class AWeaponBase;
@@ -62,6 +63,8 @@ private:
 	float CrosshairShootingFactor;
 
 	FVector HitTarget;
+
+	FHUDPackage HUDPackage;
 
 	//Aiming and FOV
 

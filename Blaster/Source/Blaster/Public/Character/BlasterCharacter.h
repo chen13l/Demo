@@ -7,13 +7,14 @@
 #include "InputActionValue.h"
 #include "Blaster/BlasterTypes/TurningInPlace.h"
 #include "Camera/CameraComponent.h"
+#include "Interfaces/CrosshairsInterface.h"
 #include "BlasterCharacter.generated.h"
 
 class UInputAction;
 class UInputMappingContext;
 
 UCLASS()
-class BLASTER_API ABlasterCharacter : public ACharacter
+class BLASTER_API ABlasterCharacter : public ACharacter, public ICrosshairsInterface
 {
 	GENERATED_BODY()
 
