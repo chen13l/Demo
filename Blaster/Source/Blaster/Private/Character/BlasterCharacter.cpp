@@ -73,6 +73,24 @@ void ABlasterCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	AimOffset(DeltaTime);
+	HideCharacterWhenTooClose();
+}
+
+void ABlasterCharacter::HideCharacterWhenTooClose()
+{
+	if (!IsLocallyControlled() || FollowCamera == nullptr) { return; }
+	if ((FollowCamera->GetComponentLocation() - GetActorLocation()).Size() < CameraThreshold) {
+		GetMesh()->SetVisibility(false);
+		if (CombatComponent && CombatComponent->EquippedWeapon && CombatComponent->EquippedWeapon->GetWeaponMesh()) {
+			CombatComponent->EquippedWeapon->GetWeaponMesh()->bOwnerNoSee = true;
+		}
+	}
+	else {
+		GetMesh()->SetVisibility(true);
+		if (CombatComponent && CombatComponent->EquippedWeapon && CombatComponent->EquippedWeapon->GetWeaponMesh()) {
+			CombatComponent->EquippedWeapon->GetWeaponMesh()->bOwnerNoSee = false;
+		}
+	}
 }
 
 void ABlasterCharacter::AimOffset(float DeltaTime)
@@ -259,7 +277,7 @@ void ABlasterCharacter::OnFiredButtonRelease()
 void ABlasterCharacter::PlayFireMontage(bool bAiming)
 {
 	if (CombatComponent == nullptr || CombatComponent->EquippedWeapon == nullptr) { return; }
-	
+
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && FireWeaponMontage) {
 		AnimInstance->Montage_Play(FireWeaponMontage);
@@ -316,6 +334,6 @@ AWeaponBase* ABlasterCharacter::GetEquippedWeapon() const
 
 FVector ABlasterCharacter::GetHitTarget() const
 {
-	if(CombatComponent==nullptr)return FVector();
+	if (CombatComponent == nullptr)return FVector();
 	return CombatComponent->HitTarget;
 }
