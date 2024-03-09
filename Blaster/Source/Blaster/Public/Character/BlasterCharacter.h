@@ -26,8 +26,6 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps)const override;
 	virtual void PostInitializeComponents()override;
 
-	void PlayFireMontage(bool bAiming);
-	FTimerHandle FireTimer;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -90,8 +88,13 @@ private:
 	ETurningInPlace TurningInPlace;
 	void TurnInPlace(float DeltaTime);
 
+	FTimerHandle FireTimer;
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 		class UAnimMontage* FireWeaponMontage;
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+		UAnimMontage* HitReactMontage;
+
+	void PlayHitReactMontage();
 
 	void HideCharacterWhenTooClose();
 	UPROPERTY(EditDefaultsOnly)
@@ -105,9 +108,13 @@ public:
 	FORCEINLINE float GetAO_Yaw()const { return AO_Yaw; }
 	FORCEINLINE float GetAO_Picth()const { return AO_Pitch; }
 
-	AWeaponBase* GetEquippedWeapon()const;
-
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; }
+
+	void PlayFireMontage(bool bAiming);
+	UFUNCTION(NetMulticast, Unreliable)
+		void MulticastPlayHitReact();
+
+	AWeaponBase* GetEquippedWeapon()const;
 
 	FVector GetHitTarget()const;
 

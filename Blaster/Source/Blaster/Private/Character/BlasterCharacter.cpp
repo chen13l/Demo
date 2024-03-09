@@ -15,6 +15,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Animation/AnimInstance.h"
+#include "Blaster/Blaster.h"
 
 // Sets default values
 ABlasterCharacter::ABlasterCharacter()
@@ -42,6 +43,7 @@ ABlasterCharacter::ABlasterCharacter()
 	CombatComponent->SetIsReplicated(true);
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+	GetMesh()->SetCollisionObjectType(ECC_SkeletalMesh);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
 	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
@@ -283,6 +285,24 @@ void ABlasterCharacter::PlayFireMontage(bool bAiming)
 		AnimInstance->Montage_Play(FireWeaponMontage);
 		FName SectionName;
 		SectionName = bAiming ? FName("RifleAim") : FName("RifleHip");
+		AnimInstance->Montage_JumpToSection(SectionName);
+		//PlayAnimMontage(FireWeaponMontage, 1.f, SectionName);
+	}
+}
+
+void ABlasterCharacter::MulticastPlayHitReact_Implementation()
+{
+	PlayHitReactMontage();
+}
+
+void ABlasterCharacter::PlayHitReactMontage()
+{
+	if (CombatComponent == nullptr || CombatComponent->EquippedWeapon == nullptr) { return; }
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && HitReactMontage) {
+		AnimInstance->Montage_Play(HitReactMontage);
+		FName SectionName("FromFront");
 		AnimInstance->Montage_JumpToSection(SectionName);
 		//PlayAnimMontage(FireWeaponMontage, 1.f, SectionName);
 	}

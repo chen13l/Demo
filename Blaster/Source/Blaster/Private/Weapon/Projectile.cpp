@@ -8,6 +8,8 @@
 #include "Particles/ParticleSystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
+#include "Character/BlasterCharacter.h"
+#include "Blaster/Blaster.h"
 
 AProjectile::AProjectile()
 {
@@ -21,6 +23,7 @@ AProjectile::AProjectile()
 	CollisionSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	CollisionSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
 	CollisionSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
+	CollisionSphere->SetCollisionResponseToChannel(ECC_SkeletalMesh, ECollisionResponse::ECR_Block);
 
 	CollisionSphere->SetSphereRadius(5.f);
 	CollisionSphere->SetCollisionProfileName("Ammo");
@@ -56,6 +59,10 @@ void AProjectile::BeginPlay()
 
 void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalInpulse, const FHitResult& HitResult)
 {
+	ABlasterCharacter* BlasterCharacter = Cast<ABlasterCharacter>(OtherActor);
+	if (BlasterCharacter) {
+		BlasterCharacter->MulticastPlayHitReact();
+	}
 	Destroyed();
 }
 
