@@ -16,13 +16,14 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Animation/AnimInstance.h"
 #include "Blaster/Blaster.h"
+#include "PlayerController/BlasterPlayerController.h"
 
 // Sets default values
 ABlasterCharacter::ABlasterCharacter()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	bUseControllerRotationYaw = false;
+	bUseControllerRotationYaw = true;
 	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
@@ -67,6 +68,11 @@ void ABlasterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	UpdateHUDHealth();
+
+	if (HasAuthority()) {
+		OnTakeAnyDamage.AddDynamic(this, &ThisClass::ReceiveDamage);
+	}
 }
 
 // Called every frame
@@ -210,6 +216,7 @@ void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<class FLifetimePropert
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(ABlasterCharacter, OverlappingWeapon, COND_OwnerOnly);
+	DOREPLIFETIME(ABlasterCharacter, Health);
 }
 
 
@@ -314,20 +321,17 @@ void ABlasterCharacter::OnReleaseAiming()
 
 void ABlasterCharacter::OnFiredButtonPressed()
 {
-	if (CombatComponent)
+	if (CombatComponent && CombatComponent->EquippedWeapon)
 	{
-		if (GetWorldTimerManager().GetTimerRemaining(FireTimer) > 0.f) { return; }
 		CombatComponent->OnFiredButtonPressed(true);
-		GetWorldTimerManager().SetTimer(FireTimer, this, &ThisClass::OnFiredButtonPressed, 0.25f);
 	}
 }
 
 void ABlasterCharacter::OnFiredButtonRelease()
 {
-	if (CombatComponent)
+	if (CombatComponent && CombatComponent->EquippedWeapon)
 	{
 		CombatComponent->OnFiredButtonPressed(false);
-		GetWorldTimerManager().ClearTimer(FireTimer);
 	}
 }
 
@@ -343,11 +347,6 @@ void ABlasterCharacter::PlayFireMontage(bool bAiming)
 		AnimInstance->Montage_JumpToSection(SectionName);
 		//PlayAnimMontage(FireWeaponMontage, 1.f, SectionName);
 	}
-}
-
-void ABlasterCharacter::MulticastPlayHitReact_Implementation()
-{
-	PlayHitReactMontage();
 }
 
 void ABlasterCharacter::PlayHitReactMontage()
@@ -411,4 +410,25 @@ FVector ABlasterCharacter::GetHitTarget() const
 {
 	if (CombatComponent == nullptr)return FVector();
 	return CombatComponent->HitTarget;
+}
+
+void ABlasterCharacter::OnRep_Health()
+{
+	UpdateHUDHealth();
+	PlayHitReactMontage();
+}
+
+void ABlasterCharacter::UpdateHUDHealth()
+{
+	BlasterPlayerController = BlasterPlayerController == nullptr ? Cast<ABlasterPlayerController>(Controller) : BlasterPlayerController;
+	if (BlasterPlayerController) {
+		BlasterPlayerController->SetHealthPercent(Health, MaxHealth);
+	}
+}
+
+void ABlasterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatorController, AActor* DamageCauser)
+{
+	Health = FMath::Clamp(Health - Damage, 0.f, MaxHealth);
+	UpdateHUDHealth();
+	PlayHitReactMontage();
 }

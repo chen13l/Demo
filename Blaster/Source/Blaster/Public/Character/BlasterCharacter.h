@@ -30,23 +30,42 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	/*
+		Input
+	*/
 	void Move(const FInputActionValue& Vaule);
 	void Look(const FInputActionValue& Value);
 	void EquipButtonPressed();
 	virtual void Jump() override;
+	/*
+		Anim
+	*/
 	void AimOffset(float DeltaTime);
 	void CaculateAO_Pitch();
 	void SimProxiesTurn();
 
 private:
+	/*
+		Camera
+	*/
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 		class USpringArmComponent* CameraBoom;
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 		UCameraComponent* FollowCamera;
 
+	void HideCharacterWhenTooClose();
+	UPROPERTY(EditDefaultsOnly)
+		float CameraThreshold = 200.f;
+
+	/*
+		Widget
+	*/
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess))
 		class UWidgetComponent* OverheadWidget;
-
+	/*
+		Input
+	*/
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MovementBase", meta = (AllowPrivateAccess))
 		UInputMappingContext* IMC_MovementBase;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MovementBase", meta = (AllowPrivateAccess))
@@ -70,6 +89,9 @@ private:
 	void OnFiredButtonPressed();
 	void OnFiredButtonRelease();
 
+	/*
+		Combat
+	*/
 	UPROPERTY(ReplicatedUsing = OnRep_OverlappingWeapon)
 		class AWeaponBase* OverlappingWeapon;
 
@@ -82,6 +104,9 @@ private:
 	UFUNCTION(Server, Reliable)
 		void ServerEquipButtonPressed();
 
+	/*
+		Anim
+	*/
 	float AO_Yaw;
 	float InterpYaw;
 	float AO_Pitch;
@@ -97,7 +122,6 @@ private:
 	float TurnThreshold = 0.5f;
 	float CaculateSpeed();
 
-	FTimerHandle FireTimer;
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 		class UAnimMontage* FireWeaponMontage;
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
@@ -105,15 +129,38 @@ private:
 
 	void PlayHitReactMontage();
 
-	void HideCharacterWhenTooClose();
-	UPROPERTY(EditDefaultsOnly)
-		float CameraThreshold = 200.f;
+	/*
+		Character Stats
+	*/
+	class ABlasterPlayerController* BlasterPlayerController;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Character Stats")
+		float MaxHealth = 100.f;
+	UPROPERTY(ReplicatedUsing = OnRep_Health, VisibleAnywhere, Category = "Character Stats")
+		float Health = 100.f;
+	UFUNCTION()
+		void OnRep_Health();
+
+	UFUNCTION()
+	void ReceiveDamage(
+		AActor* DamagedActor,
+		float Damage,
+		const UDamageType* DamageType,
+		class AController* InstigatorController,
+		AActor* DamageCauser);
+
+	void UpdateHUDHealth();
 
 public:
+	/*
+		Combat
+	*/
 	void SetOverlappingWeapon(AWeaponBase* Weapon);
 	bool IsEquippedWeapon()const;
 	bool IsAiming()const;
-
+	/*
+		Anim
+	*/
 	FORCEINLINE float GetAO_Yaw()const { return AO_Yaw; }
 	FORCEINLINE float GetAO_Picth()const { return AO_Pitch; }
 
@@ -121,12 +168,14 @@ public:
 	FORCEINLINE bool GetShouldRotateRootBone()const { return bShouldRotateRootBone; }
 
 	void PlayFireMontage(bool bAiming);
-	UFUNCTION(NetMulticast, Unreliable)
-		void MulticastPlayHitReact();
-
+	/*
+		Combat
+	*/
 	AWeaponBase* GetEquippedWeapon()const;
 
 	FVector GetHitTarget()const;
-
+	/*
+		Camera
+	*/
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 };

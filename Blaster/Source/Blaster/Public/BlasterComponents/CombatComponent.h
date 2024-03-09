@@ -23,17 +23,17 @@ public:
 	friend class ABlasterCharacter;
 protected:
 	virtual void BeginPlay() override;
+
 	void EquipWeapon(AWeaponBase* WeaponToEquip);
-
-	void SetAiming(bool bAiming);
-
-	UFUNCTION(Server, Reliable)
-		void ServerSetAiming(bool bAiming);
-
 	UFUNCTION()
 		void OnRep_EquippedWeapon();
 
+	void SetAiming(bool bAiming);
+	UFUNCTION(Server, Reliable)
+		void ServerSetAiming(bool bAiming);
+
 	void OnFiredButtonPressed(bool bPressed);
+	void Fire();
 	UFUNCTION(Server, Reliable)
 		void ServerFire(const FVector_NetQuantize& TraceHitTarget);
 	UFUNCTION(NetMulticast, Reliable)
@@ -44,30 +44,45 @@ protected:
 private:
 	class ABlasterCharacter* BlasterCharacter;
 	class ABlasterPlayerController* BlasterController;
-	class ABlasterHUD* BlasterHUD;
+	/*
+		Movement
+	*/
+	float BaseWalkkSpeed;
+	float AimWalkSpeed;
 
+	/*
+		Combat
+	*/
 	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon)
 		AWeaponBase* EquippedWeapon;
 
 	UPROPERTY(Replicated)
 		bool bIsAiming;
 
-	float BaseWalkkSpeed;
-	float AimWalkSpeed;
-	bool bWantFire;
+	FVector HitTarget;
 
-	//HUD and Crosshair
+	bool bWantFire;
+	//for fire mode
+	bool bCanFire = true;
+	FTimerHandle FireTimer;
+	void StartFireTimer();
+	void EndFireTimer();
+
+	/*
+		HUDand Crosshair
+	*/
+	class ABlasterHUD* BlasterHUD;
+
 	float CrosshairVelocityFactor;
 	float CrosshairInAirFactor;
 	float CrosshairAimFactor;
 	float CrosshairShootingFactor;
 
-	FVector HitTarget;
-
 	FHUDPackage HUDPackage;
 
-	//Aiming and FOV
-
+	/*
+	* Aimingand FOV
+	*/
 	//FOV when not aiming; set to the camera's base FOV in Beginplay
 	float DefaultFOV;
 	float CurrentFOV;
@@ -81,5 +96,5 @@ private:
 
 public:
 	void SetHUDCrosshair(float DeltaTime);
-	
+
 };

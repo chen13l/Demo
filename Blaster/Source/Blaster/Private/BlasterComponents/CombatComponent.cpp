@@ -11,6 +11,7 @@
 #include "DrawDebugHelpers.h"
 #include "PlayerController/BlasterPlayerController.h"
 #include "Camera/CameraComponent.h"
+#include "TimerManager.h"
 
 UCombatComponent::UCombatComponent()
 {
@@ -157,12 +158,40 @@ void UCombatComponent::OnFiredButtonPressed(bool bPressed)
 {
 	bWantFire = bPressed;
 	if (bWantFire) {
-		FHitResult TraceResult;
-		TraceUnderCrossHair(TraceResult);
-		ServerFire(TraceResult.ImpactPoint);
+		Fire();
+	}
+}
+
+void UCombatComponent::Fire()
+{
+	if (bCanFire) {
+		bCanFire = false;
+		ServerFire(HitTarget);
 		if (EquippedWeapon) {
-			CrosshairShootingFactor = 0.5f;
+			CrosshairShootingFactor = 0.75f;
 		}
+		StartFireTimer();
+	}
+}
+
+void UCombatComponent::StartFireTimer()
+{
+	if (EquippedWeapon == nullptr || BlasterCharacter == nullptr) { return; }
+	const float FireRate = EquippedWeapon->GetFireRate();
+	BlasterCharacter->GetWorldTimerManager().SetTimer(
+		FireTimer,
+		this,
+		&ThisClass::EndFireTimer,
+		FireRate
+	);
+}
+
+void UCombatComponent::EndFireTimer()
+{
+	if (EquippedWeapon == nullptr) { return; }
+	bCanFire = true;
+	if (bWantFire && EquippedWeapon->GetFireMode()) {
+		Fire();
 	}
 }
 
@@ -246,4 +275,6 @@ void UCombatComponent::TraceUnderCrossHair(FHitResult& TraceHitResult)
 		}
 	}
 }
+
+
 

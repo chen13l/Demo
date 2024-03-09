@@ -25,12 +25,25 @@ class BLASTER_API ABlasterHUD : public AHUD
 	GENERATED_BODY()
 public:
 	virtual void DrawHUD() override;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Player Stats")
+	TSubclassOf<class UUserWidget> CharacterOverlayClass;
+
+	class UCharacterOverlay* CharacterOverlay;
+
 private:
 	FHUDPackage HUDPackage;
 	void DrawCrosshairs(UTexture2D* Tuxture, FVector2D ViewportCenter, FVector2D CrosshairSpread, FLinearColor CrosshairColor);
 
 	UPROPERTY(EditDefaultsOnly)
 		float CrosshairSpreadMax = 16;
+
+protected:
+	virtual void BeginPlay() override;
+	void AddCharacterOverlay();
+
 public:
 	FORCEINLINE void SetHUDPackage(const FHUDPackage& Package) { HUDPackage = Package; }
+
+
 };

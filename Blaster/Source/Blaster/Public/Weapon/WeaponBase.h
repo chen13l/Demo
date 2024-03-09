@@ -68,6 +68,12 @@ private:
 		float ZoomedFOV = 30.f;
 	UPROPERTY(EditDefaultsOnly)
 		float ZoomInterpSpeed = 20.f;
+
+	UPROPERTY(EditDefaultsOnly)
+		float FireRate = 0.15f;
+	UPROPERTY(EditDefaultsOnly)
+		bool bIsAutomatic = true;
+
 public:
 	UPROPERTY(EditDefaultsOnly, Category = "Crosshairs")
 		class UTexture2D* CrosshairsCenter;
@@ -86,4 +92,6 @@ public:
 	virtual void Fire(const FVector& HitTarget);
 	FORCEINLINE float GetZoomedFOV()const { return ZoomedFOV; }
 	FORCEINLINE float GetZoomInterpSpeed() const { return ZoomInterpSpeed; }
+	FORCEINLINE float GetFireRate() const { return FireRate; }
+	FORCEINLINE bool GetFireMode() const { return bIsAutomatic; }
 };

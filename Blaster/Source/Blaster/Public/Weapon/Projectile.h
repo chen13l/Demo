@@ -21,7 +21,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	UFUNCTION()
-		void OnHit(
+		virtual void OnHit(
 			UPrimitiveComponent* HitComp,
 			AActor* OtherActor,
 			UPrimitiveComponent* OtherComp,
@@ -33,6 +33,9 @@ protected:
 		UParticleSystem* ImpactParticle;
 	UPROPERTY(EditDefaultsOnly)
 		class USoundCue* ImpactSound;
+
+	UPROPERTY(EditDefaultsOnly)
+		float Damage = 20.f;
 
 private:
 	UPROPERTY(EditDefaultsOnly)
@@ -46,6 +49,7 @@ private:
 
 	class UParticleSystemComponent* TracerComponent;
 
+	
 public:
 
 
