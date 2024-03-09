@@ -19,17 +19,13 @@ AProjectile::AProjectile()
 	CollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionSphere"));
 	SetRootComponent(CollisionSphere);
 	CollisionSphere->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
-	CollisionSphere->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	CollisionSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	CollisionSphere->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	CollisionSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
 	CollisionSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
 	CollisionSphere->SetCollisionResponseToChannel(ECC_SkeletalMesh, ECollisionResponse::ECR_Block);
 
 	CollisionSphere->SetSphereRadius(5.f);
-	CollisionSphere->SetCollisionProfileName("Ammo");
-	//simulate generate hit event
-	CollisionSphere->SetSimulatePhysics(true);
-	CollisionSphere->SetNotifyRigidBodyCollision(true);
 
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
