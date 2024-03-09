@@ -26,6 +26,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps)const override;
 	virtual void PostInitializeComponents()override;
 
+	virtual void OnRep_ReplicatedMovement()override;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -33,8 +34,9 @@ protected:
 	void Look(const FInputActionValue& Value);
 	void EquipButtonPressed();
 	virtual void Jump() override;
-
 	void AimOffset(float DeltaTime);
+	void CaculateAO_Pitch();
+	void SimProxiesTurn();
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
@@ -87,6 +89,13 @@ private:
 
 	ETurningInPlace TurningInPlace;
 	void TurnInPlace(float DeltaTime);
+	bool bShouldRotateRootBone;
+	FRotator ProxyRotationLastFrame;
+	FRotator ProxyRotation;
+	float ProxyYaw;
+	float TimeSinceLastMovementRep;
+	float TurnThreshold = 0.5f;
+	float CaculateSpeed();
 
 	FTimerHandle FireTimer;
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
@@ -109,6 +118,7 @@ public:
 	FORCEINLINE float GetAO_Picth()const { return AO_Pitch; }
 
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; }
+	FORCEINLINE bool GetShouldRotateRootBone()const { return bShouldRotateRootBone; }
 
 	void PlayFireMontage(bool bAiming);
 	UFUNCTION(NetMulticast, Unreliable)

@@ -366,3 +366,4 @@ FodyWeavers.xsd
 /Blaster/Plugins/MultiplayerSessions/Binaries/Win64
 /Blaster/Saved
 /Blaster/Blaster.sln
+/Blaster/Platforms/HoloLens/Config

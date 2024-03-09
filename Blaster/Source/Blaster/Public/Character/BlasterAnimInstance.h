@@ -71,4 +71,7 @@ private:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Character", meta = (AllowPrivateAccess))
 		bool bIsLocallyControlled;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Character", meta = (AllowPrivateAccess))
+		bool bShouldRotateRootBone;
 };

@@ -43,9 +43,9 @@ ABlasterCharacter::ABlasterCharacter()
 	CombatComponent->SetIsReplicated(true);
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
-	GetMesh()->SetCollisionObjectType(ECC_SkeletalMesh);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
+	GetMesh()->SetCollisionObjectType(ECC_SkeletalMesh);
 	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 0.f, 850.f);
@@ -73,8 +73,17 @@ void ABlasterCharacter::BeginPlay()
 void ABlasterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	AimOffset(DeltaTime);
+	if (GetLocalRole() > ENetRole::ROLE_SimulatedProxy && IsLocallyControlled()) {
+		AimOffset(DeltaTime);
+	}
+	else {
+		SimProxiesTurn();
+		TimeSinceLastMovementRep += DeltaTime;
+		if (TimeSinceLastMovementRep > 0.25f) {
+			OnRep_ReplicatedMovement();
+		}
+		CaculateAO_Pitch();
+	}
 	HideCharacterWhenTooClose();
 }
 
@@ -95,16 +104,22 @@ void ABlasterCharacter::HideCharacterWhenTooClose()
 	}
 }
 
+float ABlasterCharacter::CaculateSpeed()
+{
+	FVector Velocity = GetVelocity();
+	Velocity.Z = 0.f;
+	return Velocity.Size();
+}
+
 void ABlasterCharacter::AimOffset(float DeltaTime)
 {
 	if (CombatComponent && CombatComponent->EquippedWeapon == nullptr) { return; }
 
-	FVector Velocity = GetVelocity();
-	Velocity.Z = 0.f;
-	float Speed = Velocity.Size();
+	float Speed = CaculateSpeed();
 	bool bIsInAir = GetCharacterMovement()->IsFalling();
 
 	if (Speed == 0.f && !bIsInAir) {
+		bShouldRotateRootBone = true;
 		FRotator CurrentRotation(0.f, GetBaseAimRotation().Yaw, 0.f);
 		FRotator DeltaRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrentRotation, BaseRotation);
 		AO_Yaw = DeltaRotation.Yaw;
@@ -116,12 +131,18 @@ void ABlasterCharacter::AimOffset(float DeltaTime)
 		TurnInPlace(DeltaTime);
 	}
 	if (Speed != 0.f || bIsInAir) {
+		bShouldRotateRootBone = false;
 		BaseRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 		AO_Yaw = 0.f;
 		bUseControllerRotationYaw = true;
 		TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 	}
 
+	CaculateAO_Pitch();
+}
+
+void ABlasterCharacter::CaculateAO_Pitch()
+{
 	AO_Pitch = GetBaseAimRotation().Pitch;
 	//在数据通过网络发送前会进行压缩,变为无符号即[0,360)
 	if (AO_Pitch > 90.f && !IsLocallyControlled()) {
@@ -129,6 +150,34 @@ void ABlasterCharacter::AimOffset(float DeltaTime)
 		FVector2D OutRange(-90.f, 0.f);
 		AO_Pitch = FMath::GetMappedRangeValueClamped(InRange, OutRange, AO_Pitch);
 	}
+}
+
+void ABlasterCharacter::SimProxiesTurn()
+{
+	if (CombatComponent == nullptr || CombatComponent->EquippedWeapon == nullptr) { return; }
+
+	bShouldRotateRootBone = false;
+	float Speed = CaculateSpeed();
+	if (Speed > 0) {
+		TurningInPlace = ETurningInPlace::ETIP_NotTurning;
+		return;
+	}
+
+	ProxyRotationLastFrame = ProxyRotation;
+	ProxyRotation = GetActorRotation();
+	ProxyYaw = UKismetMathLibrary::NormalizedDeltaRotator(ProxyRotation, ProxyRotationLastFrame).Yaw;
+	if (FMath::Abs(ProxyYaw) > TurnThreshold) {
+		if (ProxyYaw > TurnThreshold) {
+			TurningInPlace = ETurningInPlace::ETIP_Right;
+		}
+		else if (ProxyYaw < -TurnThreshold) {
+			TurningInPlace = ETurningInPlace::ETIP_Left;
+		}
+		else {
+			TurningInPlace = ETurningInPlace::ETIP_NotTurning;
+		}
+	}
+	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 }
 
 void ABlasterCharacter::TurnInPlace(float DeltaTime)
@@ -142,13 +191,19 @@ void ABlasterCharacter::TurnInPlace(float DeltaTime)
 	if (TurningInPlace != ETurningInPlace::ETIP_NotTurning) {
 		InterpYaw = FMath::FInterpTo(InterpYaw, 0.f, DeltaTime, 4.f);
 		AO_Yaw = InterpYaw;
-		if (FMath::Abs(AO_Yaw) < 30.f) {
+		if (FMath::Abs(AO_Yaw) < 15.f) {
 			TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 			BaseRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 		}
 	}
 }
 
+void ABlasterCharacter::OnRep_ReplicatedMovement()
+{
+	Super::OnRep_ReplicatedMovement();
+	SimProxiesTurn();
+	TimeSinceLastMovementRep = 0.f;
+}
 
 void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
 {
