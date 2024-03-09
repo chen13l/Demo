@@ -160,22 +160,24 @@ void UCombatComponent::OnFiredButtonPressed(bool bPressed)
 		FHitResult TraceResult;
 		TraceUnderCrossHair(TraceResult);
 		ServerFire(TraceResult.ImpactPoint);
-		CrosshairShootingFactor = 0.5f;
+		if (EquippedWeapon) {
+			CrosshairShootingFactor = 0.5f;
+		}
 	}
 }
 
 void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
 {
-	MulticastFire(TraceHitTarget);
+	if (EquippedWeapon == nullptr) { return; }
+	if (BlasterCharacter) {
+		MulticastFire(TraceHitTarget);
+	}
 }
 
 void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
 {
-	if (EquippedWeapon == nullptr) { return; }
-	if (BlasterCharacter && bWantFire) {
-		BlasterCharacter->PlayFireMontage(bWantFire);
-		EquippedWeapon->Fire(TraceHitTarget);
-	}
+	BlasterCharacter->PlayFireMontage(bIsAiming);
+	EquippedWeapon->Fire(TraceHitTarget);
 }
 
 void UCombatComponent::SetAiming(bool bAiming)
@@ -221,7 +223,7 @@ void UCombatComponent::TraceUnderCrossHair(FHitResult& TraceHitResult)
 
 		if (BlasterCharacter) {
 			float DistanceToSelf = (BlasterCharacter->GetActorLocation() - Start).Size();
-			Start += CrosshairWorldDirection * (DistanceToSelf + 50.f);
+			Start += CrosshairWorldDirection * (DistanceToSelf + 100.f);
 		}
 
 		FVector End = Start + CrosshairWorldDirection * TRACE_LENGTH;
