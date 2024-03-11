@@ -56,6 +56,8 @@ ABlasterCharacter::ABlasterCharacter()
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 0.f, 850.f);
 	NetUpdateFrequency = 66.f;
 	MinNetUpdateFrequency = 33.f;
+
+	DissolveTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("DissolveTiemlineComponent"));
 }
 
 void ABlasterCharacter::PostInitializeComponents()
@@ -374,6 +376,22 @@ void ABlasterCharacter::PlayElimMontage()
 	}
 }
 
+void ABlasterCharacter::UpdateDissolveMaterial(float DissolveValue)
+{
+	if (DynamicDissolveMaterialinstance) {
+		DynamicDissolveMaterialinstance->SetScalarParameterValue(TEXT("Dissolve"), DissolveValue);
+	}
+}
+
+void ABlasterCharacter::StartDissolve()
+{
+	DissolveTrack.BindDynamic(this, &ThisClass::UpdateDissolveMaterial);
+	if (DissolveCurve && DissolveTimeline) {
+		DissolveTimeline->AddInterpFloat(DissolveCurve, DissolveTrack);
+		DissolveTimeline->Play();
+	}
+}
+
 void ABlasterCharacter::OnRep_OverlappingWeapon(AWeaponBase* LastWeapon)
 {
 	if (OverlappingWeapon) {
@@ -440,7 +458,7 @@ void ABlasterCharacter::UpdateHUDHealth()
 
 void ABlasterCharacter::ReceiveDamage(
 	AActor* DamagedActor,
-	float Damage, 
+	float Damage,
 	const UDamageType* DamageType,
 	AController* InstigatorController,
 	AActor* DamageCauser)
@@ -475,6 +493,14 @@ void ABlasterCharacter::MulticastElim_Implementation()
 {
 	bIsElim = true;
 	PlayElimMontage();
+
+	if (DissolveMaterialInstance) {
+		DynamicDissolveMaterialinstance = UMaterialInstanceDynamic::Create(DissolveMaterialInstance, this);
+		GetMesh()->SetMaterial(0, DynamicDissolveMaterialinstance);
+		DynamicDissolveMaterialinstance->SetScalarParameterValue(TEXT("Dissolve"), 0.55f);
+		DynamicDissolveMaterialinstance->SetScalarParameterValue(TEXT("Glow"), 200.f);
+	}
+	StartDissolve();
 }
 
 void ABlasterCharacter::ElimTimerFinished()

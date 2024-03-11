@@ -8,6 +8,7 @@
 #include "Blaster/BlasterTypes/TurningInPlace.h"
 #include "Camera/CameraComponent.h"
 #include "Interfaces/CrosshairsInterface.h"
+#include "Components/TimelineComponent.h"
 #include "BlasterCharacter.generated.h"
 
 class UInputAction;
@@ -131,6 +132,28 @@ private:
 
 	void PlayHitReactMontage();
 	void PlayElimMontage();
+
+	/**
+	 * Dissolve Effect
+	 */
+	UPROPERTY(VisibleAnywhere, Category = "Elim")
+		UTimelineComponent* DissolveTimeline;
+
+	FOnTimelineFloat DissolveTrack;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Elim")
+		UCurveFloat* DissolveCurve;
+
+	UFUNCTION()
+		void UpdateDissolveMaterial(float DissolveValue);
+	void StartDissolve();
+
+	//Dynamic instance that can change at runtime
+	UPROPERTY(VisibleAnywhere, Category = "Elim")
+		UMaterialInstanceDynamic* DynamicDissolveMaterialinstance;
+	//Material set on Blueprint, used with Dynamic Material Instance
+	UPROPERTY(EditDefaultsOnly, Category = "Elim")
+		UMaterialInstance* DissolveMaterialInstance;
 
 	/*
 		Character Stats
