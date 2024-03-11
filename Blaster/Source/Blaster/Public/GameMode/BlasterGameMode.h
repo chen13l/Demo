@@ -21,4 +21,5 @@ public:
 		ABlasterPlayerController* AttackerController
 	);
 
+	virtual void RequestRespawn(class ACharacter* ElimCharacter,class AController* ElimController);
 };

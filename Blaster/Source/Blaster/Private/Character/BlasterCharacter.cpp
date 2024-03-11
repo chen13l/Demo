@@ -18,6 +18,7 @@
 #include "Blaster/Blaster.h"
 #include "PlayerController/BlasterPlayerController.h"
 #include "GameMode/BlasterGameMode.h"
+#include "TimerManager.h"
 
 // Sets default values
 ABlasterCharacter::ABlasterCharacter()
@@ -25,6 +26,8 @@ ABlasterCharacter::ABlasterCharacter()
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	bUseControllerRotationYaw = true;
+	//fix respawn issue
+	SpawnCollisionHandlingMethod = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
@@ -456,8 +459,28 @@ void ABlasterCharacter::ReceiveDamage(
 	}
 }
 
-void ABlasterCharacter::Eliminated_Implementation()
+void ABlasterCharacter::Elim()
+{
+	MulticastElim();
+
+	GetWorldTimerManager().SetTimer(
+		ElimTimer,
+		this,
+		&ThisClass::ElimTimerFinished,
+		ElimDelay
+	);
+}
+
+void ABlasterCharacter::MulticastElim_Implementation()
 {
 	bIsElim = true;
 	PlayElimMontage();
+}
+
+void ABlasterCharacter::ElimTimerFinished()
+{
+	ABlasterGameMode* BlasterGameMode = GetWorld()->GetAuthGameMode<ABlasterGameMode>();
+	if (BlasterGameMode) {
+		BlasterGameMode->RequestRespawn(this, Controller);
+	}
 }

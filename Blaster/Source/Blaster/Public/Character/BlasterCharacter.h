@@ -156,6 +156,11 @@ private:
 
 	bool bIsElim;
 
+	FTimerHandle ElimTimer;
+	UPROPERTY(EditDefaultsOnly)
+		float ElimDelay = 3.f;
+	void ElimTimerFinished();
+
 public:
 	/*
 		Combat
@@ -185,7 +190,8 @@ public:
 	/*
 		Character Stats
 	*/
+	void Elim();
 	UFUNCTION(NetMulticast, Reliable)
-		void Eliminated();
+		void MulticastElim();
 	FORCEINLINE bool GetIsElim()const { return bIsElim; }
 };
