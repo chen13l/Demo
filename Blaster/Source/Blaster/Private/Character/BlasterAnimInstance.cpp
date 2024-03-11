@@ -35,6 +35,7 @@ void UBlasterAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	bIsAiming = BlasterCharacter->IsAiming();
 	TurningInPlace = BlasterCharacter->GetTurningInPlace();
 	bShouldRotateRootBone = BlasterCharacter->GetShouldRotateRootBone();
+	bIsElim = BlasterCharacter->GetIsElim();
 
 	//offset Yaw fro Strafing
 	FRotator AimRotation = BlasterCharacter->GetBaseAimRotation();

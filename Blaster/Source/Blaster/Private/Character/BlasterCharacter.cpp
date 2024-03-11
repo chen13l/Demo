@@ -363,6 +363,14 @@ void ABlasterCharacter::PlayHitReactMontage()
 	}
 }
 
+void ABlasterCharacter::PlayElimMontage()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && ElimMontage) {
+		AnimInstance->Montage_Play(ElimMontage);
+	}
+}
+
 void ABlasterCharacter::OnRep_OverlappingWeapon(AWeaponBase* LastWeapon)
 {
 	if (OverlappingWeapon) {
@@ -448,7 +456,8 @@ void ABlasterCharacter::ReceiveDamage(
 	}
 }
 
-void ABlasterCharacter::Eliminated()
+void ABlasterCharacter::Eliminated_Implementation()
 {
-
+	bIsElim = true;
+	PlayElimMontage();
 }

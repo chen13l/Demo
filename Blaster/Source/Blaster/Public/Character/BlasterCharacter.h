@@ -126,8 +126,11 @@ private:
 		class UAnimMontage* FireWeaponMontage;
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 		UAnimMontage* HitReactMontage;
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+		UAnimMontage* ElimMontage;
 
 	void PlayHitReactMontage();
+	void PlayElimMontage();
 
 	/*
 		Character Stats
@@ -142,14 +145,16 @@ private:
 		void OnRep_Health();
 
 	UFUNCTION()
-	void ReceiveDamage(
-		AActor* DamagedActor,
-		float Damage,
-		const UDamageType* DamageType,
-		class AController* InstigatorController,
-		AActor* DamageCauser);
+		void ReceiveDamage(
+			AActor* DamagedActor,
+			float Damage,
+			const UDamageType* DamageType,
+			class AController* InstigatorController,
+			AActor* DamageCauser);
 
 	void UpdateHUDHealth();
+
+	bool bIsElim;
 
 public:
 	/*
@@ -180,5 +185,7 @@ public:
 	/*
 		Character Stats
 	*/
-	void Eliminated();
+	UFUNCTION(NetMulticast, Reliable)
+		void Eliminated();
+	FORCEINLINE bool GetIsElim()const { return bIsElim; }
 };
