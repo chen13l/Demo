@@ -158,6 +158,10 @@ public:
 	void SetOverlappingWeapon(AWeaponBase* Weapon);
 	bool IsEquippedWeapon()const;
 	bool IsAiming()const;
+
+	AWeaponBase* GetEquippedWeapon()const;
+
+	FVector GetHitTarget()const;
 	/*
 		Anim
 	*/
@@ -169,13 +173,12 @@ public:
 
 	void PlayFireMontage(bool bAiming);
 	/*
-		Combat
-	*/
-	AWeaponBase* GetEquippedWeapon()const;
-
-	FVector GetHitTarget()const;
-	/*
 		Camera
 	*/
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+	/*
+		Character Stats
+	*/
+	void Eliminated();
 };
