@@ -26,7 +26,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps)const override;
 	virtual void PostInitializeComponents()override;
-
+	virtual void Destroyed() override;
 	virtual void OnRep_ReplicatedMovement()override;
 protected:
 	// Called when the game starts or when spawned
@@ -127,11 +127,21 @@ private:
 		class UAnimMontage* FireWeaponMontage;
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 		UAnimMontage* HitReactMontage;
-	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+	UPROPERTY(EditDefaultsOnly, Category = "Elim")
 		UAnimMontage* ElimMontage;
 
 	void PlayHitReactMontage();
 	void PlayElimMontage();
+
+	//Elim Bot
+	UPROPERTY(EditDefaultsOnly, Category = "Elim")
+		class UParticleSystem* ElimBotEffect;
+	UPROPERTY(VisibleAnywhere, Category = "Elim")
+		class UParticleSystemComponent* ElimBotComponent;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Elim")
+		class USoundCue* ElimBotSound;
+
 
 	/**
 	 * Dissolve Effect

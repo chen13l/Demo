@@ -2,23 +2,28 @@
 
 
 #include "Character/BlasterCharacter.h"
+#include "Weapon/WeaponBase.h"
+#include "BlasterComponents/CombatComponent.h"
+#include "Blaster/Blaster.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/MovementComponent.h"
 #include "GameFramework/Controller.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "Components/WidgetComponent.h"
-#include "Net/UnrealNetwork.h"
-#include "Weapon/WeaponBase.h"
-#include "BlasterComponents/CombatComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Net/UnrealNetwork.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
 #include "Animation/AnimInstance.h"
-#include "Blaster/Blaster.h"
 #include "PlayerController/BlasterPlayerController.h"
 #include "GameMode/BlasterGameMode.h"
 #include "TimerManager.h"
+#include "Particles/ParticleSystemComponent.h"
+#include "Particles/ParticleSystem.h"
+#include "Sound/SoundCue.h"
+
 
 // Sets default values
 ABlasterCharacter::ABlasterCharacter()
@@ -78,6 +83,15 @@ void ABlasterCharacter::BeginPlay()
 
 	if (HasAuthority()) {
 		OnTakeAnyDamage.AddDynamic(this, &ThisClass::ReceiveDamage);
+	}
+}
+
+void ABlasterCharacter::Destroyed() 
+{
+	Super::Destroyed();
+
+	if (ElimBotComponent) {
+		ElimBotComponent->DestroyComponent();
 	}
 }
 
@@ -517,6 +531,27 @@ void ABlasterCharacter::MulticastElim_Implementation()
 	//disable collision
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	//spawn elim bot
+	if (ElimBotEffect) {
+		FVector ElimBotSpawnPoint(GetActorLocation());;
+		ElimBotSpawnPoint.Z += 200.f;
+
+		ElimBotComponent = UGameplayStatics::SpawnEmitterAtLocation(
+			this,
+			ElimBotEffect,
+			ElimBotSpawnPoint,
+			GetActorRotation()
+		);
+	}
+
+	if (ElimBotSound) {
+		UGameplayStatics::SpawnSoundAtLocation(
+			this,
+			ElimBotSound,
+			GetActorLocation()
+		);
+	}
 }
 
 void ABlasterCharacter::ElimTimerFinished()
