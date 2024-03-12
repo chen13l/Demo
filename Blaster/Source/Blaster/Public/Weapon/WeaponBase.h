@@ -88,8 +88,10 @@ public:
 
 	void ShowPickupWidget(bool bShouldShowWidget);
 	void SetWeaponState(EWeaponState State);
-	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh()const { return WeaponMesh; }
 	virtual void Fire(const FVector& HitTarget);
+	void Dropped();
+
+	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh()const { return WeaponMesh; }
 	FORCEINLINE float GetZoomedFOV()const { return ZoomedFOV; }
 	FORCEINLINE float GetZoomInterpSpeed() const { return ZoomInterpSpeed; }
 	FORCEINLINE float GetFireRate() const { return FireRate; }
