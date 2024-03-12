@@ -205,6 +205,9 @@ public:
 	AWeaponBase* GetEquippedWeapon()const;
 
 	FVector GetHitTarget()const;
+
+	FORCEINLINE float GetHealth()const { return Health; }
+	FORCEINLINE float GetMaxHealth()const { return MaxHealth; }
 	/*
 		Anim
 	*/
