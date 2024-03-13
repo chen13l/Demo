@@ -31,6 +31,8 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	//poll for relevent classes & initialize hud
+	virtual void PollInit();
 
 	/*
 		Input
@@ -126,7 +128,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 		class UAnimMontage* FireWeaponMontage;
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
-		UAnimMontage* HitReactMontage;
+		UAnimMontage* HitReactMontage ;
 	UPROPERTY(EditDefaultsOnly, Category = "Elim")
 		UAnimMontage* ElimMontage;
 
@@ -168,7 +170,7 @@ private:
 	/*
 		Character Stats
 	*/
-	class ABlasterPlayerController* BlasterPlayerController;
+	class ABlasterPlayerController* BlasterPlayerController = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character Stats")
 		float MaxHealth = 100.f;
@@ -193,6 +195,8 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 		float ElimDelay = 3.f;
 	void ElimTimerFinished();
+
+	class ABlasterPlayerState* BlasterPlayerState = nullptr;
 
 public:
 	/*

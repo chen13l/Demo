@@ -12,7 +12,7 @@ void AProjectileBullet::OnHit(
 	FVector NormalInpulse,
 	const FHitResult& HitResult) 
 {
-	ACharacter* OwnerCharacter = Cast<ACharacter>(OtherActor);
+	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
 	if (OwnerCharacter) {
 		AController* OwnerController = OwnerCharacter->Controller;
 		if (OwnerController) {

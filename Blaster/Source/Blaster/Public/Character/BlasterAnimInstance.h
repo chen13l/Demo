@@ -49,7 +49,7 @@ private:
 	UPROPERTY(BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess))
 		bool bWeaponEquipped;
 
-	class AWeaponBase* EquippedWeapon;
+	class AWeaponBase* EquippedWeapon = nullptr;
 	FRotator CharacterRotationLastFrame;
 	FRotator CharacterRotation;
 	FRotator DeltaRotation;

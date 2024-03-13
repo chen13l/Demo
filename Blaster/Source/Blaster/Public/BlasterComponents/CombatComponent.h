@@ -42,8 +42,8 @@ protected:
 	void TraceUnderCrossHair(FHitResult& TraceResult);
 
 private:
-	class ABlasterCharacter* BlasterCharacter;
-	class ABlasterPlayerController* BlasterController;
+	class ABlasterCharacter* BlasterCharacter = nullptr;
+	class ABlasterPlayerController* BlasterController = nullptr;
 	/*
 		Movement
 	*/
@@ -71,7 +71,7 @@ private:
 	/*
 		HUDand Crosshair
 	*/
-	class ABlasterHUD* BlasterHUD;
+	class ABlasterHUD* BlasterHUD = nullptr;
 
 	float CrosshairVelocityFactor;
 	float CrosshairInAirFactor;

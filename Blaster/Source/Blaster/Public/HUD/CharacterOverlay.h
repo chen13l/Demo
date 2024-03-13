@@ -21,5 +21,9 @@ public:
 	UPROPERTY(meta = (BindWiget))
 		class UTextBlock* HealthText;
 
-	
+	UPROPERTY(meta = (BindWiget))
+		class UTextBlock* ScoreText;
+
+	UPROPERTY(meta = (BindWiget))
+		class UTextBlock* DefeatsText;
 };

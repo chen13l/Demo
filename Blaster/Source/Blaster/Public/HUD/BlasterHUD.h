@@ -29,7 +29,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Player Stats")
 	TSubclassOf<class UUserWidget> CharacterOverlayClass;
 
-	class UCharacterOverlay* CharacterOverlay;
+	class UCharacterOverlay* CharacterOverlay = nullptr;
 
 private:
 	FHUDPackage HUDPackage;

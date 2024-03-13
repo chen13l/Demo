@@ -23,6 +23,7 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "Particles/ParticleSystem.h"
 #include "Sound/SoundCue.h"
+#include "PlayerState/BlasterPlayerState.h"
 
 
 // Sets default values
@@ -86,7 +87,18 @@ void ABlasterCharacter::BeginPlay()
 	}
 }
 
-void ABlasterCharacter::Destroyed() 
+void ABlasterCharacter::PollInit()
+{
+	if (BlasterPlayerState == nullptr) {
+		BlasterPlayerState = GetPlayerState<ABlasterPlayerState>();
+		if (BlasterPlayerState) {
+			BlasterPlayerState->AddToScore(0.f);
+			BlasterPlayerState->AddToDefeats(0);
+		}
+	}
+}
+
+void ABlasterCharacter::Destroyed()
 {
 	Super::Destroyed();
 
@@ -111,6 +123,7 @@ void ABlasterCharacter::Tick(float DeltaTime)
 		CaculateAO_Pitch();
 	}
 	HideCharacterWhenTooClose();
+	PollInit();
 }
 
 void ABlasterCharacter::HideCharacterWhenTooClose()

@@ -47,7 +47,7 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 		UParticleSystem* Tracer;
 
-	class UParticleSystemComponent* TracerComponent;
+	class UParticleSystemComponent* TracerComponent = nullptr;
 
 	
 public:

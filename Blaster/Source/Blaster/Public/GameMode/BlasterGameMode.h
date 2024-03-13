@@ -17,7 +17,7 @@ class BLASTER_API ABlasterGameMode : public AGameMode
 public:
 	virtual void PlayerEliminated(
 		class ABlasterCharacter* EliminatedCharacter,
-		class ABlasterPlayerController* VictimComtroller,
+		class ABlasterPlayerController* VictimController,
 		ABlasterPlayerController* AttackerController
 	);
 
