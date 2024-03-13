@@ -40,6 +40,8 @@ protected:
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastFire(const FVector_NetQuantize& TraceHitTarget);
 
+	bool CanFire();
+
 	void TraceUnderCrossHair(FHitResult& TraceResult);
 
 private:

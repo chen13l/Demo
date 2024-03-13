@@ -175,7 +175,7 @@ void UCombatComponent::OnFiredButtonPressed(bool bPressed)
 
 void UCombatComponent::Fire()
 {
-	if (bCanFire) {
+	if (CanFire()) {
 		bCanFire = false;
 		ServerFire(HitTarget);
 		if (EquippedWeapon) {
@@ -183,6 +183,12 @@ void UCombatComponent::Fire()
 		}
 		StartFireTimer();
 	}
+}
+
+bool UCombatComponent::CanFire()
+{
+	if (EquippedWeapon == nullptr) { return false; }
+	return !EquippedWeapon->IsEmpty() || !bCanFire;
 }
 
 void UCombatComponent::StartFireTimer()
@@ -241,6 +247,7 @@ void UCombatComponent::ServerSetAiming_Implementation(bool bAiming)
 		BlasterCharacter->GetCharacterMovement()->MaxWalkSpeed = bAiming ? AimWalkSpeed : BaseWalkkSpeed;
 	}
 }
+
 
 void UCombatComponent::TraceUnderCrossHair(FHitResult& TraceHitResult)
 {
