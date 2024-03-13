@@ -522,6 +522,10 @@ void ABlasterCharacter::Elim()
 
 void ABlasterCharacter::MulticastElim_Implementation()
 {
+	if (BlasterPlayerController) {
+		BlasterPlayerController->SetHUDAmmo(0);
+	}
+
 	bIsElim = true;
 	PlayElimMontage();
 

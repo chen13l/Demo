@@ -18,7 +18,8 @@ public:
 	virtual void OnPossess(APawn* InPawn)override;
 	void SetHealthPercent(float Health, float MaxHealth);
 	void SetHUDScore(float Score);
-	void SetHUDDefeats(int Defeats);
+	void SetHUDDefeats(int32 Defeats);
+	void SetHUDAmmo(int32 Ammo);
 protected:
 	virtual void BeginPlay() override;
 

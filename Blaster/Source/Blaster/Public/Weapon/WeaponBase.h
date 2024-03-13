@@ -25,6 +25,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps)const override;
+	virtual void OnRep_Owner()override;
 protected:
 	virtual void BeginPlay() override;
 
@@ -43,6 +44,9 @@ protected:
 			UPrimitiveComponent* OtherComponent,
 			int32 OtherBodyIndex);
 private:
+	class ABlasterCharacter* BlasterOwnerCharacter = nullptr;
+	class ABlasterPlayerController* BlasterOwnerController = nullptr;
+
 	UPROPERTY(VisibleAnywhere, Category = "WeaponProperties")
 		USkeletalMeshComponent* WeaponMesh;
 
@@ -74,6 +78,16 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 		bool bIsAutomatic = true;
 
+	//ammo
+	UPROPERTY(EditDefaultsOnly, ReplicatedUsing = OnRep_Ammo)
+		int32 Ammo = 30;
+	UFUNCTION()
+		void OnRep_Ammo();
+	UPROPERTY(EditDefaultsOnly)
+		int32 MagCapacity = 30;
+
+	void SpendRound();
+
 public:
 	UPROPERTY(EditDefaultsOnly, Category = "Crosshairs")
 		class UTexture2D* CrosshairsCenter;
@@ -90,6 +104,8 @@ public:
 	void SetWeaponState(EWeaponState State);
 	virtual void Fire(const FVector& HitTarget);
 	void Dropped();
+
+	void SetHUDAmmo();
 
 	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh()const { return WeaponMesh; }
 	FORCEINLINE float GetZoomedFOV()const { return ZoomedFOV; }
