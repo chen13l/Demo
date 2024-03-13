@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Weapon/WeaponTypes.h"
 #include "WeaponBase.generated.h"
 
 UENUM(BlueprintType)
@@ -88,6 +89,9 @@ private:
 
 	void SpendRound();
 
+	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties")
+		EWeaponType WeaponType;
+
 public:
 	UPROPERTY(EditDefaultsOnly, Category = "Crosshairs")
 		class UTexture2D* CrosshairsCenter;
@@ -112,6 +116,8 @@ public:
 	FORCEINLINE float GetZoomInterpSpeed() const { return ZoomInterpSpeed; }
 	FORCEINLINE float GetFireRate() const { return FireRate; }
 	FORCEINLINE bool GetFireMode() const { return bIsAutomatic; }
+	FORCEINLINE EWeaponType GetWeaponType()const { return WeaponType; }
+	int32 GetWeaponAmmo()const { return Ammo; }
 
 	bool IsEmpty() { return Ammo <= 0; }
 };

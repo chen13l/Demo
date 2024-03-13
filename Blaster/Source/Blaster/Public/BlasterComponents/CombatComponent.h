@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "HUD/BlasterHUD.h"
+#include "Weapon/WeaponTypes.h"
+#include "Weapon/WeaponBase.h"
 #include "CombatComponent.generated.h"
 
 class AWeaponBase;
@@ -70,6 +72,19 @@ private:
 	FTimerHandle FireTimer;
 	void StartFireTimer();
 	void EndFireTimer();
+
+	//ammo for currently equipped weapon
+	UPROPERTY(ReplicatedUsing = OnRep_CarryAmmo)
+		int32 CarryAmmo;
+	UFUNCTION()
+		void OnRep_CarryAmmo();
+
+	TMap<EWeaponType, int32> CarriedAmmoMap;
+
+	UPROPERTY(EditDefaultsOnly)
+		int32 StartingCarriedAmmo = 30.f;
+
+	void InitializeCarruedAmmo(EWeaponType WeaponType);
 
 	/*
 		HUDand Crosshair

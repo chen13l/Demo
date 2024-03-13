@@ -129,6 +129,20 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty
 
 	DOREPLIFETIME(UCombatComponent, EquippedWeapon);
 	DOREPLIFETIME(UCombatComponent, bIsAiming);
+	DOREPLIFETIME_CONDITION(UCombatComponent, CarryAmmo, COND_OwnerOnly);
+}
+
+void UCombatComponent::OnRep_CarryAmmo()
+{
+	BlasterController = BlasterController == nullptr ? Cast<ABlasterPlayerController>(BlasterCharacter->Controller) : BlasterController;
+	if (BlasterController) {
+		BlasterController->SetHUDCarryAmmo(CarryAmmo);
+	}
+}
+
+void UCombatComponent::InitializeCarruedAmmo(EWeaponType WeaponType)
+{
+	CarriedAmmoMap.Emplace(WeaponType, StartingCarriedAmmo);
 }
 
 void UCombatComponent::EquipWeapon(AWeaponBase* WeaponToEquip)
@@ -146,6 +160,15 @@ void UCombatComponent::EquipWeapon(AWeaponBase* WeaponToEquip)
 	}
 	EquippedWeapon->SetOwner(BlasterCharacter);
 	EquippedWeapon->SetHUDAmmo();
+	InitializeCarruedAmmo(EquippedWeapon->GetWeaponType());
+	if (CarriedAmmoMap.Contains(EquippedWeapon->GetWeaponType())) {
+		CarryAmmo = CarriedAmmoMap[EquippedWeapon->GetWeaponType()];
+	}
+	BlasterController = BlasterController == nullptr ? Cast<ABlasterPlayerController>(BlasterCharacter->Controller) : BlasterController;
+	if (BlasterController) {
+		BlasterController->SetHUDCarryAmmo(CarryAmmo);
+	}
+
 	BlasterCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
 	BlasterCharacter->bUseControllerRotationYaw = true;
 }
