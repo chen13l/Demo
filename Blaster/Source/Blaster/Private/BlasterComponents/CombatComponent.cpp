@@ -271,6 +271,19 @@ void UCombatComponent::ServerSetAiming_Implementation(bool bAiming)
 	}
 }
 
+void UCombatComponent::Reload()
+{
+	if (CarryAmmo > 0) {
+		ServerReload();
+	}
+}
+
+void UCombatComponent::ServerReload_Implementation()
+{
+	if (BlasterCharacter == nullptr) { return; }
+
+	BlasterCharacter->PlayReloadMontage();
+}
 
 void UCombatComponent::TraceUnderCrossHair(FHitResult& TraceHitResult)
 {

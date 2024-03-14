@@ -44,6 +44,9 @@ protected:
 
 	bool CanFire();
 
+	UFUNCTION(Server,Reliable)
+		void ServerReload();
+
 	void TraceUnderCrossHair(FHitResult& TraceResult);
 
 private:
@@ -114,5 +117,6 @@ private:
 
 public:
 	void SetHUDCrosshair(float DeltaTime);
+	void Reload();
 
 };

@@ -85,12 +85,15 @@ private:
 		UInputAction* AimingAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MovementBase|Weapon", meta = (AllowPrivateAccess))
 		UInputAction* FireAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MovementBase|Weapon", meta = (AllowPrivateAccess))
+		UInputAction* ReloadAction;
 
 	void OnPressedCrouch();
 	void OnPressedAiming();
 	void OnReleaseAiming();
 	void OnFiredButtonPressed();
 	void OnFiredButtonRelease();
+	void OnReloadButtonPressed();
 
 	/*
 		Combat
@@ -129,6 +132,8 @@ private:
 		class UAnimMontage* FireWeaponMontage;
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 		UAnimMontage* HitReactMontage ;
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+		UAnimMontage* ReloadMontage;
 	UPROPERTY(EditDefaultsOnly, Category = "Elim")
 		UAnimMontage* ElimMontage;
 
@@ -222,6 +227,8 @@ public:
 	FORCEINLINE bool GetShouldRotateRootBone()const { return bShouldRotateRootBone; }
 
 	void PlayFireMontage(bool bAiming);
+	void PlayReloadMontage();
+
 	/*
 		Camera
 	*/
