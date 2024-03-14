@@ -7,6 +7,7 @@
 #include "HUD/BlasterHUD.h"
 #include "Weapon/WeaponTypes.h"
 #include "Weapon/WeaponBase.h"
+#include "Blaster/BlasterTypes/CombatState.h"
 #include "CombatComponent.generated.h"
 
 class AWeaponBase;
@@ -44,8 +45,10 @@ protected:
 
 	bool CanFire();
 
-	UFUNCTION(Server,Reliable)
+	UFUNCTION(Server, Reliable)
 		void ServerReload();
+
+	void HandleReload();
 
 	void TraceUnderCrossHair(FHitResult& TraceResult);
 
@@ -89,6 +92,14 @@ private:
 
 	void InitializeCarruedAmmo(EWeaponType WeaponType);
 
+	int32 AmountToReload();
+	void UpdateAmmoValues();
+
+	UPROPERTY(ReplicatedUsing = OnRep_CombatState)
+		ECombatState CombatState = ECombatState::ECS_Unoccupied;
+	UFUNCTION()
+		void OnRep_CombatState();
+
 	/*
 		HUDand Crosshair
 	*/
@@ -118,5 +129,8 @@ private:
 public:
 	void SetHUDCrosshair(float DeltaTime);
 	void Reload();
+	UFUNCTION(BlueprintCallable)
+		void FinishReloading();
+	ECombatState GetCombatState()const { return CombatState; }
 
 };

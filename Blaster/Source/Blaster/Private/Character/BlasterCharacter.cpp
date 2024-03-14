@@ -375,7 +375,7 @@ void ABlasterCharacter::OnReloadButtonPressed()
 	if (CombatComponent) {
 		CombatComponent->Reload();
 	}
-	
+
 }
 
 void ABlasterCharacter::PlayFireMontage(bool bAiming)
@@ -607,4 +607,12 @@ void ABlasterCharacter::ElimTimerFinished()
 	if (BlasterGameMode) {
 		BlasterGameMode->RequestRespawn(this, Controller);
 	}
+}
+
+
+ECombatState ABlasterCharacter::GetCombatState()const
+{
+	if (CombatComponent == nullptr) { return ECombatState::ECS_MAX; }
+
+	return CombatComponent->GetCombatState();
 }

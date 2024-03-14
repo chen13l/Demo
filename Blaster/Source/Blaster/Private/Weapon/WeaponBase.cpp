@@ -85,6 +85,11 @@ void AWeaponBase::SpendRound()
 	SetHUDAmmo();
 }
 
+void AWeaponBase::AddAmmo(int32 AmmoToAdd)
+{
+	Ammo = FMath::Clamp(Ammo - AmmoToAdd, 0, MagCapacity);
+}
+
 void AWeaponBase::SetHUDAmmo()
 {
 	BlasterOwnerCharacter = BlasterOwnerCharacter == nullptr ? Cast<ABlasterCharacter>(GetOwner()) : BlasterOwnerCharacter;

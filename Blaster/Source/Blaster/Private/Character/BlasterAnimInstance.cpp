@@ -6,6 +6,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Weapon/WeaponBase.h"
+#include "Blaster/BlasterTypes/CombatState.h"
 
 void UBlasterAnimInstance::NativeInitializeAnimation()
 {
@@ -71,7 +72,11 @@ void UBlasterAnimInstance::NativeUpdateAnimation(float DeltaTime)
 			FVector RightVector = RightHandTransform.GetLocation();
 			FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(RightVector, RightVector + (RightVector - BlasterCharacter->GetHitTarget()));
 			RightHandRotation = FMath::RInterpTo(RightHandRotation, LookAtRotation, DeltaTime, 30.f);
-			
+
 		}
 	}
+
+	bUseFABRIK = BlasterCharacter->GetCombatState() != ECombatState::ECS_Reloading;
+	bUseAimOffsets = BlasterCharacter->GetCombatState() != ECombatState::ECS_Reloading;
+	bTransformRightHand = BlasterCharacter->GetCombatState() != ECombatState::ECS_Reloading;
 }

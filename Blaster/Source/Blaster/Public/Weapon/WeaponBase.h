@@ -22,6 +22,9 @@ class BLASTER_API AWeaponBase : public AActor
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties")
+		class USoundCue* EquippedSound;
+
 	AWeaponBase();
 	virtual void Tick(float DeltaTime) override;
 
@@ -117,7 +120,8 @@ public:
 	FORCEINLINE float GetFireRate() const { return FireRate; }
 	FORCEINLINE bool GetFireMode() const { return bIsAutomatic; }
 	FORCEINLINE EWeaponType GetWeaponType()const { return WeaponType; }
-	int32 GetWeaponAmmo()const { return Ammo; }
-
+	FORCEINLINE int32 GetWeaponAmmo()const { return Ammo; }
+	FORCEINLINE int32 GetMagCapacity()const { return MagCapacity; }
+	void AddAmmo(int32 AmmoToAdd);
 	bool IsEmpty() { return Ammo <= 0; }
 };

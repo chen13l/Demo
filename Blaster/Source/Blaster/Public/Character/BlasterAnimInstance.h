@@ -77,4 +77,13 @@ private:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Stats", meta = (AllowPrivateAccess))
 		bool bIsElim;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Stats", meta = (AllowPrivateAccess))
+		bool bUseFABRIK;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Stats", meta = (AllowPrivateAccess))
+		bool bUseAimOffsets;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Stats", meta = (AllowPrivateAccess))
+		bool bTransformRightHand;
 };

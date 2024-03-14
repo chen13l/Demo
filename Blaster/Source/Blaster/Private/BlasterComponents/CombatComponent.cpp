@@ -12,6 +12,7 @@
 #include "PlayerController/BlasterPlayerController.h"
 #include "Camera/CameraComponent.h"
 #include "TimerManager.h"
+#include "Sound/SoundCue.h"
 
 UCombatComponent::UCombatComponent()
 {
@@ -130,6 +131,7 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty
 	DOREPLIFETIME(UCombatComponent, EquippedWeapon);
 	DOREPLIFETIME(UCombatComponent, bIsAiming);
 	DOREPLIFETIME_CONDITION(UCombatComponent, CarryAmmo, COND_OwnerOnly);
+	DOREPLIFETIME(UCombatComponent, CombatState);
 }
 
 void UCombatComponent::OnRep_CarryAmmo()
@@ -168,6 +170,13 @@ void UCombatComponent::EquipWeapon(AWeaponBase* WeaponToEquip)
 	if (BlasterController) {
 		BlasterController->SetHUDCarryAmmo(CarryAmmo);
 	}
+	if (EquippedWeapon->EquippedSound) {
+		UGameplayStatics::PlaySoundAtLocation(
+			this,
+			EquippedWeapon->EquippedSound,
+			BlasterCharacter->GetActorLocation()
+		);
+	}
 
 	BlasterCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
 	BlasterCharacter->bUseControllerRotationYaw = true;
@@ -182,7 +191,13 @@ void UCombatComponent::OnRep_EquippedWeapon()
 		if (HandSocket) {
 			HandSocket->AttachActor(EquippedWeapon, BlasterCharacter->GetMesh());
 		}
-
+		if (EquippedWeapon->EquippedSound) {
+			UGameplayStatics::PlaySoundAtLocation(
+				this,
+				EquippedWeapon->EquippedSound,
+				BlasterCharacter->GetActorLocation()
+			);
+		}
 		BlasterCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
 		BlasterCharacter->bUseControllerRotationYaw = true;
 	}
@@ -211,7 +226,7 @@ void UCombatComponent::Fire()
 bool UCombatComponent::CanFire()
 {
 	if (EquippedWeapon == nullptr) { return false; }
-	return !EquippedWeapon->IsEmpty() || !bCanFire;
+	return !EquippedWeapon->IsEmpty() && bCanFire && CombatState == ECombatState::ECS_Unoccupied;
 }
 
 void UCombatComponent::StartFireTimer()
@@ -238,7 +253,7 @@ void UCombatComponent::EndFireTimer()
 void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
 {
 	if (EquippedWeapon == nullptr) { return; }
-	if (BlasterCharacter) {
+	if (BlasterCharacter && CombatState == ECombatState::ECS_Unoccupied) {
 		MulticastFire(TraceHitTarget);
 	}
 }
@@ -271,18 +286,86 @@ void UCombatComponent::ServerSetAiming_Implementation(bool bAiming)
 	}
 }
 
+int32 UCombatComponent::AmountToReload()
+{
+	if (EquippedWeapon == nullptr) { return 0; }
+	int32 RoomInMag = EquippedWeapon->GetMagCapacity() - EquippedWeapon->GetWeaponAmmo();
+
+	if (CarriedAmmoMap.Contains(EquippedWeapon->GetWeaponType())) {
+		int32 CarriedAmount = CarriedAmmoMap[EquippedWeapon->GetWeaponType()];
+		int32 Least = FMath::Min(RoomInMag, CarriedAmount);
+		return Least;
+	}
+
+	return 0;
+}
+
 void UCombatComponent::Reload()
 {
-	if (CarryAmmo > 0) {
+	if (CarryAmmo > 0 && CombatState != ECombatState::ECS_Reloading) {
 		ServerReload();
 	}
 }
 
-void UCombatComponent::ServerReload_Implementation()
+void UCombatComponent::FinishReloading()
 {
 	if (BlasterCharacter == nullptr) { return; }
+	if (BlasterCharacter->HasAuthority()) {
+		CombatState = ECombatState::ECS_Unoccupied;
+		UpdateAmmoValues();
+	}
+	if (bWantFire)
+	{
+		Fire();
+	}
+}
 
+void UCombatComponent::UpdateAmmoValues()
+{
+	if (BlasterCharacter == nullptr || EquippedWeapon == nullptr) { return; }
+	int32 ReloadAmount = AmountToReload();
+	if (CarriedAmmoMap.Contains(EquippedWeapon->GetWeaponType()) && ReloadAmount > 0) {
+		CarriedAmmoMap[EquippedWeapon->GetWeaponType()] -= ReloadAmount;
+		CarryAmmo = CarriedAmmoMap[EquippedWeapon->GetWeaponType()];
+	}
+	BlasterController = BlasterController == nullptr ? Cast<ABlasterPlayerController>(BlasterCharacter->Controller) : BlasterController;
+	if (BlasterController) {
+		BlasterController->SetHUDCarryAmmo(CarryAmmo);
+	}
+	EquippedWeapon->AddAmmo(-ReloadAmount);
+}
+
+void UCombatComponent::ServerReload_Implementation()
+{
+	if (BlasterCharacter == nullptr || EquippedWeapon == nullptr) { return; }
+
+	CombatState = ECombatState::ECS_Reloading;
+	HandleReload();
+}
+
+void UCombatComponent::HandleReload()
+{
 	BlasterCharacter->PlayReloadMontage();
+}
+
+
+void UCombatComponent::OnRep_CombatState()
+{
+	switch (CombatState)
+	{
+	case ECombatState::ECS_Unoccupied:
+		if (bWantFire) {
+			Fire();
+		}
+		break;
+	case ECombatState::ECS_Reloading:
+		HandleReload();
+		break;
+	case ECombatState::ECS_MAX:
+		break;
+	default:
+		break;
+	}
 }
 
 void UCombatComponent::TraceUnderCrossHair(FHitResult& TraceHitResult)

@@ -9,6 +9,7 @@
 #include "Camera/CameraComponent.h"
 #include "Interfaces/CrosshairsInterface.h"
 #include "Components/TimelineComponent.h"
+#include "Blaster/BlasterTypes/CombatState.h"
 #include "BlasterCharacter.generated.h"
 
 class UInputAction;
@@ -104,7 +105,7 @@ private:
 	UFUNCTION()
 		void OnRep_OverlappingWeapon(AWeaponBase* LastWeapon);
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess))
 		class UCombatComponent* CombatComponent;
 
 	UFUNCTION(Server, Reliable)
@@ -241,4 +242,6 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastElim();
 	FORCEINLINE bool GetIsElim()const { return bIsElim; }
+
+	ECombatState GetCombatState() const;
 };
