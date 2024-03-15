@@ -31,6 +31,8 @@ public:
 
 	class UCharacterOverlay* CharacterOverlay = nullptr;
 
+	void AddCharacterOverlay();
+
 private:
 	FHUDPackage HUDPackage;
 	void DrawCrosshairs(UTexture2D* Tuxture, FVector2D ViewportCenter, FVector2D CrosshairSpread, FLinearColor CrosshairColor);
@@ -40,7 +42,6 @@ private:
 
 protected:
 	virtual void BeginPlay() override;
-	void AddCharacterOverlay();
 
 public:
 	FORCEINLINE void SetHUDPackage(const FHUDPackage& Package) { HUDPackage = Package; }

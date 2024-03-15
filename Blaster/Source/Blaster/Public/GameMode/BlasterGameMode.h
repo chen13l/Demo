@@ -7,19 +7,34 @@
 #include "BlasterGameMode.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class BLASTER_API ABlasterGameMode : public AGameMode
 {
 	GENERATED_BODY()
-	
+
 public:
+	virtual void Tick(float DeltaTime)override;
+
+	ABlasterGameMode();
 	virtual void PlayerEliminated(
 		class ABlasterCharacter* EliminatedCharacter,
 		class ABlasterPlayerController* VictimController,
 		ABlasterPlayerController* AttackerController
 	);
 
-	virtual void RequestRespawn(class ACharacter* ElimCharacter,class AController* ElimController);
+	virtual void RequestRespawn(class ACharacter* ElimCharacter, class AController* ElimController);
+
+protected:
+	virtual void BeginPlay() override;
+	virtual void OnMatchStateSet()override;
+
+private:
+	UPROPERTY(EditDefaultsOnly)
+		float WarmupTime = 10.f;
+
+	float LevelStartingTime = 0.f;
+	float CountdownTime = 0.f;
+
 };
