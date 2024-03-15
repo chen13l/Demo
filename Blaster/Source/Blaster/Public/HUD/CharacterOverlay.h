@@ -22,14 +22,17 @@ public:
 		class UTextBlock* HealthText;
 
 	UPROPERTY(meta = (BindWiget))
-		class UTextBlock* ScoreText;
+		UTextBlock* ScoreText;
 
 	UPROPERTY(meta = (BindWiget))
-		class UTextBlock* DefeatsText;
+		UTextBlock* DefeatsText;
 
 	UPROPERTY(meta = (BindWiget))
-		class UTextBlock* AmmoAmount;
+		UTextBlock* AmmoAmount;
 
 	UPROPERTY(meta = (BindWiget))
-		class UTextBlock* CarryAmmoAmount;
+		UTextBlock* CarryAmmoAmount;
+
+	UPROPERTY(meta = (BindWiget))
+		UTextBlock* MatchTime;
 };
