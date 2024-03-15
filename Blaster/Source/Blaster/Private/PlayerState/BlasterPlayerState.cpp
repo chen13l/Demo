@@ -16,10 +16,10 @@ void ABlasterPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 void ABlasterPlayerState::OnRep_Defeats()
 {
 	Character = Character == nullptr ? Cast<ABlasterCharacter>(GetPawn()) : Character;
-	if (Character && Character->Controller) {
+	if (Character) {
 		Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
 		if (Controller) {
-			Controller->SetHUDScore(Defeats);
+			Controller->SetHUDDefeats(Defeats);
 		}
 	}
 }

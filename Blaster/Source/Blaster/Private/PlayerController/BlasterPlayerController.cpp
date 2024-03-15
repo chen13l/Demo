@@ -23,6 +23,7 @@ void ABlasterPlayerController::Tick(float DeltaTime)
 
 	SetHUDTime();
 	UpdateTimeSync(DeltaTime);
+	PollInit();
 }
 
 void ABlasterPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps)const
