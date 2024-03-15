@@ -178,6 +178,10 @@ void UCombatComponent::EquipWeapon(AWeaponBase* WeaponToEquip)
 		);
 	}
 
+	if (EquippedWeapon->IsEmpty()) {
+		Reload();
+	}
+
 	BlasterCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
 	BlasterCharacter->bUseControllerRotationYaw = true;
 }
@@ -247,6 +251,9 @@ void UCombatComponent::EndFireTimer()
 	bCanFire = true;
 	if (bWantFire && EquippedWeapon->GetFireMode()) {
 		Fire();
+	}
+	if (EquippedWeapon->IsEmpty()) {
+		Reload();
 	}
 }
 
