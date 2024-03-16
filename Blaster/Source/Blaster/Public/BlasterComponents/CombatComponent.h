@@ -132,5 +132,5 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void FinishReloading();
 	ECombatState GetCombatState()const { return CombatState; }
-
+	void SetWantFire(bool WantFire) { bWantFire = WantFire; }
 };

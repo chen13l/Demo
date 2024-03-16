@@ -7,6 +7,7 @@
 #include "HUD/Announcement.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
+#include "BlasterComponents/CombatComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Character/BlasterCharacter.h"
 #include "GameMode/BlasterGameMode.h"
@@ -215,7 +216,7 @@ void ABlasterPlayerController::SetHUDAnnouncementCountdown(float Countdown)
 		int32 Seconds = Countdown - Minutes * 60;
 
 		FString TimeText = FString::Printf(TEXT(" %02d : %02d"), Minutes, Seconds);
-		BlasterHUD->Announcement->AnnouncementText->SetText(FText::FromString(TimeText));
+		BlasterHUD->Announcement->WarmupTime->SetText(FText::FromString(TimeText));
 	}
 }
 
@@ -339,6 +340,14 @@ void ABlasterPlayerController::HandleCooldown()
 			FString NewAnnouncementText("New Match Starts in:");
 			BlasterHUD->Announcement->AnnouncementText->SetText(FText::FromString(NewAnnouncementText));
 			BlasterHUD->Announcement->InfoText->SetText(FText());
+		}
+	}
+	ABlasterCharacter* BlasterCharacter = Cast<ABlasterCharacter>(GetPawn());
+	if (BlasterCharacter) {
+		BlasterCharacter->SetDisableGameplay(true);
+		if (BlasterCharacter->GetCombatComponent())
+		{
+			BlasterCharacter->GetCombatComponent()->SetWantFire(false);
 		}
 	}
 }

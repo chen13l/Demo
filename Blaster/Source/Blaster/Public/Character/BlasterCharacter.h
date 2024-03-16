@@ -49,6 +49,8 @@ protected:
 	void CaculateAO_Pitch();
 	void SimProxiesTurn();
 
+	void RotateInPlace(float DeltaTime);
+
 private:
 	/*
 		Camera
@@ -96,6 +98,10 @@ private:
 	void OnFiredButtonRelease();
 	void OnReloadButtonPressed();
 
+	UPROPERTY(ReplicatedUsing = OnRep_DisableGameplay)
+		bool bDisableGameplay = false;
+	UFUNCTION()
+		void OnRep_DisableGameplay();
 	/*
 		Combat
 	*/
@@ -105,7 +111,7 @@ private:
 	UFUNCTION()
 		void OnRep_OverlappingWeapon(AWeaponBase* LastWeapon);
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess))
 		class UCombatComponent* CombatComponent;
 
 	UFUNCTION(Server, Reliable)
@@ -132,7 +138,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 		class UAnimMontage* FireWeaponMontage;
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
-		UAnimMontage* HitReactMontage ;
+		UAnimMontage* HitReactMontage;
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 		UAnimMontage* ReloadMontage;
 	UPROPERTY(EditDefaultsOnly, Category = "Elim")
@@ -218,6 +224,7 @@ public:
 
 	FORCEINLINE float GetHealth()const { return Health; }
 	FORCEINLINE float GetMaxHealth()const { return MaxHealth; }
+	FORCEINLINE UCombatComponent* GetCombatComponent()const { return CombatComponent; }
 	/*
 		Anim
 	*/
@@ -238,10 +245,13 @@ public:
 	/*
 		Character Stats
 	*/
+	FORCEINLINE bool GetDisableGameplay()const { return bDisableGameplay; }
 	void Elim();
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastElim();
 	FORCEINLINE bool GetIsElim()const { return bIsElim; }
 
 	ECombatState GetCombatState() const;
+
+	void SetDisableGameplay(bool ShouldDisalbe);
 };
