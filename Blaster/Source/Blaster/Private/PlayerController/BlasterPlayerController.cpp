@@ -11,6 +11,7 @@
 #include "Character/BlasterCharacter.h"
 #include "GameMode/BlasterGameMode.h"
 #include "Kismet/GameplayStatics.h"
+#include "GameMode/BlasterGameMode.h"
 
 void ABlasterPlayerController::BeginPlay()
 {
@@ -184,6 +185,11 @@ void ABlasterPlayerController::SetMatchTime(float Time)
 		BlasterHUD->CharacterOverlay->MatchTime;
 
 	if (bHUDValid) {
+		if (Time < 0.f) {
+			BlasterHUD->CharacterOverlay->MatchTime->SetText(FText());
+			return;
+		}
+
 		int32 Minutes = FMath::FloorToInt(Time / 60.f);
 		int32 Seconds = Time - Minutes * 60;
 
@@ -200,6 +206,11 @@ void ABlasterPlayerController::SetHUDAnnouncementCountdown(float Countdown)
 		BlasterHUD->Announcement->AnnouncementText;
 
 	if (bHUDValid) {
+		if (Countdown < 0.f) {
+			BlasterHUD->Announcement->AnnouncementText->SetText(FText());
+			return;
+		}
+
 		int32 Minutes = FMath::FloorToInt(Countdown / 60.f);
 		int32 Seconds = Countdown - Minutes * 60;
 
@@ -217,14 +228,24 @@ void ABlasterPlayerController::SetHUDTime()
 	else if (StateOfMatch == MatchState::WaitingToStart) {
 		TimeLeft = WarmupTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
 	}
+	else if (StateOfMatch == MatchState::Cooldown) {
+		TimeLeft = WarmupTime + MatchTime + CooldownTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
+	}
 
 	uint32 SecondsLeft = FMath::CeilToInt(TimeLeft);
+	if (HasAuthority()) {
+		BlasterGameMode = BlasterGameMode == nullptr ? Cast<ABlasterGameMode>(UGameplayStatics::GetGameMode(this)) : BlasterGameMode;
+		if (BlasterGameMode) {
+			SecondsLeft = BlasterGameMode->GetCountdownTime();
+		}
+	}
+
 	if (CountdownInt != SecondsLeft)
 	{
 		if (StateOfMatch == MatchState::InProgress) {
 			SetMatchTime(TimeLeft);
 		}
-		if (StateOfMatch == MatchState::WaitingToStart) {
+		if (StateOfMatch == MatchState::WaitingToStart || StateOfMatch == MatchState::Cooldown) {
 			SetHUDAnnouncementCountdown(TimeLeft);
 		}
 	}
@@ -251,12 +272,18 @@ void ABlasterPlayerController::OnMatchStateSet(FName State)
 	if (StateOfMatch == MatchState::InProgress) {
 		HandleMatchStarted();
 	}
+	else if (StateOfMatch == MatchState::Cooldown) {
+		HandleCooldown();
+	}
 }
 
 void ABlasterPlayerController::OnRep_MatchState()
 {
 	if (StateOfMatch == MatchState::InProgress) {
 		HandleMatchStarted();
+	}
+	else if (StateOfMatch == MatchState::Cooldown) {
+		HandleCooldown();
 	}
 }
 
@@ -273,25 +300,45 @@ void ABlasterPlayerController::HandleMatchStarted()
 
 void ABlasterPlayerController::ServerCheckMatchState_Implementation()
 {
-	ABlasterGameMode* BlasterGameMode = Cast<ABlasterGameMode>(UGameplayStatics::GetGameMode(this));
+	BlasterGameMode = BlasterGameMode == nullptr ? Cast<ABlasterGameMode>(UGameplayStatics::GetGameMode(this)) : BlasterGameMode;
 	if (BlasterGameMode) {
 		WarmupTime = BlasterGameMode->GetWarmupTime();
 		MatchTime = BlasterGameMode->GetMatchTime();
 		LevelStartingTime = BlasterGameMode->GetLevelStartingTime();
 		StateOfMatch = BlasterGameMode->GetMatchState();
-		ClientJoinMidGame(StateOfMatch, WarmupTime, MatchTime, LevelStartingTime);
+		CooldownTime = BlasterGameMode->GetCooldownTime();
+		ClientJoinMidGame(StateOfMatch, WarmupTime, MatchTime, LevelStartingTime, CooldownTime);
 	}
 }
 
-void ABlasterPlayerController::ClientJoinMidGame_Implementation(FName StateOfTheMatch, float Warmup, float TimeOfMatch, float StartingTime)
+void ABlasterPlayerController::ClientJoinMidGame_Implementation(FName StateOfTheMatch, float Warmup, float TimeOfMatch, float StartingTime, float Cooldown)
 {
 	WarmupTime = Warmup;
 	MatchTime = TimeOfMatch;
 	LevelStartingTime = StartingTime;
 	StateOfMatch = StateOfTheMatch;
+	CooldownTime = Cooldown;
 	OnMatchStateSet(StateOfMatch);
 	if (BlasterHUD && StateOfMatch == MatchState::WaitingToStart)
 	{
 		BlasterHUD->AddAnnouncement();
+	}
+}
+
+void ABlasterPlayerController::HandleCooldown()
+{
+	BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
+	if (BlasterHUD) {
+		BlasterHUD->CharacterOverlay->RemoveFromParent();
+		bool bHUDValid = BlasterHUD->Announcement &&
+			BlasterHUD->Announcement->AnnouncementText &&
+			BlasterHUD->Announcement->InfoText;
+		if (bHUDValid)
+		{
+			BlasterHUD->Announcement->SetVisibility(ESlateVisibility::Visible);
+			FString NewAnnouncementText("New Match Starts in:");
+			BlasterHUD->Announcement->AnnouncementText->SetText(FText::FromString(NewAnnouncementText));
+			BlasterHUD->Announcement->InfoText->SetText(FText());
+		}
 	}
 }

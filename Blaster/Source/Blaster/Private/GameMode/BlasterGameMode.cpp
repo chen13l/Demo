@@ -8,6 +8,11 @@
 #include "GameFramework/PlayerStart.h"
 #include "PlayerState/BlasterPlayerState.h"
 
+namespace MatchState
+{
+	const FName Cooldown = FName("Cooldown");
+}
+
 ABlasterGameMode::ABlasterGameMode()
 {
 	//game state will stay in WaitingToStart until call StartMatch()
@@ -22,6 +27,12 @@ void ABlasterGameMode::Tick(float DeltaTime)
 		CountdownTime = WarmupTime + LevelStartingTime - GetWorld()->GetTimeSeconds();
 		if (CountdownTime <= 0.f) {
 			StartMatch();
+		}
+	}
+	else if (MatchState == MatchState::InProgress) {
+		CountdownTime = WarmupTime + MatchTime + LevelStartingTime - GetWorld()->GetTimeSeconds();
+		if (CountdownTime <= 0.f) {
+			SetMatchState(MatchState::Cooldown);
 		}
 	}
 }

@@ -29,6 +29,7 @@ public:
 	void SetHUDAnnouncementCountdown(float Countdown);
 
 	void OnMatchStateSet(FName State);
+	void HandleCooldown();
 protected:
 	virtual void BeginPlay() override;
 	void PollInit();
@@ -55,13 +56,14 @@ protected:
 	UFUNCTION(Server, Reliable)
 		void ServerCheckMatchState();
 	UFUNCTION(Client, Reliable)
-		void ClientJoinMidGame(FName StateOfTheMatch, float Warmup, float TimeOfMatch, float StartingTime);
+		void ClientJoinMidGame(FName StateOfTheMatch, float Warmup, float TimeOfMatch, float StartingTime, float Cooldown);
 
 private:
 	class ABlasterHUD* BlasterHUD = nullptr;
 
 	float MatchTime = 0.f;
 	float WarmupTime = 0.f;
+	float CooldownTime = 0.f;
 	float LevelStartingTime = 0.f;
 	uint32 CountdownInt = 0;
 
@@ -72,6 +74,8 @@ private:
 
 	UPROPERTY()
 		class UCharacterOverlay* CharacterOverlay;
+	UPROPERTY()
+		class ABlasterGameMode* BlasterGameMode;
 
 	bool bInitializeCharacterOverlay = false;
 
