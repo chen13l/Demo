@@ -26,6 +26,7 @@ public:
 	void SetHUDAmmo(int32 WeaponAmmo);
 	void SetHUDCarryAmmo(int32 CarryAmmo);
 	void SetMatchTime(float Time);
+	void SetHUDAnnouncementCountdown(float Countdown);
 
 	void OnMatchStateSet(FName State);
 protected:
@@ -33,7 +34,7 @@ protected:
 	void PollInit();
 
 	void SetHUDTime();
-
+	void HandleMatchStarted();
 	/*
 		sync time between client and server
 	*/
@@ -51,19 +52,26 @@ protected:
 	float TimeSyncRunningTime = 0.f;
 	void UpdateTimeSync(float DeltaTime);
 
+	UFUNCTION(Server, Reliable)
+		void ServerCheckMatchState();
+	UFUNCTION(Client, Reliable)
+		void ClientJoinMidGame(FName StateOfTheMatch, float Warmup, float TimeOfMatch, float StartingTime);
+
 private:
 	class ABlasterHUD* BlasterHUD = nullptr;
 
-	float MatchTime = 120.f;
+	float MatchTime = 0.f;
+	float WarmupTime = 0.f;
+	float LevelStartingTime = 0.f;
 	uint32 CountdownInt = 0;
 
 	UPROPERTY(ReplicatedUsing = OnRep_MatchState)
-	FName MatchState;
+		FName StateOfMatch;
 	UFUNCTION()
 		void OnRep_MatchState();
 
 	UPROPERTY()
-	class UCharacterOverlay* CharacterOverlay;
+		class UCharacterOverlay* CharacterOverlay;
 
 	bool bInitializeCharacterOverlay = false;
 

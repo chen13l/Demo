@@ -27,11 +27,15 @@ public:
 	virtual void DrawHUD() override;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Player Stats")
-	TSubclassOf<class UUserWidget> CharacterOverlayClass;
-
+		TSubclassOf<class UUserWidget> CharacterOverlayClass;
 	class UCharacterOverlay* CharacterOverlay = nullptr;
-
 	void AddCharacterOverlay();
+
+	UPROPERTY(EditDefaultsOnly, Category = "Player Stats")
+		TSubclassOf<UUserWidget> AnnouncementClass;
+	class UAnnouncement* Announcement = nullptr;
+	void AddAnnouncement();
+
 
 private:
 	FHUDPackage HUDPackage;

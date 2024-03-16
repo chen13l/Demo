@@ -26,6 +26,10 @@ public:
 
 	virtual void RequestRespawn(class ACharacter* ElimCharacter, class AController* ElimController);
 
+	FORCEINLINE float GetWarmupTime()const { return WarmupTime; }
+	FORCEINLINE float GetLevelStartingTime()const { return LevelStartingTime; }
+	FORCEINLINE float GetMatchTime() const { return MatchTime; }
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void OnMatchStateSet()override;
@@ -33,6 +37,9 @@ protected:
 private:
 	UPROPERTY(EditDefaultsOnly)
 		float WarmupTime = 10.f;
+
+	UPROPERTY(EditDefaultsOnly)
+		float MatchTime = 120.f;
 
 	float LevelStartingTime = 0.f;
 	float CountdownTime = 0.f;
