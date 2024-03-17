@@ -88,6 +88,7 @@ void AWeaponBase::SpendRound()
 void AWeaponBase::AddAmmo(int32 AmmoToAdd)
 {
 	Ammo = FMath::Clamp(Ammo - AmmoToAdd, 0, MagCapacity);
+	SetHUDAmmo();
 }
 
 void AWeaponBase::SetHUDAmmo()

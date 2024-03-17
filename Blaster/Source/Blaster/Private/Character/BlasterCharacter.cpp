@@ -106,7 +106,10 @@ void ABlasterCharacter::Destroyed()
 	if (ElimBotComponent) {
 		ElimBotComponent->DestroyComponent();
 	}
-	if (CombatComponent && CombatComponent->EquippedWeapon) {
+
+	ABlasterGameMode* BlasterGameMode = Cast<ABlasterGameMode>(UGameplayStatics::GetGameMode(this));
+	bool bMathNotInProgress = BlasterGameMode && BlasterGameMode->GetMatchState() != MatchState::InProgress;
+	if (CombatComponent && CombatComponent->EquippedWeapon && bMathNotInProgress) {
 		CombatComponent->EquippedWeapon->Destroyed();
 	}
 }
@@ -592,6 +595,7 @@ void ABlasterCharacter::MulticastElim_Implementation()
 	GetCharacterMovement()->DisableMovement();
 	GetCharacterMovement()->StopMovementImmediately();
 	SetDisableGameplay(true);
+	GetCharacterMovement()->DisableMovement();
 
 	//disable collision
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -637,6 +641,10 @@ ECombatState ABlasterCharacter::GetCombatState()const
 void ABlasterCharacter::SetDisableGameplay(bool ShouldDisalbe)
 {
 	bDisableGameplay = ShouldDisalbe;
+	if (CombatComponent)
+	{
+		CombatComponent->SetWantFire(false);
+	}
 	if (InputComponent) {
 		SetupPlayerInputComponent(InputComponent);
 	}
@@ -644,6 +652,10 @@ void ABlasterCharacter::SetDisableGameplay(bool ShouldDisalbe)
 
 void ABlasterCharacter::OnRep_DisableGameplay()
 {
+	if (CombatComponent)
+	{
+		CombatComponent->SetWantFire(false);
+	}
 	if (InputComponent) {
 		SetupPlayerInputComponent(InputComponent);
 	}

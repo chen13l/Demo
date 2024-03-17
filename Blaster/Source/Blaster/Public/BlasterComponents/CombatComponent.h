@@ -88,7 +88,7 @@ private:
 	TMap<EWeaponType, int32> CarriedAmmoMap;
 
 	UPROPERTY(EditDefaultsOnly)
-		int32 StartingCarriedAmmo = 30.f;
+		TMap<EWeaponType,int32>StartingCarriedAmmo;
 
 	void InitializeCarruedAmmo(EWeaponType WeaponType);
 

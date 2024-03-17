@@ -144,7 +144,7 @@ void UCombatComponent::OnRep_CarryAmmo()
 
 void UCombatComponent::InitializeCarruedAmmo(EWeaponType WeaponType)
 {
-	CarriedAmmoMap.Emplace(WeaponType, StartingCarriedAmmo);
+	CarriedAmmoMap.Emplace(WeaponType, StartingCarriedAmmo[WeaponType]);
 }
 
 void UCombatComponent::EquipWeapon(AWeaponBase* WeaponToEquip)
@@ -331,7 +331,7 @@ void UCombatComponent::UpdateAmmoValues()
 {
 	if (BlasterCharacter == nullptr || EquippedWeapon == nullptr) { return; }
 	int32 ReloadAmount = AmountToReload();
-	if (CarriedAmmoMap.Contains(EquippedWeapon->GetWeaponType()) && ReloadAmount > 0) {
+	if (CarriedAmmoMap.Contains(EquippedWeapon->GetWeaponType())) {
 		CarriedAmmoMap[EquippedWeapon->GetWeaponType()] -= ReloadAmount;
 		CarryAmmo = CarriedAmmoMap[EquippedWeapon->GetWeaponType()];
 	}
