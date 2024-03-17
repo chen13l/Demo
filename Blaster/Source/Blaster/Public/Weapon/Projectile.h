@@ -37,9 +37,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 		float Damage = 20.f;
 
-private:
 	UPROPERTY(EditDefaultsOnly)
 		class USphereComponent* CollisionSphere;
+
+private:
 
 	UPROPERTY(VisibleAnyWhere)
 		class UProjectileMovementComponent* ProjectileMovementComponent;
