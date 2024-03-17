@@ -106,6 +106,9 @@ void ABlasterCharacter::Destroyed()
 	if (ElimBotComponent) {
 		ElimBotComponent->DestroyComponent();
 	}
+	if (CombatComponent && CombatComponent->EquippedWeapon) {
+		CombatComponent->EquippedWeapon->Destroyed();
+	}
 }
 
 // Called every frame

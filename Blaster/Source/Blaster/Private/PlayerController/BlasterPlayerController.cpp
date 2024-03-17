@@ -234,12 +234,6 @@ void ABlasterPlayerController::SetHUDTime()
 	}
 
 	uint32 SecondsLeft = FMath::CeilToInt(TimeLeft);
-	if (HasAuthority()) {
-		BlasterGameMode = BlasterGameMode == nullptr ? Cast<ABlasterGameMode>(UGameplayStatics::GetGameMode(this)) : BlasterGameMode;
-		if (BlasterGameMode) {
-			SecondsLeft = BlasterGameMode->GetCountdownTime();
-		}
-	}
 
 	if (CountdownInt != SecondsLeft)
 	{
