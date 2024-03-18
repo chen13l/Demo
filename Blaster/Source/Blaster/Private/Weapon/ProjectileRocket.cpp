@@ -20,10 +20,6 @@ void AProjectileRocket::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (!HasAuthority()) {
-		CollisionSphere->OnComponentHit.AddDynamic(this, &ThisClass::OnHit);
-	}
-
 	if (TrailSystem) {
 		TrailSystemComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(
 			TrailSystem,

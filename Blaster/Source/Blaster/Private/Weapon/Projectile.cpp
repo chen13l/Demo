@@ -3,7 +3,6 @@
 
 #include "Weapon/Projectile.h"
 #include "Components/SphereComponent.h"
-#include "GameFramework/ProjectileMovementComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Particles/ParticleSystem.h"
 #include "Kismet/GameplayStatics.h"
@@ -27,10 +26,6 @@ AProjectile::AProjectile()
 
 	CollisionSphere->SetSphereRadius(5.f);
 
-	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
-	ProjectileMovementComponent->bRotationFollowsVelocity = true;
-	ProjectileMovementComponent->InitialSpeed = 15000.f;
-	ProjectileMovementComponent->MaxSpeed = 15000.f;
 }
 
 void AProjectile::BeginPlay()
@@ -50,6 +45,7 @@ void AProjectile::BeginPlay()
 
 	if (HasAuthority()) {
 		CollisionSphere->OnComponentHit.AddDynamic(this, &ThisClass::OnHit);
+		CollisionSphere->IgnoreActorWhenMoving(Owner, true);
 	}
 }
 

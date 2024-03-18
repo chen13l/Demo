@@ -40,10 +40,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 		class USphereComponent* CollisionSphere;
 
-private:
-
 	UPROPERTY(VisibleAnyWhere)
 		class UProjectileMovementComponent* ProjectileMovementComponent;
+
+private:
+
 
 	UPROPERTY(EditDefaultsOnly)
 		UParticleSystem* Tracer;
