@@ -16,11 +16,14 @@ class BLASTER_API AHitScanWeapon : public AWeaponBase
 public:
 	virtual void Fire(const FVector& HitTarget)override;
 
-
-private:
+protected:
 	UPROPERTY(EditDefaultsOnly)
 		float Damage = 20.f;
 
+private:
 	UPROPERTY(EditDefaultsOnly)
 		class UParticleSystem* ImpactParticle;
+
+	UPROPERTY(EditDefaultsOnly)
+		UParticleSystem* BeamParticle;
 };

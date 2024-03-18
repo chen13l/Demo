@@ -5,6 +5,7 @@
 #include "Engine/SkeletalMeshSocket.h"
 #include "Character/BlasterCharacter.h"
 #include "Kismet/GameplayStatics.h"
+#include "Particles/ParticleSystemComponent.h"
 
 void AHitScanWeapon::Fire(const FVector& HitTarget)
 {
@@ -15,23 +16,29 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 	AController* InstigatorController = Cast<AController>(InstigatorPawn->GetController());
 
 	const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName(FName("MuzzleFlash"));
-	if (MuzzleFlashSocket && InstigatorController) {
-		const FVector Start = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh()).GetLocation();
+	if (MuzzleFlashSocket) {
+		FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
+		const FVector Start = SocketTransform.GetLocation();
 		const FVector End = Start + (HitTarget - Start) * 1.25f;
 
 		FHitResult HitResult;
 		UWorld* World = GetWorld();
-		if (World) {
+		if (World)
+		{
 			World->LineTraceSingleByChannel(
 				HitResult,
 				Start,
 				End,
 				ECollisionChannel::ECC_Visibility
 			);
+			FVector BeamEnd;
+			if (HitResult.bBlockingHit)
+			{
+				BeamEnd = HitResult.ImpactPoint;
 
-			if (HitResult.bBlockingHit) {
 				ABlasterCharacter* HitedCharacter = Cast<ABlasterCharacter>(HitResult.GetActor());
-				if (HitedCharacter && HasAuthority()) {
+				if (HitedCharacter) 
+				{
 					UGameplayStatics::ApplyDamage(
 						HitedCharacter,
 						Damage,
@@ -41,13 +48,25 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 					);
 				}
 
-				if (ImpactParticle) {
+				if (ImpactParticle && HasAuthority() && InstigatorController) 
+				{
 					UGameplayStatics::SpawnEmitterAtLocation(
 						World,
 						ImpactParticle,
 						HitResult.ImpactPoint,
 						HitResult.ImpactPoint.Rotation()
 					);
+				}
+			}
+			if (BeamParticle)
+			{
+				UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(
+					World,
+					BeamParticle,
+					SocketTransform
+				);
+				if (Beam) {
+					Beam->SetVectorParameter(FName("Target"), BeamEnd);
 				}
 			}
 		}
