@@ -23,25 +23,17 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 	if (MuzzleFlashSocket) {
 		FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
 		const FVector Start = SocketTransform.GetLocation();
-		const FVector End = Start + (HitTarget - Start) * 1.25f;
 
 		FHitResult HitResult;
+		WeaponTraceHit(Start, HitTarget, HitResult);
+
 		UWorld* World = GetWorld();
 		if (World)
 		{
-			World->LineTraceSingleByChannel(
-				HitResult,
-				Start,
-				End,
-				ECollisionChannel::ECC_Visibility
-			);
-			FVector BeamEnd;
 			if (HitResult.bBlockingHit)
 			{
-				BeamEnd = HitResult.ImpactPoint;
-
 				ABlasterCharacter* HitedCharacter = Cast<ABlasterCharacter>(HitResult.GetActor());
-				if (HitedCharacter) 
+				if (HitedCharacter)
 				{
 					UGameplayStatics::ApplyDamage(
 						HitedCharacter,
@@ -52,7 +44,7 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 					);
 				}
 
-				if (ImpactParticle && HasAuthority() && InstigatorController) 
+				if (ImpactParticle && HasAuthority() && InstigatorController)
 				{
 					UGameplayStatics::SpawnEmitterAtLocation(
 						World,
@@ -69,17 +61,6 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 					);
 				}
 			}
-			if (BeamParticle)
-			{
-				UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(
-					World,
-					BeamParticle,
-					SocketTransform
-				);
-				if (Beam) {
-					Beam->SetVectorParameter(FName("Target"), BeamEnd);
-				}
-			}
 		}
 		if (MuzzleFlash) {
 			UGameplayStatics::SpawnEmitterAtLocation(
@@ -94,6 +75,36 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 				FireSound,
 				GetActorLocation()
 			);
+		}
+	}
+}
+
+void AHitScanWeapon::WeaponTraceHit(const FVector& HitStart, const FVector& HitTarget, FHitResult& OutHit)
+{
+	const FVector End = bUseScatter ? TraceEndWithScatter(HitStart, HitTarget) : HitStart + (HitTarget - HitStart) * 1.25f;
+	UWorld* World = GetWorld();
+	if (World) {
+		World->LineTraceSingleByChannel(
+			OutHit,
+			HitStart,
+			End,
+			ECollisionChannel::ECC_Visibility
+		);
+
+		FVector BeamEnd;
+		if (OutHit.bBlockingHit) {
+			BeamEnd = OutHit.ImpactPoint;
+		}
+		if (BeamParticle)
+		{
+			UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(
+				World,
+				BeamParticle,
+				HitStart
+			);
+			if (Beam) {
+				Beam->SetVectorParameter(FName("Target"), BeamEnd);
+			}
 		}
 	}
 }

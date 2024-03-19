@@ -20,9 +20,53 @@ void AShotgun::Fire(const FVector& HitTarget)
 	if (MuzzleFlashSocket) {
 		FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
 		FVector Start = SocketTransform.GetLocation();
+
+		//calculate hit characters 
+		TMap<ABlasterCharacter*, uint32>HitMap;
 		for (uint32 i = 0; i < NumberOfPellets; i++)
 		{
-			FVector End = TraceEndWithScatter(Start, HitTarget);
+			FHitResult HitResult;
+			WeaponTraceHit(Start, HitTarget, HitResult);
+
+			ABlasterCharacter* HitedCharacter = Cast<ABlasterCharacter>(HitResult.GetActor());
+			if (HitedCharacter && HasAuthority() && InstigatorController) {
+				if (HitMap.Contains(HitedCharacter)) {
+					++HitMap[HitedCharacter];
+				}
+				else {
+					HitMap.Emplace(HitedCharacter, 1);
+				}
+
+				if (ImpactParticle) {
+					UGameplayStatics::SpawnEmitterAtLocation(
+						GetWorld(),
+						ImpactParticle,
+						HitResult.ImpactPoint,
+						FRotator::ZeroRotator,
+						true
+					);
+				}
+				if (HitSound) {
+					UGameplayStatics::PlaySoundAtLocation(
+						this,
+						HitSound,
+						HitResult.ImpactPoint,
+						.5f,
+						FMath::RandRange(-.5f, .5f)
+					);
+				}
+			}
+		}
+
+		//calculate total damage for each hit character
+		for (auto HitPair : HitMap) {
+			UGameplayStatics::ApplyDamage(
+				HitPair.Key,
+				Damage * HitPair.Value,
+				InstigatorController,
+				GetOwner(),
+				UDamageType::StaticClass()
+			);
 		}
 	}
 }
