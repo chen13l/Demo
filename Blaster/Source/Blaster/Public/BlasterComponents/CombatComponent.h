@@ -12,8 +12,6 @@
 
 class AWeaponBase;
 
-#define TRACE_LENGTH 80000;
-
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class BLASTER_API UCombatComponent : public UActorComponent
 {

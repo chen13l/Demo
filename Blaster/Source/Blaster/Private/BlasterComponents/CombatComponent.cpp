@@ -144,7 +144,12 @@ void UCombatComponent::OnRep_CarryAmmo()
 
 void UCombatComponent::InitializeCarruedAmmo(EWeaponType WeaponType)
 {
-	CarriedAmmoMap.Emplace(WeaponType, StartingCarriedAmmo[WeaponType]);
+	if (StartingCarriedAmmo[WeaponType]) {
+		CarriedAmmoMap.Emplace(WeaponType, StartingCarriedAmmo[WeaponType]);
+	}
+	else {
+		CarriedAmmoMap.Emplace(WeaponType, 0.f);
+	}
 }
 
 void UCombatComponent::EquipWeapon(AWeaponBase* WeaponToEquip)

@@ -20,6 +20,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 		float Damage = 20.f;
 
+	FVector TraceEndWithScatter(const FVector& TraceStart, const FVector& HitTarget);
+
 private:
 	UPROPERTY(EditDefaultsOnly)
 		class UParticleSystem* ImpactParticle;
@@ -35,4 +37,18 @@ private:
 
 	UPROPERTY(EditDefaultsOnly)
 		USoundCue* HitSound;
+
+	/*
+		TraceEnd with scatter
+	*/
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon Scatter")
+		float DistanceToSphere = 800.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon Scatter")
+		float SphereRadius = 150.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon Scatter")
+		bool bUseScatter = false;
+
 };
