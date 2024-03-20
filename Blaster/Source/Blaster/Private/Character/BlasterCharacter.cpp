@@ -440,6 +440,9 @@ void ABlasterCharacter::PlayReloadMontage()
 		case EWeaponType::EWT_Shotgun:
 			SectionName = FName("Rifle");
 			break;
+		case EWeaponType::EWT_SniperRifle:
+			SectionName = FName("Rifle");
+			break;
 		default:
 			break;
 		}
@@ -632,6 +635,14 @@ void ABlasterCharacter::MulticastElim_Implementation()
 			ElimBotSound,
 			GetActorLocation()
 		);
+	}
+	bool bHideScopeWidget =
+		CombatComponent &&
+		CombatComponent->EquippedWeapon &&
+		CombatComponent->bIsAiming &&
+		CombatComponent->EquippedWeapon->GetWeaponType() == EWeaponType::EWT_SniperRifle;
+	if (bHideScopeWidget) {
+		ShowScopeWidget(false);
 	}
 }
 

@@ -217,6 +217,8 @@ public:
 	void SetOverlappingWeapon(AWeaponBase* Weapon);
 	bool IsEquippedWeapon()const;
 	bool IsAiming()const;
+	UFUNCTION(BlueprintImplementableEvent)
+		void ShowScopeWidget(bool bAiming);
 
 	AWeaponBase* GetEquippedWeapon()const;
 

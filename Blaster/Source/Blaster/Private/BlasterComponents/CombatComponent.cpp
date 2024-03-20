@@ -148,7 +148,7 @@ void UCombatComponent::InitializeCarruedAmmo(EWeaponType WeaponType)
 		CarriedAmmoMap.Emplace(WeaponType, StartingCarriedAmmo[WeaponType]);
 	}
 	else {
-		CarriedAmmoMap.Emplace(WeaponType, 0.f);
+		CarriedAmmoMap.Emplace(WeaponType, 0);
 	}
 }
 
@@ -218,6 +218,9 @@ void UCombatComponent::OnFiredButtonPressed(bool bPressed)
 	if (bWantFire) {
 		Fire();
 	}
+	else if (!bWantFire && !EquippedWeapon->GetFireMode()) {
+		bCanFire = true;
+	}
 }
 
 void UCombatComponent::Fire()
@@ -253,10 +256,10 @@ void UCombatComponent::StartFireTimer()
 void UCombatComponent::EndFireTimer()
 {
 	if (EquippedWeapon == nullptr) { return; }
-	bCanFire = true;
 	if (bWantFire && EquippedWeapon->GetFireMode()) {
-		Fire();
+		bCanFire = true;
 	}
+	
 	if (EquippedWeapon->IsEmpty()) {
 		Reload();
 	}
@@ -282,10 +285,14 @@ void UCombatComponent::SetAiming(bool bAiming)
 	* call RPC on client - owner actor will run on server,
 	* 加这一行能使client在收到server信息前先执行动画
 	*/
+	if (BlasterCharacter == nullptr || EquippedWeapon == nullptr) { return; }
 	bIsAiming = bAiming;
 	ServerSetAiming(bAiming);
 	if (BlasterCharacter) {
 		BlasterCharacter->GetCharacterMovement()->MaxWalkSpeed = bAiming ? AimWalkSpeed : BaseWalkkSpeed;
+	}
+	if (BlasterCharacter->IsLocallyControlled() && EquippedWeapon->GetWeaponType() == EWeaponType::EWT_SniperRifle) {
+		BlasterCharacter->ShowScopeWidget(bIsAiming);
 	}
 }
 
