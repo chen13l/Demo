@@ -5,6 +5,8 @@
 #include "Components/SphereComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Particles/ParticleSystem.h"
+#include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
 #include "Character/BlasterCharacter.h"
@@ -51,7 +53,7 @@ void AProjectile::BeginPlay()
 
 void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalInpulse, const FHitResult& HitResult)
 {
-	Destroyed();
+	Destroy();
 }
 
 void AProjectile::Tick(float DeltaTime)
@@ -71,3 +73,54 @@ void AProjectile::Destroyed()
 	}
 }
 
+void AProjectile::DestroyTimerFinished()
+{
+	Destroyed();
+}
+
+void AProjectile::StartDestoryTimer()
+{
+	GetWorldTimerManager().SetTimer(
+		DestroyTimer,
+		this,
+		&ThisClass::DestroyTimerFinished,
+		DestroyTime
+	);
+}
+
+void AProjectile::SpawnTrailSystem() {
+	if (TrailSystem) {
+		TrailSystemComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(
+			TrailSystem,
+			GetRootComponent(),
+			FName(),
+			GetActorLocation(),
+			GetActorRotation(),
+			EAttachLocation::KeepWorldPosition,
+			false
+		);
+	}
+}
+
+void AProjectile::ExplodeDamage()
+{
+	APawn* FiringPawn = GetInstigator();
+	if (FiringPawn && HasAuthority()) {
+		AController* FiringController = FiringPawn->GetController();
+		if (FiringController) {
+			UGameplayStatics::ApplyRadialDamageWithFalloff(
+				this,// World context object
+				Damage,//BaseDamage
+				10.f,//Minimum Damage
+				GetActorLocation(),//Origin(FVector)
+				DamageInnerRadius,//DamageInnerRadius
+				DamageOuterRadius,//DamageOuterRadius
+				1.f,//DamageFalloff
+				UDamageType::StaticClass(),//DamageTypeClass
+				TArray<AActor*>(),//Ignore Damage Actors
+				this,//Damage Causer
+				FiringController//Instigator Controller
+			);
+		}
+	}
+}

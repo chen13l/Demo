@@ -29,6 +29,12 @@ protected:
 			const FHitResult& HitResult
 		);
 
+	void SpawnTrailSystem();
+
+	void StartDestoryTimer();
+	void DestroyTimerFinished();
+	void ExplodeDamage();
+
 	UPROPERTY(EditDefaultsOnly)
 		UParticleSystem* ImpactParticle;
 	UPROPERTY(EditDefaultsOnly)
@@ -43,15 +49,29 @@ protected:
 	UPROPERTY(VisibleAnyWhere)
 		class UProjectileMovementComponent* ProjectileMovementComponent;
 
+	UPROPERTY(VisibleAnywhere)
+		UStaticMeshComponent* ProjectileMesh;
+
+	UPROPERTY(EditDefaultsOnly)
+		class UNiagaraSystem* TrailSystem;
+	UPROPERTY()
+		class UNiagaraComponent* TrailSystemComponent;
+
+	UPROPERTY(EditDefaultsOnly)
+		float DamageInnerRadius = 200.f;
+	UPROPERTY(EditDefaultsOnly)
+		float DamageOuterRadius = 500.f;
+
 private:
-
-
 	UPROPERTY(EditDefaultsOnly)
 		UParticleSystem* Tracer;
 
 	class UParticleSystemComponent* TracerComponent = nullptr;
 
-	
+	FTimerHandle DestroyTimer;
+	UPROPERTY(EditDefaultsOnly)
+		float DestroyTime = 3.f;
+
 public:
 
 

@@ -27,16 +27,8 @@ protected:
 		const FHitResult& HitResult
 	)override;
 
+
 private:
-	UPROPERTY(VisibleAnywhere)
-		UStaticMeshComponent* RocketMesh;
-
-	UPROPERTY(EditDefaultsOnly)
-		class UNiagaraSystem* TrailSystem;
-
-	UPROPERTY()
-		class UNiagaraComponent* TrailSystemComponent;
-
 	UPROPERTY(EditDefaultsOnly)
 		class USoundCue* ProjectileLoop;
 
@@ -47,8 +39,5 @@ private:
 		class USoundAttenuation* LoopSoundAttenuation;
 
 
-	FTimerHandle DestroyTimer;
-	UPROPERTY(EditDefaultsOnly)
-		float DestroyTime = 3.f;
-	void DestroyTimerFinished();
+
 };
