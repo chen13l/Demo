@@ -236,6 +236,8 @@ public:
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; }
 	FORCEINLINE bool GetShouldRotateRootBone()const { return bShouldRotateRootBone; }
 
+	FORCEINLINE UAnimMontage* GetReloadMontage()const { return ReloadMontage; }
+
 	void PlayFireMontage(bool bAiming);
 	void PlayReloadMontage();
 

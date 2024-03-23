@@ -4,6 +4,7 @@
 #include "BlasterComponents/CombatComponent.h"
 #include "Weapon/WeaponBase.h"
 #include "Character/BlasterCharacter.h"
+#include "Character/BlasterAnimInstance.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Net/UnrealNetwork.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -140,6 +141,14 @@ void UCombatComponent::OnRep_CarryAmmo()
 	if (BlasterController) {
 		BlasterController->SetHUDCarryAmmo(CarryAmmo);
 	}
+	bool bShouldJumpToShotgunEnd =
+		CombatState == ECombatState::ECS_Reloading &&
+		EquippedWeapon != nullptr &&
+		EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Shotgun &&
+		CarryAmmo == 0;
+	if (bShouldJumpToShotgunEnd) {
+		JumpToSectionEnd();
+	}
 }
 
 void UCombatComponent::InitializeCarruedAmmo(EWeaponType WeaponType)
@@ -238,6 +247,12 @@ void UCombatComponent::Fire()
 bool UCombatComponent::CanFire()
 {
 	if (EquippedWeapon == nullptr) { return false; }
+	if (!EquippedWeapon->IsEmpty() &&
+		bCanFire &&
+		CombatState == ECombatState::ECS_Reloading &&
+		EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Shotgun) {
+		return true;
+	}
 	return !EquippedWeapon->IsEmpty() && bCanFire && CombatState == ECombatState::ECS_Unoccupied;
 }
 
@@ -259,7 +274,7 @@ void UCombatComponent::EndFireTimer()
 	if (bWantFire && EquippedWeapon->GetFireMode()) {
 		bCanFire = true;
 	}
-	
+
 	if (EquippedWeapon->IsEmpty()) {
 		Reload();
 	}
@@ -268,15 +283,27 @@ void UCombatComponent::EndFireTimer()
 void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
 {
 	if (EquippedWeapon == nullptr) { return; }
-	if (BlasterCharacter && CombatState == ECombatState::ECS_Unoccupied) {
-		MulticastFire(TraceHitTarget);
-	}
+
+
+	MulticastFire(TraceHitTarget);
+
 }
 
 void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
 {
-	BlasterCharacter->PlayFireMontage(bIsAiming);
-	EquippedWeapon->Fire(TraceHitTarget);
+	if (BlasterCharacter &&
+		CombatState == ECombatState::ECS_Reloading &&
+		EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Shotgun) {
+
+		BlasterCharacter->PlayFireMontage(bIsAiming);
+		EquippedWeapon->Fire(TraceHitTarget);
+		CombatState = ECombatState::ECS_Unoccupied;
+		return;
+	}
+	if (BlasterCharacter && CombatState == ECombatState::ECS_Unoccupied) {
+		BlasterCharacter->PlayFireMontage(bIsAiming);
+		EquippedWeapon->Fire(TraceHitTarget);
+	}
 }
 
 void UCombatComponent::SetAiming(bool bAiming)
@@ -326,6 +353,13 @@ void UCombatComponent::Reload()
 	}
 }
 
+void UCombatComponent::ShotgunShellReload()
+{
+	if (BlasterCharacter && BlasterCharacter->HasAuthority()) {
+		UpdateShotgunAmmoValues();
+	}
+}
+
 void UCombatComponent::FinishReloading()
 {
 	if (BlasterCharacter == nullptr) { return; }
@@ -352,6 +386,35 @@ void UCombatComponent::UpdateAmmoValues()
 		BlasterController->SetHUDCarryAmmo(CarryAmmo);
 	}
 	EquippedWeapon->AddAmmo(-ReloadAmount);
+}
+
+void UCombatComponent::UpdateShotgunAmmoValues()
+{
+	if (BlasterCharacter == nullptr || EquippedWeapon == nullptr) { return; }
+
+	if (CarriedAmmoMap.Contains(EquippedWeapon->GetWeaponType())) {
+		CarriedAmmoMap[EquippedWeapon->GetWeaponType()] -= 1;
+		CarryAmmo = CarriedAmmoMap[EquippedWeapon->GetWeaponType()];
+	}
+	BlasterController = BlasterController == nullptr ? Cast<ABlasterPlayerController>(BlasterCharacter->Controller) : BlasterController;
+	if (BlasterController) {
+		BlasterController->SetHUDCarryAmmo(CarryAmmo);
+	}
+	EquippedWeapon->AddAmmo(-1);
+	bCanFire = true;
+
+	if (EquippedWeapon->IsFull() || CarryAmmo == 0) {
+		JumpToSectionEnd();
+	}
+}
+
+void UCombatComponent::JumpToSectionEnd()
+{
+	//jump to ShotgunEnd Section
+	UAnimInstance* AnimInstance = BlasterCharacter->GetMesh()->GetAnimInstance();
+	if (AnimInstance && BlasterCharacter->GetReloadMontage() || CarryAmmo == 0) {
+		AnimInstance->Montage_JumpToSection(FName("ShotgunEnd"));
+	}
 }
 
 void UCombatComponent::ServerReload_Implementation()

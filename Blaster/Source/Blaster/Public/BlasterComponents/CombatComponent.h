@@ -92,6 +92,7 @@ private:
 
 	int32 AmountToReload();
 	void UpdateAmmoValues();
+	void UpdateShotgunAmmoValues();
 
 	UPROPERTY(ReplicatedUsing = OnRep_CombatState)
 		ECombatState CombatState = ECombatState::ECS_Unoccupied;
@@ -123,12 +124,19 @@ private:
 		float ZoomInterpSpeed = 20.f;
 	void InterpFOV(float DeltaTime);
 
-
+	
 public:
 	void SetHUDCrosshair(float DeltaTime);
+
 	void Reload();
+
+	UFUNCTION(BlueprintCallable)
+	void ShotgunShellReload();
+	void JumpToSectionEnd();
+
 	UFUNCTION(BlueprintCallable)
 		void FinishReloading();
+
 	ECombatState GetCombatState()const { return CombatState; }
 	void SetWantFire(bool WantFire) { bWantFire = WantFire; }
 };

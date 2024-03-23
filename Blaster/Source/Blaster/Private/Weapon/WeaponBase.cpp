@@ -10,6 +10,7 @@
 #include "Weapon/Casing.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "PlayerController/BlasterPlayerController.h"
+#include "BlasterComponents/CombatComponent.h"
 
 AWeaponBase::AWeaponBase()
 {
@@ -22,6 +23,10 @@ AWeaponBase::AWeaponBase()
 	WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
 	WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	WeaponMesh->SetCustomDepthStencilValue(CUSTOM_DEPTH_BLUE);
+	WeaponMesh->MarkRenderStateDirty();
+	EnableCustomDepth(true);
 
 	AreaSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AreaSphere"));
 	AreaSphere->SetupAttachment(RootComponent);
@@ -54,6 +59,13 @@ void AWeaponBase::Tick(float DeltaTime)
 
 }
 
+void AWeaponBase::EnableCustomDepth(bool bEnable)
+{
+	if (GetWeaponMesh()) {
+		GetWeaponMesh()->SetRenderCustomDepth(bEnable);
+	}
+}
+
 void AWeaponBase::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -77,6 +89,10 @@ void AWeaponBase::OnRep_Owner()
 
 void AWeaponBase::OnRep_Ammo()
 {
+	BlasterOwnerCharacter = BlasterOwnerCharacter == nullptr ? Cast<ABlasterCharacter>(GetOwner()) : BlasterOwnerCharacter;
+	if (BlasterOwnerCharacter && BlasterOwnerCharacter->GetCombatComponent() && IsFull()) {
+		BlasterOwnerCharacter->GetCombatComponent()->JumpToSectionEnd();
+	}
 	SetHUDAmmo();
 }
 
@@ -145,6 +161,9 @@ void AWeaponBase::OnRep_WeaponState()
 			WeaponMesh->SetEnableGravity(true);
 			WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 		}
+
+		EnableCustomDepth(false);
+
 		break;
 	case EWeaponState::EWS_Dropped:
 		ShowPickupWidget(true);
@@ -154,6 +173,11 @@ void AWeaponBase::OnRep_WeaponState()
 		WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
 		WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 		WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+
+		EnableCustomDepth(true);
+		GetWeaponMesh()->SetCustomDepthStencilValue(CUSTOM_DEPTH_BLUE);
+		GetWeaponMesh()->MarkRenderStateDirty();
+
 		break;
 	case EWeaponState::EWS_MAX:
 		break;
@@ -181,6 +205,8 @@ void AWeaponBase::SetWeaponState(EWeaponState State)
 			WeaponMesh->SetEnableGravity(true);
 			WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 		}
+		EnableCustomDepth(false);
+
 		break;
 	case EWeaponState::EWS_Dropped:
 		if (HasAuthority()) {
@@ -193,6 +219,11 @@ void AWeaponBase::SetWeaponState(EWeaponState State)
 		WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
 		WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 		WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+
+		EnableCustomDepth(true);
+		GetWeaponMesh()->SetCustomDepthStencilValue(CUSTOM_DEPTH_BLUE);
+		GetWeaponMesh()->MarkRenderStateDirty();
+
 		break;
 	case EWeaponState::EWS_MAX:
 		break;

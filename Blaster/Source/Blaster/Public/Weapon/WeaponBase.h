@@ -30,6 +30,12 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps)const override;
 	virtual void OnRep_Owner()override;
+
+	/*
+		enable/disable custom depth
+	*/
+	void EnableCustomDepth(bool bEnable);
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -124,4 +130,5 @@ public:
 	FORCEINLINE int32 GetMagCapacity()const { return MagCapacity; }
 	void AddAmmo(int32 AmmoToAdd);
 	bool IsEmpty() { return Ammo <= 0; }
+	bool IsFull() { return Ammo == MagCapacity; }
 };
