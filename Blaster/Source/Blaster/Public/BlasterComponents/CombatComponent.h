@@ -27,6 +27,13 @@ protected:
 	virtual void BeginPlay() override;
 
 	void EquipWeapon(AWeaponBase* WeaponToEquip);
+	void PlayEquipWeaponSound();
+	void UpdateCarriedAmmo();
+	void AttachActorToRightHand(AActor* AttachActor);
+	void DropEquippedWeapon();
+	void AutoReloadWeapon();
+	void AttachActorToLeftHand(AActor* AttachActor);
+
 	UFUNCTION()
 		void OnRep_EquippedWeapon();
 
@@ -49,6 +56,24 @@ protected:
 	void HandleReload();
 
 	void TraceUnderCrossHair(FHitResult& TraceResult);
+
+	/*
+		Grenade
+	*/
+	UPROPERTY(EditDefaultsOnly)
+		TSubclassOf<class AProjectile> GrenadeClass;
+
+	void ThrowGrenade();
+	UFUNCTION(Server, Reliable)
+		void ServerThrowGrenade();
+	UFUNCTION(BlueprintCallable)
+		void ThrowGrenadeFinished();
+
+	void ShowAttachGrenade(bool ShouldShowGrenade);
+	UFUNCTION(BlueprintCallable)
+		void LaunchGrenade();
+	UFUNCTION(Server, Reliable)
+		void ServerLaunchGrenade(const FVector_NetQuantize& Target);
 
 private:
 	class ABlasterCharacter* BlasterCharacter = nullptr;
@@ -86,7 +111,7 @@ private:
 	TMap<EWeaponType, int32> CarriedAmmoMap;
 
 	UPROPERTY(EditDefaultsOnly)
-		TMap<EWeaponType,int32>StartingCarriedAmmo;
+		TMap<EWeaponType, int32>StartingCarriedAmmo;
 
 	void InitializeCarruedAmmo(EWeaponType WeaponType);
 
@@ -111,6 +136,16 @@ private:
 
 	FHUDPackage HUDPackage;
 
+	UPROPERTY(ReplicatedUsing = OnRep_Grenades)
+		int32 Grenades = 4;
+	UFUNCTION()
+		void OnRep_Grenades();
+
+	void UpdateHUDGrenades();
+
+	UPROPERTY(EditDefaultsOnly)
+		int32 MaxGrenades = 4;
+
 	/*
 	* Aimingand FOV
 	*/
@@ -124,14 +159,14 @@ private:
 		float ZoomInterpSpeed = 20.f;
 	void InterpFOV(float DeltaTime);
 
-	
+
 public:
 	void SetHUDCrosshair(float DeltaTime);
 
 	void Reload();
 
 	UFUNCTION(BlueprintCallable)
-	void ShotgunShellReload();
+		void ShotgunShellReload();
 	void JumpToSectionEnd();
 
 	UFUNCTION(BlueprintCallable)
@@ -139,4 +174,6 @@ public:
 
 	ECombatState GetCombatState()const { return CombatState; }
 	void SetWantFire(bool WantFire) { bWantFire = WantFire; }
+
+	FORCEINLINE int32 GetGrenades() const { return Grenades; }
 };

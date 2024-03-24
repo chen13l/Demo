@@ -90,6 +90,8 @@ private:
 		UInputAction* FireAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MovementBase|Weapon", meta = (AllowPrivateAccess))
 		UInputAction* ReloadAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MovementBase|Weapon", meta = (AllowPrivateAccess))
+		UInputAction* ThrowGrenadeAction;
 
 	void OnPressedCrouch();
 	void OnPressedAiming();
@@ -97,6 +99,7 @@ private:
 	void OnFiredButtonPressed();
 	void OnFiredButtonRelease();
 	void OnReloadButtonPressed();
+	void OnGreandeButtonPressed();
 
 	UPROPERTY(ReplicatedUsing = OnRep_DisableGameplay)
 		bool bDisableGameplay = false;
@@ -141,6 +144,8 @@ private:
 		UAnimMontage* HitReactMontage;
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 		UAnimMontage* ReloadMontage;
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+		UAnimMontage* ThrowGrenadeMontage;
 	UPROPERTY(EditDefaultsOnly, Category = "Elim")
 		UAnimMontage* ElimMontage;
 
@@ -210,6 +215,12 @@ private:
 
 	class ABlasterPlayerState* BlasterPlayerState = nullptr;
 
+	/*
+		Grenade
+	*/
+	UPROPERTY(VisibleAnywhere)
+	UStaticMeshComponent* AttachGrenade;
+
 public:
 	/*
 		Combat
@@ -227,6 +238,7 @@ public:
 	FORCEINLINE float GetHealth()const { return Health; }
 	FORCEINLINE float GetMaxHealth()const { return MaxHealth; }
 	FORCEINLINE UCombatComponent* GetCombatComponent()const { return CombatComponent; }
+	FORCEINLINE UStaticMeshComponent* GetAttachGrenade()const { return AttachGrenade; }
 	/*
 		Anim
 	*/
@@ -240,6 +252,7 @@ public:
 
 	void PlayFireMontage(bool bAiming);
 	void PlayReloadMontage();
+	void PlayThrowGrenadeMontage();
 
 	/*
 		Camera

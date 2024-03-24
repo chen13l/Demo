@@ -27,6 +27,7 @@ public:
 	void SetHUDCarryAmmo(int32 CarryAmmo);
 	void SetMatchTime(float Time);
 	void SetHUDAnnouncementCountdown(float Countdown);
+	void SetHUDGrenade(int32 Grenades);
 
 	void OnMatchStateSet(FName State);
 	void HandleCooldown();
@@ -83,4 +84,6 @@ private:
 	float HUDMaxHealth;
 	float HUDScore;
 	int32 HUDDefeats;
+
+	int32 HUDGrenades;
 };

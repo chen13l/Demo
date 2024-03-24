@@ -35,4 +35,7 @@ public:
 
 	UPROPERTY(meta = (BindWiget))
 		UTextBlock* MatchTime;
+
+	UPROPERTY(meta = (BindWiget))
+		UTextBlock* GrenadeText;
 };
