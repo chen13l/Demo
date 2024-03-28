@@ -159,6 +159,10 @@ private:
 		float ZoomInterpSpeed = 20.f;
 	void InterpFOV(float DeltaTime);
 
+	/*
+		pickups
+	*/
+
 
 public:
 	void SetHUDCrosshair(float DeltaTime);
@@ -176,4 +180,9 @@ public:
 	void SetWantFire(bool WantFire) { bWantFire = WantFire; }
 
 	FORCEINLINE int32 GetGrenades() const { return Grenades; }
+
+	/*
+		pickup
+	*/
+	void PickupAmmo(EWeaponType WeaponType, int32 AmmoAmount);
 };

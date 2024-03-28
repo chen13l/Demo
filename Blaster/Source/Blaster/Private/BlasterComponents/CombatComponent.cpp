@@ -201,8 +201,13 @@ void UCombatComponent::OnRep_Grenades()
 
 void UCombatComponent::InitializeCarruedAmmo(EWeaponType WeaponType)
 {
-	if (StartingCarriedAmmo[WeaponType]) {
-		CarriedAmmoMap.Emplace(WeaponType, StartingCarriedAmmo[WeaponType]);
+	if (StartingCarriedAmmo.Contains(WeaponType)) {
+		if (CarriedAmmoMap.Contains(WeaponType)) {
+			CarriedAmmoMap[WeaponType] += StartingCarriedAmmo[WeaponType];
+		}
+		else {
+			CarriedAmmoMap.Emplace(WeaponType, StartingCarriedAmmo[WeaponType]);
+		}
 	}
 	else {
 		CarriedAmmoMap.Emplace(WeaponType, 0);
@@ -247,7 +252,7 @@ void UCombatComponent::PlayEquipWeaponSound()
 
 void UCombatComponent::AutoReloadWeapon()
 {
-	if (CarryAmmo > 0 && CombatState == ECombatState::ECS_Unoccupied && EquippedWeapon && !EquippedWeapon->IsFull()) {
+	if (CarryAmmo > 0 && CombatState == ECombatState::ECS_Unoccupied && EquippedWeapon && EquippedWeapon->IsEmpty()) {
 		Reload();
 	}
 }
@@ -583,7 +588,7 @@ void UCombatComponent::ServerThrowGrenade_Implementation()
 	UpdateHUDGrenades();
 }
 
-void UCombatComponent::UpdateHUDGrenades() 
+void UCombatComponent::UpdateHUDGrenades()
 {
 	BlasterController = BlasterController == nullptr ? Cast<ABlasterPlayerController>(BlasterCharacter->Controller) : BlasterController;
 	if (BlasterController) {
@@ -634,5 +639,18 @@ void UCombatComponent::ServerLaunchGrenade_Implementation(const FVector_NetQuant
 				SpawnParams
 				);
 		}
+	}
+}
+
+void UCombatComponent::PickupAmmo(EWeaponType WeaponType, int32 AmmoAmount)
+{
+	if (CarriedAmmoMap.Contains(WeaponType)) {
+		CarriedAmmoMap[WeaponType] += AmmoAmount;
+
+		UpdateCarriedAmmo();
+	}
+
+	if (EquippedWeapon && EquippedWeapon->IsEmpty() && EquippedWeapon->GetWeaponType() == WeaponType) {
+		Reload();
 	}
 }

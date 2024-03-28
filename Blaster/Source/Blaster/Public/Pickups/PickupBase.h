@@ -17,6 +17,9 @@ public:
 	virtual void Destroyed() override;
 
 protected:
+	UPROPERTY(EditDefaultsOnly)
+		float BaseTurnRate = 45.f;
+
 	virtual void BeginPlay() override;
 	UFUNCTION()
 		virtual void OnSphereOverlap(

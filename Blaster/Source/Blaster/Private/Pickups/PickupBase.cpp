@@ -20,13 +20,14 @@ APickupBase::APickupBase()
 	OverlappedSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	OverlappedSphere->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	OverlappedSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+	OverlappedSphere->AddLocalOffset(FVector(0.f, 0.f, 85.f));
 
 	PickupMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PickupMesh"));
 	PickupMesh->SetupAttachment(OverlappedSphere);
 	PickupMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	PickupMesh->SetCustomDepthStencilValue(CUSTOM_DEPTH_PURPLE);
-	PickupMesh->MarkRenderStateDirty();
+	PickupMesh->SetRelativeScale3D(FVector(5.f, 5.f, 5.f));
 	PickupMesh->SetRenderCustomDepth(true);
+	PickupMesh->SetCustomDepthStencilValue(CUSTOM_DEPTH_PURPLE);
 }
 
 void APickupBase::BeginPlay()
@@ -42,6 +43,9 @@ void APickupBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (PickupMesh) {
+		PickupMesh->AddWorldRotation(FRotator(0.f, BaseTurnRate * DeltaTime, 0.f));
+	}
 }
 
 void APickupBase::Destroyed()
