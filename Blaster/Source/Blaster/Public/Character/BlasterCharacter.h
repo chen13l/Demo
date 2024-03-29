@@ -117,6 +117,9 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess))
 		class UCombatComponent* CombatComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess))
+		class UBuffComponent* BuffComponent;
+
 	UFUNCTION(Server, Reliable)
 		void ServerEquipButtonPressed();
 
@@ -194,7 +197,7 @@ private:
 	UPROPERTY(ReplicatedUsing = OnRep_Health, VisibleAnywhere, Category = "Character Stats")
 		float Health = 100.f;
 	UFUNCTION()
-		void OnRep_Health();
+		void OnRep_Health(float LastHealth);
 
 	UFUNCTION()
 		void ReceiveDamage(
@@ -203,8 +206,6 @@ private:
 			const UDamageType* DamageType,
 			class AController* InstigatorController,
 			AActor* DamageCauser);
-
-	void UpdateHUDHealth();
 
 	bool bIsElim;
 
@@ -237,8 +238,13 @@ public:
 
 	FORCEINLINE float GetHealth()const { return Health; }
 	FORCEINLINE float GetMaxHealth()const { return MaxHealth; }
+	FORCEINLINE void SetHealth(float Amount) { Health = Amount; }
+
+	void UpdateHUDHealth();
+
 	FORCEINLINE UCombatComponent* GetCombatComponent()const { return CombatComponent; }
 	FORCEINLINE UStaticMeshComponent* GetAttachGrenade()const { return AttachGrenade; }
+	FORCEINLINE UBuffComponent* GetBuffComponent()const { return BuffComponent; }
 	/*
 		Anim
 	*/
