@@ -24,14 +24,32 @@ protected:
 private:
 	UPROPERTY()
 		class ABlasterCharacter* BlasterCharacter;
-
+	//heal buff
 	bool bHealing = false;
 	float HealingRate = 0.f;
 	float AmountToHeal = 0.f;
-
+	//speed buff
+	FTimerHandle SpeedBuffTimer;
+	void ResetSpeed();
+	float InitilaBaseSpeed;
+	float InitialCrouchSpeed;
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastSpeedBuff(float BaseSpeed, float CrouchSpeed);
+	//jump buff
+	FTimerHandle JumpBuffTimer;
+	void ResetJump();
+	float InitialJumpVelocity=0.f;
+	UFUNCTION(NetMulticast,Reliable)
+	void MulticastJumpBuff(float JumpVelocity);
 public:
 	void SetBlasterCharacter(ABlasterCharacter* Character) { BlasterCharacter = Character; }
 
 	void Heal(float HealAmount, float HealTime);
+
+	void SpeedBuff(float BuffBaseSpeed, float BuffCrouchSpeed, float BuffTime);
+	void SetInitialSpeed(float BaseSpeed, float CrouchSpeed);
+
+	void BuffJump(float BuffJumpVelocity, float BuffTime);
+	void SetInitialJumpVelocty(float Velocity);
 
 };

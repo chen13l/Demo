@@ -41,6 +41,12 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 		class UStaticMeshComponent* PickupMesh;
 
+	UPROPERTY(VisibleAnywhere)
+		class UNiagaraComponent* PickupEffectComponent;
+
+	UPROPERTY(EditDefaultsOnly)
+		class UNiagaraSystem* PickupEffect;
+
 public:
 
 
