@@ -23,13 +23,14 @@ void UBuffComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	HealRamup(DeltaTime);
+	ShieldRamup(DeltaTime);
 }
 
-void UBuffComponent::HealRamup(float DealtaTime)
+void UBuffComponent::HealRamup(float DeltaTime)
 {
 	if (!bHealing || BlasterCharacter == nullptr || BlasterCharacter->GetIsElim()) { return; }
 
-	const float HealThisFame = HealingRate * DealtaTime;
+	const float HealThisFame = HealingRate * DeltaTime;
 	BlasterCharacter->SetHealth(FMath::Clamp(BlasterCharacter->GetHealth() + HealThisFame, 0, BlasterCharacter->GetMaxHealth()));
 	BlasterCharacter->UpdateHUDHealth();
 	AmountToHeal -= HealThisFame;
@@ -47,6 +48,27 @@ void UBuffComponent::Heal(float HealAmount, float HealTime)
 	AmountToHeal += HealAmount;
 }
 
+void UBuffComponent::ShieldRamup(float DeltaTime)
+{
+	if (!bReplenishShield || BlasterCharacter == nullptr || BlasterCharacter->GetIsElim()) { return; }
+
+	const float ReplenishThisFame = ShieldReplenishRate * DeltaTime;
+	BlasterCharacter->SetHealth(FMath::Clamp(BlasterCharacter->GetHealth() + ReplenishThisFame, 0, BlasterCharacter->GetMaxShield()));
+	BlasterCharacter->UpdateHUDShield();
+	ShieldAmountReplenish -= ReplenishThisFame;
+
+	if (ShieldAmountReplenish <= 0 || BlasterCharacter->GetShield() >= BlasterCharacter->GetMaxShield()) {
+		bReplenishShield = false;
+		ShieldAmountReplenish = 0.f;
+	}
+}
+
+void UBuffComponent::ReplenishShield(float ShieldAmount, float ReplenishTime)
+{
+	bReplenishShield = true;
+	ShieldReplenishRate = ShieldAmount / ReplenishTime;
+	ShieldAmountReplenish += ShieldAmount;
+}
 
 void UBuffComponent::SetInitialSpeed(float BaseSpeed, float CrouchSpeed)
 {
