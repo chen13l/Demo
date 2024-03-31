@@ -29,7 +29,7 @@ public:
 	virtual void PostInitializeComponents()override;
 	virtual void Destroyed() override;
 	virtual void OnRep_ReplicatedMovement()override;
-protected:
+protected:	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	//poll for relevent classes & initialize hud
@@ -164,7 +164,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Elim")
 		class USoundCue* ElimBotSound;
 
-
 	/**
 	 * Dissolve Effect
 	 */
@@ -199,6 +198,13 @@ private:
 	UFUNCTION()
 		void OnRep_Health(float LastHealth);
 
+	UPROPERTY(EditDefaultsOnly, Category = "Character Stats")
+		float MaxShield = 100.f;
+	UPROPERTY(ReplicatedUsing = OnRep_Shield, VisibleAnywhere, Category = "Character Stats")
+		float Shield = 100.f;
+	UFUNCTION()
+		void OnRep_Shield(float LastShield);
+
 	UFUNCTION()
 		void ReceiveDamage(
 			AActor* DamagedActor,
@@ -220,7 +226,7 @@ private:
 		Grenade
 	*/
 	UPROPERTY(VisibleAnywhere)
-	UStaticMeshComponent* AttachGrenade;
+		UStaticMeshComponent* AttachGrenade;
 
 public:
 	/*
@@ -241,6 +247,7 @@ public:
 	FORCEINLINE void SetHealth(float Amount) { Health = Amount; }
 
 	void UpdateHUDHealth();
+	void UpdateHUDShield();
 
 	FORCEINLINE UCombatComponent* GetCombatComponent()const { return CombatComponent; }
 	FORCEINLINE UStaticMeshComponent* GetAttachGrenade()const { return AttachGrenade; }

@@ -27,7 +27,6 @@
 #include "PlayerState/BlasterPlayerState.h"
 #include "Weapon/WeaponTypes.h"
 
-
 // Sets default values
 ABlasterCharacter::ABlasterCharacter()
 {
@@ -84,7 +83,7 @@ void ABlasterCharacter::PostInitializeComponents()
 	}
 	if (BuffComponent) {
 		BuffComponent->SetBlasterCharacter(this);
-		BuffComponent->SetInitialSpeed(GetCharacterMovement()->MaxWalkSpeed,GetCharacterMovement()->MaxWalkSpeedCrouched);
+		BuffComponent->SetInitialSpeed(GetCharacterMovement()->MaxWalkSpeed, GetCharacterMovement()->MaxWalkSpeedCrouched);
 		BuffComponent->SetInitialJumpVelocty(GetCharacterMovement()->JumpZVelocity);
 	}
 }
@@ -95,6 +94,7 @@ void ABlasterCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	UpdateHUDHealth();
+	UpdateHUDShield();
 
 	if (HasAuthority()) {
 		OnTakeAnyDamage.AddDynamic(this, &ThisClass::ReceiveDamage);
@@ -270,13 +270,6 @@ void ABlasterCharacter::TurnInPlace(float DeltaTime)
 	}
 }
 
-void ABlasterCharacter::OnRep_ReplicatedMovement()
-{
-	Super::OnRep_ReplicatedMovement();
-	SimProxiesTurn();
-	TimeSinceLastMovementRep = 0.f;
-}
-
 void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -284,8 +277,105 @@ void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<class FLifetimePropert
 	DOREPLIFETIME_CONDITION(ABlasterCharacter, OverlappingWeapon, COND_OwnerOnly);
 	DOREPLIFETIME(ABlasterCharacter, Health);
 	DOREPLIFETIME(ABlasterCharacter, bDisableGameplay);
+	DOREPLIFETIME(ABlasterCharacter, Shield);
+}
+//override function
+void ABlasterCharacter::OnRep_ReplicatedMovement()
+{
+	Super::OnRep_ReplicatedMovement();
+	SimProxiesTurn();
+	TimeSinceLastMovementRep = 0.f;
 }
 
+void ABlasterCharacter::OnRep_DisableGameplay()
+{
+	if (CombatComponent)
+	{
+		CombatComponent->SetWantFire(false);
+	}
+	if (InputComponent) {
+		SetupPlayerInputComponent(InputComponent);
+	}
+}
+
+void ABlasterCharacter::OnRep_OverlappingWeapon(AWeaponBase* LastWeapon)
+{
+	if (OverlappingWeapon) {
+		OverlappingWeapon->ShowPickupWidget(true);
+	}
+	if (LastWeapon) {
+		LastWeapon->ShowPickupWidget(false);
+	}
+}
+
+void ABlasterCharacter::OnRep_Health(float LastHealth)
+{
+	UpdateHUDHealth();
+	if (Health < LastHealth) {
+		PlayHitReactMontage();
+	}
+}
+
+void ABlasterCharacter::OnRep_Shield(float LastShield)
+{
+	UpdateHUDHealth();
+	if (Shield < LastShield) {
+		PlayHitReactMontage();
+	}
+}
+
+void ABlasterCharacter::UpdateHUDHealth()
+{
+	BlasterPlayerController = BlasterPlayerController == nullptr ? Cast<ABlasterPlayerController>(Controller) : BlasterPlayerController;
+	if (BlasterPlayerController) {
+		BlasterPlayerController->SetHealthPercent(Health, MaxHealth);
+	}
+}
+
+void ABlasterCharacter::UpdateHUDShield()
+{
+	BlasterPlayerController = BlasterPlayerController == nullptr ? Cast<ABlasterPlayerController>(Controller) : BlasterPlayerController;
+	if (BlasterPlayerController) {
+		BlasterPlayerController->SetShieldPercent(Shield, MaxShield);
+	}
+}
+
+void ABlasterCharacter::ReceiveDamage(
+	AActor* DamagedActor,
+	float Damage,
+	const UDamageType* DamageType,
+	AController* InstigatorController,
+	AActor* DamageCauser)
+{
+	if (bIsElim) { return; }
+
+	float DamageToHealth = Damage;
+	if (Shield > 0) {
+		if (Shield >= Damage) {
+			Shield = FMath::Clamp(Shield - Damage, 0, MaxShield);
+			DamageToHealth = 0.f;
+		}
+		else {
+			Shield = 0.f;
+			DamageToHealth = FMath::Clamp(DamageToHealth - Shield, 0, Damage);
+		}
+		UpdateHUDShield();
+	}
+	if (DamageToHealth > 0) {
+		Health = FMath::Clamp(Health - DamageToHealth, 0.f, MaxHealth);
+		UpdateHUDHealth();
+	}
+	PlayHitReactMontage();
+
+	if (Health == 0.f) {
+		ABlasterGameMode* BlasterGameMode = GetWorld()->GetAuthGameMode<ABlasterGameMode>();
+		if (BlasterGameMode) {
+			BlasterPlayerController = BlasterPlayerController == nullptr ? Cast<ABlasterPlayerController>(Controller) : BlasterPlayerController;
+			ABlasterPlayerController* AttackerController = Cast<ABlasterPlayerController>(InstigatorController);
+			BlasterGameMode->PlayerEliminated(this, BlasterPlayerController, AttackerController);
+		}
+	}
+}
 
 // Called to bind functionality to input
 void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -523,15 +613,6 @@ void ABlasterCharacter::StartDissolve()
 	}
 }
 
-void ABlasterCharacter::OnRep_OverlappingWeapon(AWeaponBase* LastWeapon)
-{
-	if (OverlappingWeapon) {
-		OverlappingWeapon->ShowPickupWidget(true);
-	}
-	if (LastWeapon) {
-		LastWeapon->ShowPickupWidget(false);
-	}
-}
 
 void ABlasterCharacter::ServerEquipButtonPressed_Implementation()
 {
@@ -571,43 +652,6 @@ FVector ABlasterCharacter::GetHitTarget() const
 {
 	if (CombatComponent == nullptr)return FVector();
 	return CombatComponent->HitTarget;
-}
-
-void ABlasterCharacter::OnRep_Health(float LastHealth)
-{
-	UpdateHUDHealth();
-	if (Health < LastHealth) {
-		PlayHitReactMontage();
-	}
-}
-
-void ABlasterCharacter::UpdateHUDHealth()
-{
-	BlasterPlayerController = BlasterPlayerController == nullptr ? Cast<ABlasterPlayerController>(Controller) : BlasterPlayerController;
-	if (BlasterPlayerController) {
-		BlasterPlayerController->SetHealthPercent(Health, MaxHealth);
-	}
-}
-
-void ABlasterCharacter::ReceiveDamage(
-	AActor* DamagedActor,
-	float Damage,
-	const UDamageType* DamageType,
-	AController* InstigatorController,
-	AActor* DamageCauser)
-{
-	Health = FMath::Clamp(Health - Damage, 0.f, MaxHealth);
-	UpdateHUDHealth();
-	PlayHitReactMontage();
-
-	if (Health == 0.f) {
-		ABlasterGameMode* BlasterGameMode = GetWorld()->GetAuthGameMode<ABlasterGameMode>();
-		if (BlasterGameMode) {
-			BlasterPlayerController = BlasterPlayerController == nullptr ? Cast<ABlasterPlayerController>(Controller) : BlasterPlayerController;
-			ABlasterPlayerController* AttackerController = Cast<ABlasterPlayerController>(InstigatorController);
-			BlasterGameMode->PlayerEliminated(this, BlasterPlayerController, AttackerController);
-		}
-	}
 }
 
 void ABlasterCharacter::Elim()
@@ -711,13 +755,3 @@ void ABlasterCharacter::SetDisableGameplay(bool ShouldDisalbe)
 	}
 }
 
-void ABlasterCharacter::OnRep_DisableGameplay()
-{
-	if (CombatComponent)
-	{
-		CombatComponent->SetWantFire(false);
-	}
-	if (InputComponent) {
-		SetupPlayerInputComponent(InputComponent);
-	}
-}

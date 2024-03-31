@@ -77,14 +77,15 @@ void ABlasterPlayerController::PollInit()
 			CharacterOverlay = BlasterHUD->CharacterOverlay;
 			if (CharacterOverlay)
 			{
-				SetHealthPercent(HUDHealth, HUDMaxHealth);
-				SetHUDScore(HUDScore);
-				SetHUDDefeats(HUDDefeats);
+				if(bInitializehealth)SetHealthPercent(HUDHealth, HUDMaxHealth);
+				if (bInitializeShield)SetShieldPercent(HUDShield, HUDMaxShield);
+				if (bInitializeScore)SetHUDScore(HUDScore);
+				if (bInitializeDefeats)SetHUDDefeats(HUDDefeats);
 
 				ABlasterCharacter* BlasterCharacter = Cast<ABlasterCharacter>(GetPawn());
 				if (BlasterCharacter && BlasterCharacter->GetCombatComponent()) 
 				{
-					SetHUDGrenade(BlasterCharacter->GetCombatComponent()->GetGrenades());
+					if (bInitializeGrenades)SetHUDGrenade(BlasterCharacter->GetCombatComponent()->GetGrenades());
 				}
 			}
 		}
@@ -103,14 +104,37 @@ void ABlasterPlayerController::SetHealthPercent(float Health, float MaxHealth)
 		const float HealthPercent = Health / MaxHealth;
 		BlasterHUD->CharacterOverlay->HealthBar->SetPercent(HealthPercent);
 
-		FString HealtText = FString::Printf(TEXT("%d/%d"), FMath::CeilToInt(Health), FMath::CeilToInt(MaxHealth));
-		BlasterHUD->CharacterOverlay->HealthText->SetText(FText::FromString(HealtText));
+		FString TextofHealth = FString::Printf(TEXT("%d/%d"), FMath::CeilToInt(Health), FMath::CeilToInt(MaxHealth));
+		BlasterHUD->CharacterOverlay->HealthText->SetText(FText::FromString(TextofHealth));
 	}
 	else
 	{
-		bInitializeCharacterOverlay = true;
+		bInitializehealth = true;
 		HUDHealth = Health;
 		HUDMaxHealth = MaxHealth;
+	}
+}
+
+void ABlasterPlayerController::SetShieldPercent(float Shield, float MaxShield)
+{
+	BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
+	bool bHUDValid = BlasterHUD &&
+		BlasterHUD->CharacterOverlay &&
+		BlasterHUD->CharacterOverlay->ShieldBar &&
+		BlasterHUD->CharacterOverlay->ShieldText;
+
+	if (bHUDValid) {
+		const float ShieldPercent = Shield / MaxShield;
+		BlasterHUD->CharacterOverlay->ShieldBar->SetPercent(ShieldPercent);
+
+		FString TextofShield= FString::Printf(TEXT("%d/%d"), FMath::CeilToInt(Shield), FMath::CeilToInt(MaxShield));
+		BlasterHUD->CharacterOverlay->ShieldText->SetText(FText::FromString(TextofShield));
+	}
+	else
+	{
+		bInitializeShield = true;
+		HUDShield = Shield;
+		HUDMaxShield = MaxShield;
 	}
 }
 
@@ -127,7 +151,7 @@ void ABlasterPlayerController::SetHUDScore(float Score)
 	}
 	else
 	{
-		bInitializeCharacterOverlay = true;
+		bInitializeScore = true;
 		HUDScore = Score;
 	}
 }
@@ -145,7 +169,7 @@ void ABlasterPlayerController::SetHUDDefeats(int32 Defeats)
 	}
 	else
 	{
-		bInitializeCharacterOverlay = true;
+		bInitializeDefeats = true;
 		HUDDefeats = Defeats;
 	}
 }
@@ -268,6 +292,7 @@ void ABlasterPlayerController::SetHUDGrenade(int32 Grenades)
 		BlasterHUD->CharacterOverlay->GrenadeText->SetText(FText::FromString(Text));
 	}
 	else {
+		bInitializeGrenades = true;
 		HUDGrenades = Grenades;
 	}
 }

@@ -21,6 +21,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps)const override;
 	virtual float GetServerTime()const;
 	void SetHealthPercent(float Health, float MaxHealth);
+	void SetShieldPercent(float Shield, float MaxShield);
 	void SetHUDScore(float Score);
 	void SetHUDDefeats(int32 Defeats);
 	void SetHUDAmmo(int32 WeaponAmmo);
@@ -78,12 +79,22 @@ private:
 	UPROPERTY()
 		class ABlasterGameMode* BlasterGameMode;
 
-	bool bInitializeCharacterOverlay = false;
-
 	float HUDHealth;
 	float HUDMaxHealth;
+	bool bInitializehealth = false;
+
+	float HUDShield;
+	float HUDMaxShield;
+	bool bInitializeShield = false;
+
 	float HUDScore;
+	bool bInitializeScore = false;
+
 	int32 HUDDefeats;
+	bool bInitializeDefeats = false;
 
 	int32 HUDGrenades;
+	bool bInitializeGrenades = false;
+
+
 };
