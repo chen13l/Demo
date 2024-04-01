@@ -101,6 +101,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties")
 		EWeaponType WeaponType;
 
+	//default weapon
+	bool bIsAutoDestroyWeapon = false;
 public:
 	UPROPERTY(EditDefaultsOnly, Category = "Crosshairs")
 		class UTexture2D* CrosshairsCenter;
@@ -128,6 +130,8 @@ public:
 	FORCEINLINE EWeaponType GetWeaponType()const { return WeaponType; }
 	FORCEINLINE int32 GetWeaponAmmo()const { return Ammo; }
 	FORCEINLINE int32 GetMagCapacity()const { return MagCapacity; }
+	FORCEINLINE bool GetIsAutoDestroy()const { return bIsAutoDestroyWeapon; }
+	void SetIsAutoDestroy(bool ShouldAutoDestroy) { bIsAutoDestroyWeapon = ShouldAutoDestroy; }
 	void AddAmmo(int32 AmmoToAdd);
 	bool IsEmpty() { return Ammo <= 0; }
 	bool IsFull() { return Ammo == MagCapacity; }

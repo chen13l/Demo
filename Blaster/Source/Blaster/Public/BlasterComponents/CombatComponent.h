@@ -160,9 +160,12 @@ private:
 	void InterpFOV(float DeltaTime);
 
 	/*
-		pickups
+		default weapon
 	*/
+	UPROPERTY(EditDefaultsOnly)
+		TSubclassOf<AWeaponBase>DefaultWeaponClass;
 
+	void InitializeStartingHUDAmmo();
 
 public:
 	void SetHUDCrosshair(float DeltaTime);
@@ -185,4 +188,9 @@ public:
 		pickup
 	*/
 	void PickupAmmo(EWeaponType WeaponType, int32 AmmoAmount);
+
+	/*
+		Default Weapon
+	*/
+	void SpawnDefautlWeapon();
 };

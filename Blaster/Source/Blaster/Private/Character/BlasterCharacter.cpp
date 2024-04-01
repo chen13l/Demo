@@ -657,7 +657,12 @@ FVector ABlasterCharacter::GetHitTarget() const
 void ABlasterCharacter::Elim()
 {
 	if (CombatComponent && CombatComponent->EquippedWeapon) {
-		CombatComponent->EquippedWeapon->Dropped();
+		if (CombatComponent->EquippedWeapon->GetIsAutoDestroy()) {
+			CombatComponent->EquippedWeapon->Destroy();
+		}
+		else {
+			CombatComponent->EquippedWeapon->Dropped();
+		}
 	}
 
 	MulticastElim();
