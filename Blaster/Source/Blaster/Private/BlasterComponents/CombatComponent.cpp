@@ -97,22 +97,18 @@ void UCombatComponent::OnRep_EquippedWeapon()
 		BlasterCharacter->bUseControllerRotationYaw = true;
 
 		EquippedWeapon->EnableCustomDepth(false);
+		EquippedWeapon->SetHUDAmmo();
 	}
 }
 
 void UCombatComponent::OnRep_SecondaryWeapon()
 {
 	if (SecondaryWeapon && BlasterCharacter) {
-		SecondaryWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
+		SecondaryWeapon->SetWeaponState(EWeaponState::EWS_EquippedSecondary);
 
 		AttachActorToBackpack(SecondaryWeapon);
 
 		PlayEquipWeaponSound(SecondaryWeapon);
-
-		if (SecondaryWeapon->GetWeaponMesh()) {
-			SecondaryWeapon->GetWeaponMesh()->SetCustomDepthStencilValue(CUSTOM_DEPTH_TAN);
-			SecondaryWeapon->GetWeaponMesh()->MarkRenderStateDirty();
-		}
 	}
 }
 
@@ -194,7 +190,6 @@ void UCombatComponent::EquipPrimaryWeapon(AWeaponBase* WeaponToEquip)
 
 	AutoReloadWeapon();
 
-	EquippedWeapon->EnableCustomDepth(false);
 }
 
 void UCombatComponent::EquipSecondaryWeapon(AWeaponBase* WeaponToEquip)
@@ -202,16 +197,29 @@ void UCombatComponent::EquipSecondaryWeapon(AWeaponBase* WeaponToEquip)
 	if (WeaponToEquip == nullptr)return;
 
 	SecondaryWeapon = WeaponToEquip;
-	SecondaryWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
+	SecondaryWeapon->SetWeaponState(EWeaponState::EWS_EquippedSecondary);
 
 	AttachActorToBackpack(WeaponToEquip);
 
 	SecondaryWeapon->SetOwner(BlasterCharacter);
 	PlayEquipWeaponSound(SecondaryWeapon);
-	if (SecondaryWeapon->GetWeaponMesh()) {
-		SecondaryWeapon->GetWeaponMesh()->SetCustomDepthStencilValue(CUSTOM_DEPTH_TAN);
-		SecondaryWeapon->GetWeaponMesh()->MarkRenderStateDirty();
-	}
+}
+
+void UCombatComponent::SwapWeapons()
+{
+	if (!CanSwapWeapon())return;
+	AWeaponBase* TemWeapon = EquippedWeapon;
+	EquippedWeapon = SecondaryWeapon;
+	SecondaryWeapon = TemWeapon;
+
+	EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
+	AttachActorToRightHand(EquippedWeapon);
+	EquippedWeapon->SetHUDAmmo();
+	UpdateCarriedAmmo();
+	PlayEquipWeaponSound(EquippedWeapon);
+
+	SecondaryWeapon->SetWeaponState(EWeaponState::EWS_EquippedSecondary);
+	AttachActorToBackpack(SecondaryWeapon);
 }
 
 void UCombatComponent::PlayEquipWeaponSound(AWeaponBase* WeaponToEquip)

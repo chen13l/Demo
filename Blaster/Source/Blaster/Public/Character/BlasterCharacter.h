@@ -85,6 +85,8 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MovementBase|Weapon", meta = (AllowPrivateAccess))
 		UInputAction* EquipAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MovementBase|Weapon", meta = (AllowPrivateAccess))
+		UInputAction* SwapWeaponAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MovementBase|Weapon", meta = (AllowPrivateAccess))
 		UInputAction* AimingAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MovementBase|Weapon", meta = (AllowPrivateAccess))
 		UInputAction* FireAction;
@@ -93,6 +95,7 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MovementBase|Weapon", meta = (AllowPrivateAccess))
 		UInputAction* ThrowGrenadeAction;
 
+
 	void OnPressedCrouch();
 	void OnPressedAiming();
 	void OnReleaseAiming();
@@ -100,6 +103,7 @@ private:
 	void OnFiredButtonRelease();
 	void OnReloadButtonPressed();
 	void OnGreandeButtonPressed();
+	void OnSwapWeapon();
 
 	UPROPERTY(ReplicatedUsing = OnRep_DisableGameplay)
 		bool bDisableGameplay = false;

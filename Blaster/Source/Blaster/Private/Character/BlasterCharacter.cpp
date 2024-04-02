@@ -403,6 +403,7 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 				EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Completed, this, &ThisClass::OnFiredButtonRelease);
 				EnhancedInputComponent->BindAction(ReloadAction, ETriggerEvent::Triggered, this, &ThisClass::OnReloadButtonPressed);
 				EnhancedInputComponent->BindAction(ThrowGrenadeAction, ETriggerEvent::Triggered, this, &ThisClass::OnGreandeButtonPressed);
+				EnhancedInputComponent->BindAction(SwapWeaponAction, ETriggerEvent::Triggered, this, &ThisClass::OnSwapWeapon);
 			}
 			else {
 				EnhancedInputComponent->ClearActionBindings();
@@ -442,6 +443,20 @@ void ABlasterCharacter::EquipButtonPressed()
 {
 	if (CombatComponent) {
 		ServerEquipButtonPressed();
+	}
+}
+
+void ABlasterCharacter::ServerEquipButtonPressed_Implementation()
+{
+	if (CombatComponent) {
+		CombatComponent->EquipWeapon(OverlappingWeapon);
+	}
+}
+
+void ABlasterCharacter::OnSwapWeapon()
+{
+	if (CombatComponent && CombatComponent->CanSwapWeapon()) {
+		CombatComponent->SwapWeapons();
 	}
 }
 
@@ -605,14 +620,6 @@ void ABlasterCharacter::StartDissolve()
 	if (DissolveCurve && DissolveTimeline) {
 		DissolveTimeline->AddInterpFloat(DissolveCurve, DissolveTrack);
 		DissolveTimeline->Play();
-	}
-}
-
-
-void ABlasterCharacter::ServerEquipButtonPressed_Implementation()
-{
-	if (CombatComponent) {
-		CombatComponent->EquipWeapon(OverlappingWeapon);
 	}
 }
 

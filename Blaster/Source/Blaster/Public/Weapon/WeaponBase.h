@@ -11,6 +11,7 @@ UENUM(BlueprintType)
 enum class EWeaponState :uint8 {
 	EWS_Initial UMETA(DisplayName = "Initail State"),
 	EWS_Equipped UMETA(DisplayName = "Equipped"),
+	EWS_EquippedSecondary UMETA(DisplayName = "EquippedSecondary"),
 	EWS_Dropped UMETA(DisplayName = "Dropped"),
 
 	EWS_MAX UMETA(DisplayName = "DefaultMAX")
@@ -35,6 +36,13 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	/*
+		WeaponState
+	*/
+	virtual void OnWeaponStateSet();
+	virtual void OnEquipped();
+	virtual void OnDropped();
+	virtual void OnEquippedSecondary();
 
 	UFUNCTION()
 		virtual void OnSphereOverlap(UPrimitiveComponent* OverlappedComponent,
@@ -62,7 +70,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties")
 		class USoundCue* EquippedSound;
-
+	/*
+		WeaponState
+	*/
 	UPROPERTY(ReplicatedUsing = OnRep_WeaponState, VisibleAnywhere, Category = "WeaponProperties")
 		EWeaponState WeaponState;
 	UFUNCTION()
@@ -103,6 +113,7 @@ private:
 
 	//default weapon
 	bool bIsAutoDestroyWeapon = false;
+
 public:
 	UPROPERTY(EditDefaultsOnly, Category = "Crosshairs")
 		class UTexture2D* CrosshairsCenter;

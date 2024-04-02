@@ -2,6 +2,7 @@
 
 
 #include "Weapon/ProjectileRocket.h"
+#include "Weapon/RocketMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
 #include "Components/AudioComponent.h"
@@ -13,6 +14,12 @@ AProjectileRocket::AProjectileRocket()
 	ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RocketMesh"));
 	ProjectileMesh->SetupAttachment(RootComponent);
 	ProjectileMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	RocketMovementComponent = CreateDefaultSubobject<URocketMovementComponent>(TEXT("RocketMovementComponent"));
+	RocketMovementComponent->bRotationFollowsVelocity = true;
+	RocketMovementComponent->SetIsReplicated(true);
+	RocketMovementComponent->InitialSpeed = 15000.f;
+	RocketMovementComponent->MaxSpeed = 15000.f;
 }
 
 void AProjectileRocket::BeginPlay()

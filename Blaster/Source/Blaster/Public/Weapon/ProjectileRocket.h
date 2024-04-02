@@ -38,6 +38,6 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 		class USoundAttenuation* LoopSoundAttenuation;
 
-
-
+	UPROPERTY(VisibleDefaultsOnly)
+		class URocketMovementComponent* RocketMovementComponent;
 };

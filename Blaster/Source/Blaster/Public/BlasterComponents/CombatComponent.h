@@ -29,14 +29,17 @@ protected:
 	void EquipWeapon(AWeaponBase* WeaponToEquip);
 	void EquipPrimaryWeapon(AWeaponBase* WeaponToEquip);
 	void EquipSecondaryWeapon(AWeaponBase* WeaponToEquip);
+	void SwapWeapons();
+	void DropEquippedWeapon();
+
 
 	void AttachActorToRightHand(AActor* AttachActor);
 	void AttachActorToLeftHand(AActor* AttachActor);
 	void AttachActorToBackpack(AActor* AttachActor);
 
 	void PlayEquipWeaponSound(AWeaponBase* WeaponToEquip);
+
 	void UpdateCarriedAmmo();
-	void DropEquippedWeapon();
 	void AutoReloadWeapon();
 
 	void SetAiming(bool bAiming);
@@ -54,7 +57,6 @@ protected:
 
 	UFUNCTION(Server, Reliable)
 		void ServerReload();
-
 	void HandleReload();
 
 	void TraceUnderCrossHair(FHitResult& TraceResult);
@@ -193,6 +195,7 @@ public:
 
 	FORCEINLINE int32 GetGrenades() const { return Grenades; }
 
+	bool CanSwapWeapon() { return (EquippedWeapon != nullptr && SecondaryWeapon != nullptr); }
 	/*
 		pickup
 	*/
