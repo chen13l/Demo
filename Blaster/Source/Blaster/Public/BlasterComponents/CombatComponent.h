@@ -27,15 +27,17 @@ protected:
 	virtual void BeginPlay() override;
 
 	void EquipWeapon(AWeaponBase* WeaponToEquip);
-	void PlayEquipWeaponSound();
-	void UpdateCarriedAmmo();
+	void EquipPrimaryWeapon(AWeaponBase* WeaponToEquip);
+	void EquipSecondaryWeapon(AWeaponBase* WeaponToEquip);
+
 	void AttachActorToRightHand(AActor* AttachActor);
+	void AttachActorToLeftHand(AActor* AttachActor);
+	void AttachActorToBackpack(AActor* AttachActor);
+
+	void PlayEquipWeaponSound(AWeaponBase* WeaponToEquip);
+	void UpdateCarriedAmmo();
 	void DropEquippedWeapon();
 	void AutoReloadWeapon();
-	void AttachActorToLeftHand(AActor* AttachActor);
-
-	UFUNCTION()
-		void OnRep_EquippedWeapon();
 
 	void SetAiming(bool bAiming);
 	UFUNCTION(Server, Reliable)
@@ -89,6 +91,13 @@ private:
 	*/
 	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon)
 		AWeaponBase* EquippedWeapon;
+	UFUNCTION()
+		void OnRep_EquippedWeapon();
+
+	UPROPERTY(ReplicatedUsing = OnRep_SecondaryWeapon)
+		AWeaponBase* SecondaryWeapon;
+	UFUNCTION()
+		void OnRep_SecondaryWeapon();
 
 	UPROPERTY(Replicated)
 		bool bIsAiming;

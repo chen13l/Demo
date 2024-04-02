@@ -22,9 +22,6 @@ class BLASTER_API AWeaponBase : public AActor
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties")
-		class USoundCue* EquippedSound;
-
 	AWeaponBase();
 	virtual void Tick(float DeltaTime) override;
 
@@ -62,6 +59,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = "WeaponProperties")
 		class USphereComponent* AreaSphere;
+
+	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties")
+		class USoundCue* EquippedSound;
 
 	UPROPERTY(ReplicatedUsing = OnRep_WeaponState, VisibleAnywhere, Category = "WeaponProperties")
 		EWeaponState WeaponState;
@@ -123,6 +123,8 @@ public:
 	void SetHUDAmmo();
 
 	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh()const { return WeaponMesh; }
+	FORCEINLINE USoundCue* GetEquipSound()const { return EquippedSound; }
+
 	FORCEINLINE float GetZoomedFOV()const { return ZoomedFOV; }
 	FORCEINLINE float GetZoomInterpSpeed() const { return ZoomInterpSpeed; }
 	FORCEINLINE float GetFireRate() const { return FireRate; }
