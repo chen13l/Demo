@@ -285,6 +285,7 @@ public:
 	*/
 	FORCEINLINE bool GetDisableGameplay()const { return bDisableGameplay; }
 	void Elim();
+	void DropOrDestroyWeapons();
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastElim();
 	FORCEINLINE bool GetIsElim()const { return bIsElim; }

@@ -205,4 +205,6 @@ public:
 		Default Weapon
 	*/
 	void SpawnDefautlWeapon();
+
+	AWeaponBase* GetSecondaryWeapon()const { return SecondaryWeapon; }
 };

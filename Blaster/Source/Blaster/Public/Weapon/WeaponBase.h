@@ -143,7 +143,7 @@ public:
 	FORCEINLINE EWeaponType GetWeaponType()const { return WeaponType; }
 	FORCEINLINE int32 GetWeaponAmmo()const { return Ammo; }
 	FORCEINLINE int32 GetMagCapacity()const { return MagCapacity; }
-	FORCEINLINE bool GetIsAutoDestroy()const { return bIsAutoDestroyWeapon; }
+	FORCEINLINE bool IsAutoDestroy()const { return bIsAutoDestroyWeapon; }
 	void SetIsAutoDestroy(bool ShouldAutoDestroy) { bIsAutoDestroyWeapon = ShouldAutoDestroy; }
 	void AddAmmo(int32 AmmoToAdd);
 	bool IsEmpty() { return Ammo <= 0; }

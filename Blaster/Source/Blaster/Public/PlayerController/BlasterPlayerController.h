@@ -60,6 +60,13 @@ protected:
 	UFUNCTION(Client, Reliable)
 		void ClientJoinMidGame(FName StateOfTheMatch, float Warmup, float TimeOfMatch, float StartingTime, float Cooldown);
 
+	/*
+		Ping
+	*/
+	void CheckPing(float DeltaTime);
+	void HighPingWarning();
+	void StopHighPingWarning();
+
 private:
 	class ABlasterHUD* BlasterHUD = nullptr;
 
@@ -101,4 +108,18 @@ private:
 
 	int32 HUDCarriedAmmo;
 	bool bInitializeCarriedAmmo = false;
+
+	/*
+		ping
+	*/
+	UPROPERTY(EditDefaultsOnly)
+		float HighPingRunningTime = 0.f;
+	UPROPERTY(EditDefaultsOnly)
+		float PingAnimRunningTime = 0.f;
+	UPROPERTY(EditDefaultsOnly)
+		float HighPingDuration = 5.f;
+	UPROPERTY(EditDefaultsOnly)
+		float CheckPingFrequency = 20.f;
+	UPROPERTY(EditDefaultsOnly)
+		float HighPingThreshold = 50.f;
 };

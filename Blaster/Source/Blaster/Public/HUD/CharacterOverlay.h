@@ -45,4 +45,10 @@ public:
 	UPROPERTY(meta = (BindWiget))
 		UTextBlock* ShieldText;
 
+	UPROPERTY(meta = (BindWiget))
+		class UImage* HighPingImage;
+	
+	//BindWigetAnim only work when marked Transient(not serialized to disk,can be set on runtime)
+	UPROPERTY(meta = (BindWigetAnim),Transient)
+	UWidgetAnimation* HighPingAnimation;
 };

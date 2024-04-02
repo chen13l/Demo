@@ -658,14 +658,7 @@ FVector ABlasterCharacter::GetHitTarget() const
 
 void ABlasterCharacter::Elim()
 {
-	if (CombatComponent && CombatComponent->EquippedWeapon) {
-		if (CombatComponent->EquippedWeapon->GetIsAutoDestroy()) {
-			CombatComponent->EquippedWeapon->Destroy();
-		}
-		else {
-			CombatComponent->EquippedWeapon->Dropped();
-		}
-	}
+	DropOrDestroyWeapons();
 
 	MulticastElim();
 
@@ -675,6 +668,29 @@ void ABlasterCharacter::Elim()
 		&ThisClass::ElimTimerFinished,
 		ElimDelay
 	);
+}
+
+void ABlasterCharacter::DropOrDestroyWeapons()
+{
+	if (CombatComponent) {
+		if (CombatComponent->EquippedWeapon) {
+			if (CombatComponent->EquippedWeapon->IsAutoDestroy()) {
+				CombatComponent->EquippedWeapon->Destroy();
+			}
+			else {
+				CombatComponent->EquippedWeapon->Dropped();
+			}
+		}
+
+		if (CombatComponent->GetSecondaryWeapon()) {
+			if (CombatComponent->GetSecondaryWeapon()->IsAutoDestroy()) {
+				CombatComponent->GetSecondaryWeapon()->Destroy();
+			}
+			else {
+				CombatComponent->GetSecondaryWeapon()->Dropped();
+			}
+		}
+	}
 }
 
 void ABlasterCharacter::MulticastElim_Implementation()
