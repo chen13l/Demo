@@ -17,6 +17,16 @@ enum class EWeaponState :uint8 {
 	EWS_MAX UMETA(DisplayName = "DefaultMAX")
 };
 
+UENUM(BlueprintType)
+enum class EFireType :uint8
+{
+	EFT_HitScan UMETA(DisplayName = "HitScanWeapon"),
+	EFT_Projectile UMETA(DisplayName = "ProjectileWeapon"),
+	EFT_Shotgun UMETA(DisplayName = "ShotgunWeapon"),
+
+	EFT_MAX UMETA(DisplayName = "DefaultMAX")
+};
+
 UCLASS()
 class BLASTER_API AWeaponBase : public AActor
 {
@@ -93,10 +103,23 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 		float ZoomInterpSpeed = 20.f;
 
+	//automatic fire
 	UPROPERTY(EditDefaultsOnly)
 		float FireRate = 0.15f;
 	UPROPERTY(EditDefaultsOnly)
 		bool bIsAutomatic = true;
+
+	/*
+		TraceEnd with scatter
+	*/
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon Scatter")
+		float DistanceToSphere = 800.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon Scatter")
+		float SphereRadius = 150.f;
+	//scatter
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon Scatter")
+		bool bUseScatter = false;
 
 	//ammo
 	UPROPERTY(EditDefaultsOnly, ReplicatedUsing = OnRep_Ammo)
@@ -108,8 +131,13 @@ private:
 
 	void SpendRound();
 
+	/*
+		Weapon Props
+	*/
 	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties")
 		EWeaponType WeaponType;
+	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties")
+		EFireType FireType;
 
 	//default weapon
 	bool bIsAutoDestroyWeapon = false;
@@ -144,8 +172,11 @@ public:
 	FORCEINLINE int32 GetWeaponAmmo()const { return Ammo; }
 	FORCEINLINE int32 GetMagCapacity()const { return MagCapacity; }
 	FORCEINLINE bool IsAutoDestroy()const { return bIsAutoDestroyWeapon; }
+	FORCEINLINE EFireType GetFireType()const { return FireType; }
+	FORCEINLINE bool GetUseScatter()const { return bUseScatter; }
 	void SetIsAutoDestroy(bool ShouldAutoDestroy) { bIsAutoDestroyWeapon = ShouldAutoDestroy; }
 	void AddAmmo(int32 AmmoToAdd);
 	bool IsEmpty() { return Ammo <= 0; }
 	bool IsFull() { return Ammo == MagCapacity; }
+	FVector TraceEndWithScatter(const FVector& HitTarget);
 };

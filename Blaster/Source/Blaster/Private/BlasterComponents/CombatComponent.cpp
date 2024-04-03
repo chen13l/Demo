@@ -256,11 +256,62 @@ void UCombatComponent::Fire()
 {
 	if (CanFire()) {
 		bCanFire = false;
-		ServerFire(HitTarget);
 		if (EquippedWeapon) {
 			CrosshairShootingFactor = 0.75f;
+
+			switch (EquippedWeapon->GetFireType())
+			{
+			case EFireType::EFT_HitScan:
+				FireHitScanWeapon();
+				break;
+			case EFireType::EFT_Projectile:
+				FireProjectileWeapon();
+				break;
+			case EFireType::EFT_Shotgun:
+				FireShotgun();
+				break;
+			default:
+				break;
+			}
 		}
 		StartFireTimer();
+	}
+}
+
+void UCombatComponent::FireHitScanWeapon()
+{
+	if (EquippedWeapon) {
+		HitTarget = EquippedWeapon->GetUseScatter() ? EquippedWeapon->TraceEndWithScatter(HitTarget) : HitTarget;
+		LocalFire(HitTarget);
+		ServerFire(HitTarget);
+	}
+}
+
+void UCombatComponent::FireProjectileWeapon()
+{
+	LocalFire(HitTarget);
+	ServerFire(HitTarget);
+}
+
+void UCombatComponent::FireShotgun()
+{
+
+}
+
+void UCombatComponent::LocalFire(const FVector_NetQuantize& TraceHitTarget)
+{
+	if (BlasterCharacter &&
+		CombatState == ECombatState::ECS_Reloading &&
+		EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Shotgun) {
+
+		BlasterCharacter->PlayFireMontage(bIsAiming);
+		EquippedWeapon->Fire(TraceHitTarget);
+		CombatState = ECombatState::ECS_Unoccupied;
+		return;
+	}
+	if (BlasterCharacter && CombatState == ECombatState::ECS_Unoccupied) {
+		BlasterCharacter->PlayFireMontage(bIsAiming);
+		EquippedWeapon->Fire(TraceHitTarget);
 	}
 }
 
@@ -309,19 +360,9 @@ void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& Trac
 
 void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
 {
-	if (BlasterCharacter &&
-		CombatState == ECombatState::ECS_Reloading &&
-		EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Shotgun) {
+	if (BlasterCharacter && BlasterCharacter->IsLocallyControlled()) { return; }
 
-		BlasterCharacter->PlayFireMontage(bIsAiming);
-		EquippedWeapon->Fire(TraceHitTarget);
-		CombatState = ECombatState::ECS_Unoccupied;
-		return;
-	}
-	if (BlasterCharacter && CombatState == ECombatState::ECS_Unoccupied) {
-		BlasterCharacter->PlayFireMontage(bIsAiming);
-		EquippedWeapon->Fire(TraceHitTarget);
-	}
+	LocalFire(TraceHitTarget);
 }
 
 void UCombatComponent::TraceUnderCrossHair(FHitResult& TraceHitResult)

@@ -32,7 +32,6 @@ protected:
 	void SwapWeapons();
 	void DropEquippedWeapon();
 
-
 	void AttachActorToRightHand(AActor* AttachActor);
 	void AttachActorToLeftHand(AActor* AttachActor);
 	void AttachActorToBackpack(AActor* AttachActor);
@@ -48,10 +47,15 @@ protected:
 
 	void OnFiredButtonPressed(bool bPressed);
 	void Fire();
+	void FireHitScanWeapon();
+	void FireProjectileWeapon();
+	void FireShotgun();
 	UFUNCTION(Server, Reliable)
 		void ServerFire(const FVector_NetQuantize& TraceHitTarget);
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastFire(const FVector_NetQuantize& TraceHitTarget);
+	//play fire effect before actually receive response from server
+	void LocalFire(const FVector_NetQuantize& TraceHitTarget);
 
 	bool CanFire();
 
@@ -195,7 +199,7 @@ public:
 
 	FORCEINLINE int32 GetGrenades() const { return Grenades; }
 
-	bool CanSwapWeapon() { return (EquippedWeapon != nullptr && SecondaryWeapon != nullptr); }
+	bool CanSwapWeapon() { return (EquippedWeapon != nullptr && SecondaryWeapon != nullptr && CombatState == ECombatState::ECS_Unoccupied); }
 	/*
 		pickup
 	*/
