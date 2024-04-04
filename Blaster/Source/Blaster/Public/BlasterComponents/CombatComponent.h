@@ -54,8 +54,14 @@ protected:
 		void ServerFire(const FVector_NetQuantize& TraceHitTarget);
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastFire(const FVector_NetQuantize& TraceHitTarget);
+	UFUNCTION(Server, Reliable)
+		void ServerShotgunFire(const TArray< FVector_NetQuantize>& TraceHitTargets);
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastShotgunFire(const  TArray< FVector_NetQuantize>& TraceHitTargets);
+
 	//play fire effect before actually receive response from server
 	void LocalFire(const FVector_NetQuantize& TraceHitTarget);
+	void LocalShotgunFire(const  TArray< FVector_NetQuantize>& TraceHitTargets);
 
 	bool CanFire();
 

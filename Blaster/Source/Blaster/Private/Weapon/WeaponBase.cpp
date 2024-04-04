@@ -279,17 +279,17 @@ FVector AWeaponBase::TraceEndWithScatter(const FVector& HitTarget)
 	const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName(FName("MuzzleFlash"));
 	if (MuzzleFlashSocket == nullptr) { return FVector(); }
 
-	FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
+	const FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
 	const FVector TraceStart = SocketTransform.GetLocation();
 
-	FVector ToTargetNormalie = (HitTarget - TraceStart).GetSafeNormal();
-	FVector SphereCenter = TraceStart + ToTargetNormalie * DistanceToSphere;
-	FVector RandVec = UKismetMathLibrary::RandomUnitVector() * FMath::RandRange(0.f, SphereRadius);
-	FVector EndLoc = SphereCenter + RandVec;
-	FVector ToEndLoc = EndLoc - TraceStart;
+	const FVector ToTargetNormalie = (HitTarget - TraceStart).GetSafeNormal();
+	const FVector SphereCenter = TraceStart + ToTargetNormalie * DistanceToSphere;
+	const FVector RandVec = UKismetMathLibrary::RandomUnitVector() * FMath::RandRange(0.f, SphereRadius);
+	const FVector EndLoc = SphereCenter + RandVec;
+	const FVector ToEndLoc = EndLoc - TraceStart;
 
 	// 除于ToEndLoc.Size()防止大于double
-	FVector End = FVector(TraceStart + ToEndLoc * TRACE_LENGTH / ToEndLoc.Size());
+	const FVector End = FVector(TraceStart + ToEndLoc * TRACE_LENGTH / ToEndLoc.Size());
 
 	/*DrawDebugSphere(GetWorld(), SphereCenter, SphereRadius, 12, FColor::Red, true);
 	DrawDebugSphere(GetWorld(), EndLoc, 4.f, 12, FColor::Orange, true);

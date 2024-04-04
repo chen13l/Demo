@@ -68,6 +68,16 @@ protected:
 			AActor* OtherActor,
 			UPrimitiveComponent* OtherComponent,
 			int32 OtherBodyIndex);
+
+	/*
+		TraceEnd with scatter
+	*/
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon Scatter")
+		float DistanceToSphere = 800.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon Scatter")
+		float SphereRadius = 150.f;
+
 private:
 	class ABlasterCharacter* BlasterOwnerCharacter = nullptr;
 	class ABlasterPlayerController* BlasterOwnerController = nullptr;
@@ -109,14 +119,6 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 		bool bIsAutomatic = true;
 
-	/*
-		TraceEnd with scatter
-	*/
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon Scatter")
-		float DistanceToSphere = 800.f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon Scatter")
-		float SphereRadius = 150.f;
 	//scatter
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon Scatter")
 		bool bUseScatter = false;
