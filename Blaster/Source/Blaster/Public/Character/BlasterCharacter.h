@@ -29,7 +29,7 @@ public:
 	virtual void PostInitializeComponents()override;
 	virtual void Destroyed() override;
 	virtual void OnRep_ReplicatedMovement()override;
-protected:	
+protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	//poll for relevent classes & initialize hud
@@ -50,6 +50,47 @@ protected:
 	void SimProxiesTurn();
 
 	void RotateInPlace(float DeltaTime);
+
+	/*
+		hit boxes for sserver-side rewind
+	*/
+	void ResgisterHitBoxes();
+	UPROPERTY(EditDefaultsOnly)
+		class UBoxComponent* head;
+	UPROPERTY(EditDefaultsOnly)
+		UBoxComponent* pelvis;
+	UPROPERTY(EditDefaultsOnly)
+		UBoxComponent* spine_02;
+	UPROPERTY(EditDefaultsOnly)
+		UBoxComponent* spine_03;
+	UPROPERTY(EditDefaultsOnly)
+		UBoxComponent* upperarm_l;
+	UPROPERTY(EditDefaultsOnly)
+		UBoxComponent* upperarm_r;
+	UPROPERTY(EditDefaultsOnly)
+		UBoxComponent* lowerarm_l;
+	UPROPERTY(EditDefaultsOnly)
+		UBoxComponent* lowerarm_r;
+	UPROPERTY(EditDefaultsOnly)
+		UBoxComponent* hand_l;
+	UPROPERTY(EditDefaultsOnly)
+		UBoxComponent* hand_r;
+	UPROPERTY(EditDefaultsOnly)
+		UBoxComponent* backpack;
+	UPROPERTY(EditDefaultsOnly)
+		UBoxComponent* blanket;
+	UPROPERTY(EditDefaultsOnly)
+		UBoxComponent* thigh_l;
+	UPROPERTY(EditDefaultsOnly)
+		UBoxComponent* thigh_r;
+	UPROPERTY(EditDefaultsOnly)
+		UBoxComponent* calf_l;
+	UPROPERTY(EditDefaultsOnly)
+		UBoxComponent* calf_r;
+	UPROPERTY(EditDefaultsOnly)
+		UBoxComponent* foot_l;
+	UPROPERTY(EditDefaultsOnly)
+		UBoxComponent* foot_r;
 
 private:
 	/*
@@ -290,7 +331,7 @@ public:
 		void MulticastElim();
 	FORCEINLINE bool GetIsElim()const { return bIsElim; }
 
-	bool GetLocallyReload()const { return (CombatComponent ? CombatComponent->GetIsLocallyReload() : false); }
+	bool GetLocallyReload()const; 
 
 	ECombatState GetCombatState() const;
 
