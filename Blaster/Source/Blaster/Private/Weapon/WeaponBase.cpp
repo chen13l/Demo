@@ -63,7 +63,6 @@ void AWeaponBase::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& Ou
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AWeaponBase, WeaponState);
-	DOREPLIFETIME(AWeaponBase, Ammo);
 }
 
 void AWeaponBase::OnRep_Owner()
@@ -82,15 +81,6 @@ void AWeaponBase::OnRep_Owner()
 	}
 }
 
-void AWeaponBase::OnRep_Ammo()
-{
-	BlasterOwnerCharacter = BlasterOwnerCharacter == nullptr ? Cast<ABlasterCharacter>(GetOwner()) : BlasterOwnerCharacter;
-	if (BlasterOwnerCharacter && BlasterOwnerCharacter->GetCombatComponent() && IsFull()) {
-		BlasterOwnerCharacter->GetCombatComponent()->JumpToSectionEnd();
-	}
-	SetHUDAmmo();
-}
-
 void AWeaponBase::OnRep_WeaponState()
 {
 	OnWeaponStateSet();
@@ -100,11 +90,40 @@ void AWeaponBase::SpendRound()
 {
 	Ammo = FMath::Clamp(Ammo - 1, 0, MagCapacity);
 	SetHUDAmmo();
+
+	if (HasAuthority()) {
+		ClientUpdateAmmo(Ammo);
+	}
+	else {
+		++Sequence;
+	}
 }
 
+void AWeaponBase::ClientUpdateAmmo_Implementation(int32 ServerAmmo)
+{
+	if (HasAuthority())return;
+	Ammo = ServerAmmo;
+	--Sequence;
+	Ammo -= Sequence;
+
+	SetHUDAmmo();
+}
+//AddAmmo should only be called on Server
 void AWeaponBase::AddAmmo(int32 AmmoToAdd)
 {
-	Ammo = FMath::Clamp(Ammo - AmmoToAdd, 0, MagCapacity);
+	Ammo = FMath::Clamp(Ammo + AmmoToAdd, 0, MagCapacity);
+	SetHUDAmmo();
+	ClientAddAmmo(AmmoToAdd);
+}
+
+void AWeaponBase::ClientAddAmmo_Implementation(int32 AmmoToAdd)
+{
+	if (HasAuthority())return;
+	Ammo = FMath::Clamp(Ammo + AmmoToAdd, 0, MagCapacity);
+	BlasterOwnerCharacter = BlasterOwnerCharacter == nullptr ? Cast<ABlasterCharacter>(GetOwner()) : BlasterOwnerCharacter;
+	if (BlasterOwnerCharacter) {
+		BlasterOwnerCharacter->GetCombatComponent()->JumpToSectionEnd();
+	}
 	SetHUDAmmo();
 }
 
@@ -252,9 +271,8 @@ void AWeaponBase::Fire(const FVector& HitTarget)
 			}
 		}
 	}
-	if (HasAuthority()) {
-		SpendRound();
-	}
+
+	SpendRound();
 }
 
 void AWeaponBase::Dropped()

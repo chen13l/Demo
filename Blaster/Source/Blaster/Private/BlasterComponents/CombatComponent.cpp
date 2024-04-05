@@ -650,7 +650,7 @@ void UCombatComponent::UpdateAmmoValues()
 	if (BlasterController) {
 		BlasterController->SetHUDCarryAmmo(CarryAmmo);
 	}
-	EquippedWeapon->AddAmmo(-ReloadAmount);
+	EquippedWeapon->AddAmmo(ReloadAmount);
 }
 
 void UCombatComponent::UpdateShotgunAmmoValues()

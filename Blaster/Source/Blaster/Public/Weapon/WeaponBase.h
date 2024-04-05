@@ -124,10 +124,19 @@ private:
 		bool bUseScatter = false;
 
 	//ammo
-	UPROPERTY(EditDefaultsOnly, ReplicatedUsing = OnRep_Ammo)
+	UPROPERTY(EditDefaultsOnly)
 		int32 Ammo = 30;
-	UFUNCTION()
-		void OnRep_Ammo();
+	UFUNCTION(Client, Reliable)
+		void ClientUpdateAmmo(int32 ServerAmmo);
+	UFUNCTION(Client, Reliable)
+		void ClientAddAmmo(int32 AmmoToAdd);
+
+	/*	client-prediction ammo
+		The number if unprocessed server requests for ammo
+		Invremented in SpeedAmmo(), decremented in ClientUpdateAmmo()
+	*/
+	int32 Sequence = 0;
+
 	UPROPERTY(EditDefaultsOnly)
 		int32 MagCapacity = 30;
 
