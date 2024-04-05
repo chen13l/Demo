@@ -111,8 +111,11 @@ private:
 	UFUNCTION()
 		void OnRep_SecondaryWeapon();
 
-	UPROPERTY(Replicated)
-		bool bIsAiming;
+	UPROPERTY(ReplicatedUsing = OnRep_Aiming)
+		bool bIsAiming = false;
+	UFUNCTION()
+		void OnRep_Aiming();
+	bool bAimButtomPressed = false;
 
 	FVector HitTarget;
 

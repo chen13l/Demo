@@ -66,6 +66,7 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty
 	DOREPLIFETIME_CONDITION(UCombatComponent, CarryAmmo, COND_OwnerOnly);
 	DOREPLIFETIME(UCombatComponent, CombatState);
 	DOREPLIFETIME(UCombatComponent, Grenades);
+	DOREPLIFETIME(UCombatComponent, bIsAiming);
 }
 
 void UCombatComponent::OnRep_CarryAmmo()
@@ -142,6 +143,13 @@ void UCombatComponent::OnRep_CombatState()
 void UCombatComponent::OnRep_Grenades()
 {
 	UpdateHUDGrenades();
+}
+
+void UCombatComponent::OnRep_Aiming()
+{
+	if (BlasterCharacter && BlasterCharacter->IsLocallyControlled()) {
+		bIsAiming = bAimButtomPressed;
+	}
 }
 
 void UCombatComponent::SpawnDefautlWeapon()
@@ -515,6 +523,7 @@ void UCombatComponent::SetHUDCrosshair(float DeltaTime)
 	}
 }
 
+//SetAimging is called locally
 void UCombatComponent::SetAiming(bool bAiming)
 {
 	/*
@@ -529,6 +538,9 @@ void UCombatComponent::SetAiming(bool bAiming)
 	}
 	if (BlasterCharacter->IsLocallyControlled() && EquippedWeapon->GetWeaponType() == EWeaponType::EWT_SniperRifle) {
 		BlasterCharacter->ShowScopeWidget(bIsAiming);
+	}
+	if (BlasterCharacter->IsLocallyControlled()) {
+		bAimButtomPressed = true;
 	}
 }
 
