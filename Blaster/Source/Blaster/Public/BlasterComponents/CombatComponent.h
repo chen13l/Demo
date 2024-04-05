@@ -191,17 +191,18 @@ private:
 
 	void InitializeStartingHUDAmmo();
 
+	UFUNCTION(BlueprintCallable)
+		void FinishReloading();
+	bool bLocallyReloading = false;
 public:
 	void SetHUDCrosshair(float DeltaTime);
 
 	void Reload();
+	bool GetIsLocallyReload()const { return bLocallyReloading; }
 
 	UFUNCTION(BlueprintCallable)
 		void ShotgunShellReload();
 	void JumpToSectionEnd();
-
-	UFUNCTION(BlueprintCallable)
-		void FinishReloading();
 
 	ECombatState GetCombatState()const { return CombatState; }
 	void SetWantFire(bool WantFire) { bWantFire = WantFire; }

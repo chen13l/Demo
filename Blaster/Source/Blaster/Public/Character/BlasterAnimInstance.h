@@ -19,8 +19,6 @@ public:
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds)override;
 
-
-
 private:
 	UPROPERTY(BlueprintReadOnly, Category = "Character", meta = (AllowPrivateAccess))
 		class ABlasterCharacter* BlasterCharacter;

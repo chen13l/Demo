@@ -290,6 +290,8 @@ public:
 		void MulticastElim();
 	FORCEINLINE bool GetIsElim()const { return bIsElim; }
 
+	bool GetLocallyReload()const { return (CombatComponent ? CombatComponent->GetIsLocallyReload() : false); }
+
 	ECombatState GetCombatState() const;
 
 	void SetDisableGameplay(bool ShouldDisalbe);

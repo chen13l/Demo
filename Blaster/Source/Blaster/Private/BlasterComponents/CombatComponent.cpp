@@ -124,7 +124,9 @@ void UCombatComponent::OnRep_CombatState()
 		}
 		break;
 	case ECombatState::ECS_Reloading:
-		HandleReload();
+		if (BlasterCharacter && !BlasterCharacter->IsLocallyControlled()) {
+			HandleReload();
+		};
 		break;
 	case ECombatState::ECS_MAX:
 		break;
@@ -375,11 +377,15 @@ void UCombatComponent::LocalShotgunFire(const  TArray< FVector_NetQuantize>& Tra
 bool UCombatComponent::CanFire()
 {
 	if (EquippedWeapon == nullptr) { return false; }
-	if (!EquippedWeapon->IsEmpty() &&
-		bCanFire &&
-		CombatState == ECombatState::ECS_Reloading &&
-		EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Shotgun) {
-		return true;
+	if (bLocallyReloading) {
+		if (!EquippedWeapon->IsEmpty() &&
+			bCanFire &&
+			CombatState == ECombatState::ECS_Reloading &&
+			EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Shotgun) {
+			bLocallyReloading = false;
+			return true;
+		}
+		return false;
 	}
 	return !EquippedWeapon->IsEmpty() && bCanFire && CombatState == ECombatState::ECS_Unoccupied;
 }
@@ -575,8 +581,10 @@ int32 UCombatComponent::AmountToReload()
 
 void UCombatComponent::Reload()
 {
-	if (CarryAmmo > 0 && CombatState == ECombatState::ECS_Unoccupied) {
+	if (CarryAmmo > 0 && CombatState == ECombatState::ECS_Unoccupied && EquippedWeapon && !EquippedWeapon->IsFull() && !bLocallyReloading) {
 		ServerReload();
+		HandleReload();
+		bLocallyReloading = true;
 	}
 }
 
@@ -590,6 +598,7 @@ void UCombatComponent::ShotgunShellReload()
 void UCombatComponent::FinishReloading()
 {
 	if (BlasterCharacter == nullptr) { return; }
+	bLocallyReloading = false;
 	if (BlasterCharacter->HasAuthority()) {
 		CombatState = ECombatState::ECS_Unoccupied;
 		UpdateAmmoValues();
@@ -598,6 +607,20 @@ void UCombatComponent::FinishReloading()
 	{
 		Fire();
 	}
+}
+void UCombatComponent::ServerReload_Implementation()
+{
+	if (BlasterCharacter == nullptr || EquippedWeapon == nullptr) { return; }
+
+	CombatState = ECombatState::ECS_Reloading;
+	if (!BlasterCharacter->IsLocallyControlled()) {
+		HandleReload();
+	};
+}
+
+void UCombatComponent::HandleReload()
+{
+	BlasterCharacter->PlayReloadMontage();
 }
 
 void UCombatComponent::InitializeCarruedAmmo(EWeaponType WeaponType)
@@ -694,18 +717,7 @@ void UCombatComponent::JumpToSectionEnd()
 	}
 }
 
-void UCombatComponent::ServerReload_Implementation()
-{
-	if (BlasterCharacter == nullptr || EquippedWeapon == nullptr) { return; }
 
-	CombatState = ECombatState::ECS_Reloading;
-	HandleReload();
-}
-
-void UCombatComponent::HandleReload()
-{
-	BlasterCharacter->PlayReloadMontage();
-}
 
 void UCombatComponent::ThrowGrenade()
 {
