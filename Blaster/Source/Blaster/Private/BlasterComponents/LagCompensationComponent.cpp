@@ -20,6 +20,26 @@ void ULagCompensationComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	if (FrameHistory.Num() <= 1) {
+		FFramePackage ThisFrame;
+		SaveFramePackage(ThisFrame);
+		FrameHistory.AddHead(ThisFrame);
+	}
+	else {
+		FFramePackage ThisFrame;
+		SaveFramePackage(ThisFrame);
+		FrameHistory.AddHead(ThisFrame);
+
+		float HistoryLength = FrameHistory.GetHead()->GetValue().Time - FrameHistory.GetTail()->GetValue().Time;
+		//每一帧需要的时间不一定相同
+		while (HistoryLength > MaxRecoedTime)
+		{
+			FrameHistory.RemoveNode(FrameHistory.GetTail());
+			HistoryLength = FrameHistory.GetHead()->GetValue().Time - FrameHistory.GetTail()->GetValue().Time;
+		}
+
+		ShowFramePackage(ThisFrame, FColor::Orange);
+	}
 }
 
 /*only called on server, GetTimeSeconds() will be Authority time*/
@@ -48,7 +68,8 @@ void ULagCompensationComponent::ShowFramePackage(const FFramePackage& Package, c
 			Boxinfo.Value.BoxExtent,
 			FQuat(Boxinfo.Value.Rotation),
 			Color,
-			true //if false, the boxes will containing
+			false, //if true, the boxes will containing(expensive
+			4.f
 		);
 	}
 }

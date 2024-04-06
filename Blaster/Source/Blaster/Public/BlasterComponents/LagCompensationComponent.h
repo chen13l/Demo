@@ -57,6 +57,10 @@ private:
 	UPROPERTY()
 		ABlasterPlayerController* BlasterController;
 
+	TDoubleLinkedList<FFramePackage>FrameHistory;
+	UPROPERTY(EditDefaultsOnly)
+		float MaxRecoedTime = 4.f;
+
 public:
 	void SetBlasterCharacter(ABlasterCharacter* Character) { BlasterCharacter = Character; }
 	void SetBlasterController(ABlasterPlayerController* Controller) { BlasterController = Controller; }
