@@ -14,6 +14,7 @@
 
 class UInputAction;
 class UInputMappingContext;
+class UBoxComponent;
 
 UCLASS()
 class BLASTER_API ABlasterCharacter : public ACharacter, public ICrosshairsInterface
@@ -29,6 +30,8 @@ public:
 	virtual void PostInitializeComponents()override;
 	virtual void Destroyed() override;
 	virtual void OnRep_ReplicatedMovement()override;
+
+	TMap<FName, UBoxComponent*> GetHitCollisionBoxes()const { return HitCollisionBoxes; }
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -56,7 +59,7 @@ protected:
 	*/
 	void ResgisterHitBoxes();
 	UPROPERTY(EditDefaultsOnly)
-		class UBoxComponent* head;
+		UBoxComponent* head;
 	UPROPERTY(EditDefaultsOnly)
 		UBoxComponent* pelvis;
 	UPROPERTY(EditDefaultsOnly)
@@ -91,6 +94,9 @@ protected:
 		UBoxComponent* foot_l;
 	UPROPERTY(EditDefaultsOnly)
 		UBoxComponent* foot_r;
+
+	UPROPERTY()
+		TMap<FName, UBoxComponent*>HitCollisionBoxes;
 
 private:
 	/*
@@ -335,7 +341,7 @@ public:
 		void MulticastElim();
 	FORCEINLINE bool GetIsElim()const { return bIsElim; }
 
-	bool GetLocallyReload()const; 
+	bool GetLocallyReload()const;
 
 	ECombatState GetCombatState() const;
 

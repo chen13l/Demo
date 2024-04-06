@@ -48,14 +48,18 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	void SaveFramePackage(FFramePackage& Package);
+
 private:
 	UPROPERTY()
-	 ABlasterCharacter* BlasterCharacter;
+		ABlasterCharacter* BlasterCharacter;
 
 	UPROPERTY()
-	 ABlasterPlayerController* BlasterController;
+		ABlasterPlayerController* BlasterController;
 
 public:
 	void SetBlasterCharacter(ABlasterCharacter* Character) { BlasterCharacter = Character; }
 	void SetBlasterController(ABlasterPlayerController* Controller) { BlasterController = Controller; }
+
+	void ShowFramePackage(const FFramePackage& Package, const FColor& Color);
 };
