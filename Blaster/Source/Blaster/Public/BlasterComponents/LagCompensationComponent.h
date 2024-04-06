@@ -4,22 +4,58 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Character/BlasterCharacter.h"
+#include "PlayerController/BlasterPlayerController.h"
 #include "LagCompensationComponent.generated.h"
 
+USTRUCT(BlueprintType)
+struct FBoxInformation
+{
+	GENERATED_BODY()
+		;
+	UPROPERTY()
+		FVector Location;
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+	UPROPERTY()
+		FRotator Rotation;
+
+	UPROPERTY()
+		FVector BoxExtent;
+
+};
+
+USTRUCT(BlueprintType)
+struct FFramePackage
+{
+	GENERATED_BODY()
+		;
+	UPROPERTY()
+		float Time;
+
+	UPROPERTY()
+		TMap<FName, FBoxInformation>HitBoxInfo;
+};
+
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class BLASTER_API ULagCompensationComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	ULagCompensationComponent();
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 protected:
 	virtual void BeginPlay() override;
 
-public:	
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+private:
+	UPROPERTY()
+	 ABlasterCharacter* BlasterCharacter;
 
-		
+	UPROPERTY()
+	 ABlasterPlayerController* BlasterController;
+
+public:
+	void SetBlasterCharacter(ABlasterCharacter* Character) { BlasterCharacter = Character; }
+	void SetBlasterController(ABlasterPlayerController* Controller) { BlasterController = Controller; }
 };

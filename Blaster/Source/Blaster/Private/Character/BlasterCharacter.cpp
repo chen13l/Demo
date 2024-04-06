@@ -27,6 +27,7 @@
 #include "PlayerState/BlasterPlayerState.h"
 #include "Weapon/WeaponTypes.h"
 #include "Components/BoxComponent.h"
+#include "BlasterComponents/LagCompensationComponent.h"
 
 // Sets default values
 ABlasterCharacter::ABlasterCharacter()
@@ -57,6 +58,8 @@ ABlasterCharacter::ABlasterCharacter()
 
 	BuffComponent = CreateDefaultSubobject<UBuffComponent>(TEXT("BuffComponent"));
 	BuffComponent->SetIsReplicated(true);
+
+	LagCompensation = CreateDefaultSubobject<ULagCompensationComponent>(TEXT("LagCompensation"));
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
@@ -163,6 +166,12 @@ void ABlasterCharacter::PostInitializeComponents()
 		BuffComponent->SetBlasterCharacter(this);
 		BuffComponent->SetInitialSpeed(GetCharacterMovement()->MaxWalkSpeed, GetCharacterMovement()->MaxWalkSpeedCrouched);
 		BuffComponent->SetInitialJumpVelocty(GetCharacterMovement()->JumpZVelocity);
+	}
+	if (LagCompensation) {
+		LagCompensation->SetBlasterCharacter(this);
+		if (Controller) {
+			LagCompensation->SetBlasterController(Cast<ABlasterPlayerController>(Controller));
+		}
 	}
 }
 

@@ -159,11 +159,15 @@ private:
 	UFUNCTION()
 		void OnRep_OverlappingWeapon(AWeaponBase* LastWeapon);
 
+	/*
+		BlasterComponents
+	*/
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess))
 		class UCombatComponent* CombatComponent;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess))
 		class UBuffComponent* BuffComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess))
+		class ULagCompensationComponent* LagCompensation;
 
 	UFUNCTION(Server, Reliable)
 		void ServerEquipButtonPressed();
