@@ -8,6 +8,8 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "Sound/SoundCue.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "PlayerController/BlasterPlayerController.h"
+#include "BlasterComponents/LagCompensationComponent.h"
 
 void AShotgun::FireShotgun(const TArray<FVector_NetQuantize>& HitTargets)
 {
@@ -24,6 +26,8 @@ void AShotgun::FireShotgun(const TArray<FVector_NetQuantize>& HitTargets)
 
 		//calculate hit characters 
 		TMap<ABlasterCharacter*, uint32>HitMap;
+		TArray<ABlasterCharacter*>HitCharacters;
+
 		for (FVector_NetQuantize HitTarget : HitTargets) {
 			FHitResult HitResult;
 			WeaponTraceHit(Start, HitTarget, HitResult);
@@ -59,14 +63,32 @@ void AShotgun::FireShotgun(const TArray<FVector_NetQuantize>& HitTargets)
 		}
 		//calculate total damage for each hit character
 		for (auto HitPair : HitMap) {
-			if (HitPair.Key && HasAuthority() && InstigatorController) {
-				UGameplayStatics::ApplyDamage(
-					HitPair.Key, //character be hit 
-					Damage * HitPair.Value, //multiply damage by numbers of hit
-					InstigatorController,
-					GetOwner(),
-					UDamageType::StaticClass()
-				);
+			if (HitPair.Key && InstigatorController) {
+				if (HasAuthority() && !bUseServerSideRewind) {
+					UGameplayStatics::ApplyDamage(
+						HitPair.Key, //character be hit 
+						Damage * HitPair.Value, //multiply damage by numbers of hit
+						InstigatorController,
+						GetOwner(),
+						UDamageType::StaticClass()
+					);
+				}
+			}
+			HitCharacters.Add(HitPair.Key);
+
+		}
+		if (!HasAuthority() && bUseServerSideRewind) {
+			BlasterOwnerCharacter = BlasterOwnerCharacter == nullptr ? Cast<ABlasterCharacter>(InstigatorPawn) : BlasterOwnerCharacter;
+			if (BlasterOwnerCharacter) {
+				BlasterOwnerController = BlasterOwnerController == nullptr ? Cast<ABlasterPlayerController>(BlasterOwnerCharacter->Controller) : BlasterOwnerController;
+				if (BlasterOwnerController && BlasterOwnerCharacter->GetLagCompensationComponent() && BlasterOwnerCharacter->IsLocallyControlled()) {
+					BlasterOwnerCharacter->GetLagCompensationComponent()->ShotgunServerScoreRequest(
+						HitCharacters,
+						Start,
+						HitTargets,
+						BlasterOwnerController->GetServerTime()-BlasterOwnerController->GetSingleTripTime()
+					);
+				}
 			}
 		}
 	}

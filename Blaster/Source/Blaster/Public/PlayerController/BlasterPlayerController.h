@@ -20,6 +20,7 @@ public:
 	virtual void ReceivedPlayer() override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps)const override;
 	virtual float GetServerTime()const;
+	float GetSingleTripTime()const { return SingleRoundtripTime; }
 	void SetHealthPercent(float Health, float MaxHealth);
 	void SetShieldPercent(float Shield, float MaxShield);
 	void SetHUDScore(float Score);
@@ -75,6 +76,8 @@ private:
 	float CooldownTime = 0.f;
 	float LevelStartingTime = 0.f;
 	uint32 CountdownInt = 0;
+
+	float SingleRoundtripTime = 0.f;
 
 	UPROPERTY(ReplicatedUsing = OnRep_MatchState)
 		FName StateOfMatch;

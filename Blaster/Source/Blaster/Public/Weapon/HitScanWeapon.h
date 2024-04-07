@@ -21,9 +21,6 @@ protected:
 	virtual void WeaponTraceHit(const FVector& HitStart, const FVector& HitTarget, FHitResult& OutHit);
 
 	UPROPERTY(EditDefaultsOnly)
-		float Damage = 20.f;
-
-	UPROPERTY(EditDefaultsOnly)
 		USoundCue* HitSound;
 
 	UPROPERTY(EditDefaultsOnly)

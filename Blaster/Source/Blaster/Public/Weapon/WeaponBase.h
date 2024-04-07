@@ -78,9 +78,18 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon Scatter")
 		float SphereRadius = 150.f;
 
-private:
+	UPROPERTY(EditDefaultsOnly)
+		float Damage = 20.f;
+
+	/*
+		Server side rewind
+	*/
+	UPROPERTY(EditDefaultsOnly)
+	bool bUseServerSideRewind =false;
+
 	class ABlasterCharacter* BlasterOwnerCharacter = nullptr;
 	class ABlasterPlayerController* BlasterOwnerController = nullptr;
+private:
 
 	UPROPERTY(VisibleAnywhere, Category = "WeaponProperties")
 		USkeletalMeshComponent* WeaponMesh;
@@ -172,9 +181,15 @@ public:
 
 	void SetHUDAmmo();
 
+	/*
+		Get Weapon Assets
+	*/
 	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh()const { return WeaponMesh; }
 	FORCEINLINE USoundCue* GetEquipSound()const { return EquippedSound; }
 
+	/*
+		Get Weapon Properties
+	*/
 	FORCEINLINE float GetZoomedFOV()const { return ZoomedFOV; }
 	FORCEINLINE float GetZoomInterpSpeed() const { return ZoomInterpSpeed; }
 	FORCEINLINE float GetFireRate() const { return FireRate; }
@@ -185,6 +200,7 @@ public:
 	FORCEINLINE bool IsAutoDestroy()const { return bIsAutoDestroyWeapon; }
 	FORCEINLINE EFireType GetFireType()const { return FireType; }
 	FORCEINLINE bool GetUseScatter()const { return bUseScatter; }
+	FORCEINLINE float GetBaseDamage()const { return Damage; }
 	void SetIsAutoDestroy(bool ShouldAutoDestroy) { bIsAutoDestroyWeapon = ShouldAutoDestroy; }
 	void AddAmmo(int32 AmmoToAdd);
 	bool IsEmpty() { return Ammo <= 0; }

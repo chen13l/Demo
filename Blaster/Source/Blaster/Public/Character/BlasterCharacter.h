@@ -15,6 +15,7 @@
 class UInputAction;
 class UInputMappingContext;
 class UBoxComponent;
+class ULagCompensationComponent;
 
 UCLASS()
 class BLASTER_API ABlasterCharacter : public ACharacter, public ICrosshairsInterface
@@ -31,7 +32,12 @@ public:
 	virtual void Destroyed() override;
 	virtual void OnRep_ReplicatedMovement()override;
 
+	/*
+		Server rewind
+	*/
 	TMap<FName, UBoxComponent*> GetHitCollisionBoxes()const { return HitCollisionBoxes; }
+	FORCEINLINE ULagCompensationComponent* GetLagCompensationComponent()const { return LagCompensation; }
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -173,7 +179,7 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess))
 		class UBuffComponent* BuffComponent;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess))
-		class ULagCompensationComponent* LagCompensation;
+		 ULagCompensationComponent* LagCompensation;
 
 	UFUNCTION(Server, Reliable)
 		void ServerEquipButtonPressed();
