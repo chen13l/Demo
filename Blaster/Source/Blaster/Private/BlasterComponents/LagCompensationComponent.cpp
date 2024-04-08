@@ -85,7 +85,7 @@ void ULagCompensationComponent::ShowFramePackage(const FFramePackage& Package, c
 		);
 	}
 }
-
+//Hitscan ServerSideRewind
 FServerSideRewindResult ULagCompensationComponent::ServerSideRewind(
 	ABlasterCharacter* HitCharacter,
 	const FVector_NetQuantize& TraceStart,
@@ -108,6 +108,17 @@ FShotgunServerSideRewindResult ULagCompensationComponent::ServerSideRewind(
 		FramesToCkeck.Add(GetFrameToCheck(HitCharacter, HitTime));
 	}
 	return ConfirmHit(FramesToCkeck, TraceStart, HitLocations);
+}
+
+//projectile ServerSideRewind
+FServerSideRewindResult ULagCompensationComponent::ServerSideRewind(
+	ABlasterCharacter* HitCharacter,
+	const FVector_NetQuantize& TraceStart,
+	const FVector_NetQuantize100& InitialVelocity,
+	float HitTime)
+{
+	FFramePackage FrameToCheck = GetFrameToCheck(HitCharacter, HitTime);
+	return ConfirmHit(FrameToCheck, HitCharacter, TraceStart, InitialVelocity, HitTime);
 }
 
 FFramePackage ULagCompensationComponent::GetFrameToCheck(ABlasterCharacter* HitCharacter, float HitTime)
@@ -166,34 +177,7 @@ FFramePackage ULagCompensationComponent::GetFrameToCheck(ABlasterCharacter* HitC
 	return FrameToCheck;
 }
 
-
-FFramePackage ULagCompensationComponent::InterBetweenFrame(
-	const FFramePackage& OlderFrame,
-	const FFramePackage& YoungerFrame,
-	float HitTme)
-{
-	const float TimeDistance = YoungerFrame.Time - OlderFrame.Time;
-	const float InterpFraction = FMath::Clamp((HitTme - OlderFrame.Time) / TimeDistance, 0.f, 1.f);
-
-	FFramePackage InterpFramePackage;
-	InterpFramePackage.Time = HitTme;
-
-	for (auto& YoungerPair : YoungerFrame.HitBoxInfo) {
-		const FName& BoxInfoName = YoungerPair.Key;
-		const FBoxInformation& OlderBox = OlderFrame.HitBoxInfo[BoxInfoName];
-		const FBoxInformation& YoungerBox = YoungerPair.Value;
-
-		FBoxInformation InterpBoxInfo;
-		InterpBoxInfo.Location = FMath::VInterpTo(OlderBox.Location, YoungerBox.Location, 1, InterpFraction);
-		InterpBoxInfo.Rotation = FMath::RInterpTo(OlderBox.Rotation, YoungerBox.Rotation, 1, InterpFraction);
-		InterpBoxInfo.BoxExtent = YoungerBox.BoxExtent;
-
-		InterpFramePackage.HitBoxInfo.Add(BoxInfoName, InterpBoxInfo);
-	}
-
-	return InterpFramePackage;
-}
-
+//Hitscan ConfirmHit
 FServerSideRewindResult ULagCompensationComponent::ConfirmHit(
 	const FFramePackage& Package,
 	ABlasterCharacter* HitCharacter,
@@ -376,6 +360,109 @@ FShotgunServerSideRewindResult ULagCompensationComponent::ConfirmHit(
 	return ShotgunResult;
 }
 
+//Projectile ConfirmHit
+FServerSideRewindResult ULagCompensationComponent::ConfirmHit(
+	const FFramePackage& Package,
+	ABlasterCharacter* HitCharacter,
+	const FVector_NetQuantize& TraceStart,
+	const FVector_NetQuantize100& InitialVelocity,
+	float HitTime)
+{
+	if (HitCharacter == nullptr)return FServerSideRewindResult();
+
+	FFramePackage CurrentFrame;
+	CacheBoxPositions(HitCharacter, CurrentFrame);
+	MoveBoxes(HitCharacter, Package);
+
+	EnableCharacterCollision(HitCharacter, ECollisionEnabled::NoCollision);
+
+	//enable collision for the head
+	UBoxComponent* HeadBox = HitCharacter->GetHitCollisionBoxes()[FName("head")];
+	HeadBox->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	HeadBox->SetCollisionResponseToChannel(ECC_HitBox, ECollisionResponse::ECR_Block);
+
+	FPredictProjectilePathParams PathParams;
+	PathParams.bTraceWithCollision = true;
+	PathParams.MaxSimTime = MaxRecoedTime;
+	PathParams.LaunchVelocity = InitialVelocity;
+	PathParams.StartLocation = TraceStart;
+	PathParams.SimFrequency = 15.f;
+	PathParams.ProjectileRadius = 5.f;
+	PathParams.TraceChannel = ECC_HitBox;
+	PathParams.ActorsToIgnore.Add(GetOwner());
+	PathParams.DrawDebugTime = 5.f;
+	PathParams.DrawDebugType = EDrawDebugTrace::ForDuration;
+
+	FPredictProjectilePathResult PathResult;
+	UGameplayStatics::PredictProjectilePath(this, PathParams, PathResult);
+
+	if (PathResult.HitResult.bBlockingHit) { //hit the head return early
+		if (PathResult.HitResult.Component.IsValid()) {
+			UBoxComponent* Box = Cast<UBoxComponent>(PathResult.HitResult.Component);
+			if (Box) {
+				DrawDebugBox(GetWorld(), Box->GetComponentLocation(), Box->GetScaledBoxExtent(), FColor::Red, false, 8.f);
+			}
+		}
+
+		ResetMoveBoxes(HitCharacter, CurrentFrame);
+		EnableCharacterCollision(HitCharacter, ECollisionEnabled::QueryAndPhysics);
+		return FServerSideRewindResult{ true,true };
+	}
+	else { // didn't hit the head
+		for (auto& HitBoxPair : HitCharacter->GetHitCollisionBoxes()) {
+			if (HitBoxPair.Value != nullptr) {
+				HitBoxPair.Value->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+				HitBoxPair.Value->SetCollisionResponseToChannel(ECC_HitBox, ECollisionResponse::ECR_Block);
+			}
+		}
+
+		UGameplayStatics::PredictProjectilePath(this, PathParams, PathResult);
+		if (PathResult.HitResult.bBlockingHit) {
+			if (PathResult.HitResult.Component.IsValid()) {
+				UBoxComponent* Box = Cast<UBoxComponent>(PathResult.HitResult.Component);
+				if (Box) {
+					DrawDebugBox(GetWorld(), Box->GetComponentLocation(), Box->GetScaledBoxExtent(), FColor::Blue, false, 8.f);
+				}
+			}
+			ResetMoveBoxes(HitCharacter, CurrentFrame);
+			EnableCharacterCollision(HitCharacter, ECollisionEnabled::QueryAndPhysics);
+			return FServerSideRewindResult{ true,false };
+		}
+	}
+
+	ResetMoveBoxes(HitCharacter, CurrentFrame);
+	EnableCharacterCollision(HitCharacter, ECollisionEnabled::QueryAndPhysics);
+	return FServerSideRewindResult{ false,false };
+}
+
+FFramePackage ULagCompensationComponent::InterBetweenFrame(
+	const FFramePackage& OlderFrame,
+	const FFramePackage& YoungerFrame,
+	float HitTme)
+{
+	const float TimeDistance = YoungerFrame.Time - OlderFrame.Time;
+	const float InterpFraction = FMath::Clamp((HitTme - OlderFrame.Time) / TimeDistance, 0.f, 1.f);
+
+	FFramePackage InterpFramePackage;
+	InterpFramePackage.Time = HitTme;
+
+	for (auto& YoungerPair : YoungerFrame.HitBoxInfo) {
+		const FName& BoxInfoName = YoungerPair.Key;
+		const FBoxInformation& OlderBox = OlderFrame.HitBoxInfo[BoxInfoName];
+		const FBoxInformation& YoungerBox = YoungerPair.Value;
+
+		FBoxInformation InterpBoxInfo;
+		InterpBoxInfo.Location = FMath::VInterpTo(OlderBox.Location, YoungerBox.Location, 1, InterpFraction);
+		InterpBoxInfo.Rotation = FMath::RInterpTo(OlderBox.Rotation, YoungerBox.Rotation, 1, InterpFraction);
+		InterpBoxInfo.BoxExtent = YoungerBox.BoxExtent;
+
+		InterpFramePackage.HitBoxInfo.Add(BoxInfoName, InterpBoxInfo);
+	}
+
+	return InterpFramePackage;
+}
+
+
 void ULagCompensationComponent::CacheBoxPositions(ABlasterCharacter* HitCharacter, FFramePackage& OutFramePackage)
 {
 	if (HitCharacter == nullptr) { return; }
@@ -470,6 +557,25 @@ void ULagCompensationComponent::ShotgunServerScoreRequest_Implementation(
 		UGameplayStatics::ApplyDamage(
 			HitCharacter,
 			TotalDamage,
+			BlasterCharacter->Controller,
+			BlasterCharacter->GetEquippedWeapon(),
+			UDamageType::StaticClass()
+		);
+	}
+}
+
+void ULagCompensationComponent::ProjectileServerScoreRequest_Implementation(
+	ABlasterCharacter* HitCharacter,
+	const FVector_NetQuantize& TraceStart,
+	const FVector_NetQuantize100& InitialVelocity,
+	float HitTime)
+{
+	FServerSideRewindResult Confirm = ServerSideRewind(HitCharacter, TraceStart, InitialVelocity, HitTime);
+
+	if (BlasterCharacter && HitCharacter && Confirm.bHitCinfirm) {
+		UGameplayStatics::ApplyDamage(
+			HitCharacter,
+			BlasterCharacter->GetEquippedWeapon()->GetBaseDamage(),
 			BlasterCharacter->Controller,
 			BlasterCharacter->GetEquippedWeapon(),
 			UDamageType::StaticClass()

@@ -5,6 +5,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Character/BlasterCharacter.h"
+#include "PlayerController/BlasterPlayerController.h"
+#include "BlasterComponents/LagCompensationComponent.h"
 
 AProjectileBullet::AProjectileBullet()
 {
@@ -33,7 +36,7 @@ void AProjectileBullet::PostEditChangeProperty(struct FPropertyChangedEvent& Eve
 void AProjectileBullet::BeginPlay()
 {
 	Super::BeginPlay();
-
+	/*
 	FPredictProjectilePathParams PathParams;
 	PathParams.bTraceWithChannel = true;
 	PathParams.bTraceWithCollision = true;
@@ -52,7 +55,7 @@ void AProjectileBullet::BeginPlay()
 		this,
 		PathParams,
 		PathResult
-	);
+	);*/
 }
 
 void AProjectileBullet::OnHit(
@@ -62,11 +65,24 @@ void AProjectileBullet::OnHit(
 	FVector NormalInpulse,
 	const FHitResult& HitResult)
 {
-	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
+	ABlasterCharacter* OwnerCharacter = Cast<ABlasterCharacter>(GetOwner());
 	if (OwnerCharacter) {
-		AController* OwnerController = OwnerCharacter->Controller;
+		ABlasterPlayerController* OwnerController = Cast<ABlasterPlayerController>(OwnerCharacter->Controller);
 		if (OwnerController) {
-			UGameplayStatics::ApplyDamage(OtherActor, Damage, OwnerController, this, UDamageType::StaticClass());
+			if (OwnerCharacter->HasAuthority() && !bUseServerSideRewind) {
+				UGameplayStatics::ApplyDamage(OtherActor, Damage, OwnerController, this, UDamageType::StaticClass());
+				Super::OnHit(HitComp, OtherActor, OtherComp, NormalInpulse, HitResult);
+				return;
+			}
+			ABlasterCharacter* HitCharacter = Cast<ABlasterCharacter>(OtherActor);
+			if (bUseServerSideRewind && OwnerCharacter->GetLagCompensationComponent() && OwnerCharacter->IsLocallyControlled() && HitCharacter) {
+				OwnerCharacter->GetLagCompensationComponent()->ProjectileServerScoreRequest(
+					HitCharacter,
+					TraceStart,
+					InitialVeclocity,
+					OwnerController->GetServerTime() - OwnerController->GetSingleTripTime()
+				);
+			}
 		}
 	}
 
