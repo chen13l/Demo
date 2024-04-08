@@ -40,7 +40,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 		class USoundCue* ImpactSound;
 
-	UPROPERTY(EditDefaultsOnly)
 		float Damage = 20.f;
 
 	UPROPERTY(EditDefaultsOnly)
@@ -62,6 +61,16 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 		float DamageOuterRadius = 500.f;
 
+	/*
+		use for server-side rewind
+	*/
+	bool bUseServerSideRewind = false;
+	FVector_NetQuantize TraceStart;
+	FVector_NetQuantize100 InitialVeclocity; //want a accurate direction of speed
+
+	UPROPERTY(EditDefaultsOnly)
+		float InitialSpeed = 15000.f;
+
 private:
 	UPROPERTY(EditDefaultsOnly)
 		UParticleSystem* Tracer;
@@ -73,6 +82,14 @@ private:
 		float DestroyTime = 3.f;
 
 public:
-
-
+	void SetUseServerSideRewind(bool ShouldUse) { bUseServerSideRewind = ShouldUse; }
+	bool GetUseServerSideRewind()const { return bUseServerSideRewind; }
+	void SetTraceStart(FVector_NetQuantize Start) { TraceStart = Start; }
+	FVector_NetQuantize GetTraceStart()const { return TraceStart; }
+	void SetInitialVelocity(FVector_NetQuantize100 Velocity) { InitialVeclocity = Velocity; }
+	FVector_NetQuantize100 GetInitialVelocity()const { return InitialVeclocity; }
+	float GetInitialSpeed()const { return InitialSpeed; }
+	void SetInitialSpeed(float Speed) { InitialSpeed = Speed; }
+	float GetBaseDamage()const { return Damage; }
+	void SetBaseDamage(float BaseDamage) { Damage = BaseDamage; }
 };

@@ -17,6 +17,11 @@ public:
 	virtual void Fire(const FVector& HitTarget)override;
 
 private:
+	//replicates
 	UPROPERTY(EditDefaultsOnly)
 		TSubclassOf<class AProjectile> ProjectileClass;
+
+	//no replicates
+	UPROPERTY(EditDefaultsOnly)
+		TSubclassOf<AProjectile> ServerSideRewindProjectileClass;
 };

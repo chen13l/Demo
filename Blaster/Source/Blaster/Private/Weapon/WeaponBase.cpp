@@ -99,6 +99,7 @@ void AWeaponBase::SpendRound()
 	}
 }
 
+
 void AWeaponBase::ClientUpdateAmmo_Implementation(int32 ServerAmmo)
 {
 	if (HasAuthority())return;

@@ -7,7 +7,7 @@
 #include "ProjectileBullet.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class BLASTER_API AProjectileBullet : public AProjectile
@@ -16,7 +16,13 @@ class BLASTER_API AProjectileBullet : public AProjectile
 public:
 	AProjectileBullet();
 
+#if WITH_EDITOR
+	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& Event)override;
+#endif
+
 protected:
+	virtual void BeginPlay()override;
+
 	virtual void OnHit(
 		UPrimitiveComponent* HitComp,
 		AActor* OtherActor,
@@ -24,5 +30,5 @@ protected:
 		FVector NormalInpulse,
 		const FHitResult& HitResult
 	) override;
-	
+
 };
