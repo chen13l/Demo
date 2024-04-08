@@ -29,9 +29,9 @@ void AProjectileWeapon::Fire(const FVector& HitTarget) {
 					SpawnProjectile->SetUseServerSideRewind(false);
 					SpawnProjectile->SetBaseDamage(Damage);
 				}
-				else { //server, not Locally Controlled - use non-replicated, no SSR
+				else { //server, not Locally Controlled - use non-replicated, SSR
 					SpawnProjectile = World->SpawnActor<AProjectile>(ServerSideRewindProjectileClass, SocketTransform.GetLocation(), TargetRotation, SpawnParams);
-					SpawnProjectile->SetUseServerSideRewind(false);
+					SpawnProjectile->SetUseServerSideRewind(true);
 				}
 			}
 			else { // client, using SSR

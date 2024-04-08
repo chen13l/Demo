@@ -64,7 +64,8 @@ void AShotgun::FireShotgun(const TArray<FVector_NetQuantize>& HitTargets)
 		//calculate total damage for each hit character
 		for (auto HitPair : HitMap) {
 			if (HitPair.Key && InstigatorController) {
-				if (HasAuthority() && !bUseServerSideRewind) {
+				bool bCauseAuthDamage = !bUseServerSideRewind || InstigatorPawn->IsLocallyControlled();
+				if (HasAuthority() && bCauseAuthDamage) {
 					UGameplayStatics::ApplyDamage(
 						HitPair.Key, //character be hit 
 						Damage * HitPair.Value, //multiply damage by numbers of hit
