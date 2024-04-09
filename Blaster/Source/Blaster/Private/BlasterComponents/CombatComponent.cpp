@@ -319,11 +319,20 @@ void UCombatComponent::Fire()
 	}
 }
 
-void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
+void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& TraceHitTarget, float FireRate)
 {
 	if (EquippedWeapon == nullptr) { return; }
 
 	MulticastFire(TraceHitTarget);
+}
+
+bool UCombatComponent::ServerFire_Validate(const FVector_NetQuantize& TraceHitTarget, float FireRate)
+{
+	if (EquippedWeapon) {
+		bool bNearlyEqual = FMath::IsNearlyEqual(EquippedWeapon->GetFireRate(), FireRate, 0.001f);
+		return bNearlyEqual;
+	}
+	return true;
 }
 
 void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
@@ -338,7 +347,7 @@ void UCombatComponent::FireHitScanWeapon()
 	if (EquippedWeapon) {
 		HitTarget = EquippedWeapon->GetUseScatter() ? EquippedWeapon->TraceEndWithScatter(HitTarget) : HitTarget;
 		LocalFire(HitTarget);
-		ServerFire(HitTarget);
+		ServerFire(HitTarget,EquippedWeapon->GetFireRate());
 	}
 }
 
@@ -347,7 +356,7 @@ void UCombatComponent::FireProjectileWeapon()
 	if (EquippedWeapon) {
 		HitTarget = EquippedWeapon->GetUseScatter() ? EquippedWeapon->TraceEndWithScatter(HitTarget) : HitTarget;
 		LocalFire(HitTarget);
-		ServerFire(HitTarget);
+		ServerFire(HitTarget, EquippedWeapon->GetFireRate());
 	}
 }
 
@@ -358,13 +367,22 @@ void UCombatComponent::FireShotgun()
 		TArray<FVector_NetQuantize> HiTargets;
 		Shotgun->ShotgunTraceEndWithScatter(HitTarget, HiTargets);
 		LocalShotgunFire(HiTargets);
-		ServerShotgunFire(HiTargets);
+		ServerShotgunFire(HiTargets, Shotgun->GetFireRate());
 	}
 }
 
-void UCombatComponent::ServerShotgunFire_Implementation(const TArray< FVector_NetQuantize>& TraceHitTargets)
+void UCombatComponent::ServerShotgunFire_Implementation(const TArray< FVector_NetQuantize>& TraceHitTargets, float FireRate)
 {
 	MulticastShotgunFire(TraceHitTargets);
+}
+
+bool UCombatComponent::ServerShotgunFire_Validate(const TArray< FVector_NetQuantize>& TraceHitTargets, float FireRate)
+{
+	if (EquippedWeapon) {
+		bool bNearlyEqual = FMath::IsNearlyEqual(EquippedWeapon->GetFireRate(), FireRate, 0.001f);
+		return bNearlyEqual;
+	}
+	return true;
 }
 
 void UCombatComponent::MulticastShotgunFire_Implementation(const  TArray< FVector_NetQuantize>& TraceHitTargets)
