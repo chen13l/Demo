@@ -82,7 +82,7 @@ void ABlasterPlayerController::PollInit()
 			CharacterOverlay = BlasterHUD->CharacterOverlay;
 			if (CharacterOverlay)
 			{
-				if(bInitializehealth)SetHealthPercent(HUDHealth, HUDMaxHealth);
+				if (bInitializehealth)SetHealthPercent(HUDHealth, HUDMaxHealth);
 				if (bInitializeShield)SetShieldPercent(HUDShield, HUDMaxShield);
 				if (bInitializeScore)SetHUDScore(HUDScore);
 				if (bInitializeDefeats)SetHUDDefeats(HUDDefeats);
@@ -90,7 +90,7 @@ void ABlasterPlayerController::PollInit()
 				if (bInitializeWeaponAmmo)SetHUDAmmo(HUDWeaponAmmo);
 
 				ABlasterCharacter* BlasterCharacter = Cast<ABlasterCharacter>(GetPawn());
-				if (BlasterCharacter && BlasterCharacter->GetCombatComponent()) 
+				if (BlasterCharacter && BlasterCharacter->GetCombatComponent())
 				{
 					if (bInitializeGrenades)SetHUDGrenade(BlasterCharacter->GetCombatComponent()->GetGrenades());
 				}
@@ -113,14 +113,18 @@ void ABlasterPlayerController::CheckPing(float DeltaTime)
 			if (PlayerState->GetCompressedPing() * 4 > HighPingThreshold) {
 				HighPingWarning();
 				PingAnimRunningTime = 0.f;
+				ServerReportPingStatus(true);
+			}
+			else {
+				ServerReportPingStatus(false);
 			}
 		}
 		HighPingRunningTime = 0.f;
 	}
-	
+
 	bool bHighPingAnimPlaying = BlasterHUD &&
 		BlasterHUD->CharacterOverlay &&
-		BlasterHUD->CharacterOverlay->HighPingAnimation&&
+		BlasterHUD->CharacterOverlay->HighPingAnimation &&
 		BlasterHUD->CharacterOverlay->IsAnimationPlaying(BlasterHUD->CharacterOverlay->HighPingAnimation);
 	if (bHighPingAnimPlaying) {
 		PingAnimRunningTime += DeltaTime;
@@ -129,6 +133,11 @@ void ABlasterPlayerController::CheckPing(float DeltaTime)
 			StopHighPingWarning();
 		}
 	}
+}
+
+void ABlasterPlayerController::ServerReportPingStatus_Implementation(bool bHighPing)
+{
+	HighPingDelegate.Broadcast(bHighPing);
 }
 
 void ABlasterPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps)const
@@ -192,7 +201,7 @@ void ABlasterPlayerController::SetShieldPercent(float Shield, float MaxShield)
 		const float ShieldPercent = Shield / MaxShield;
 		BlasterHUD->CharacterOverlay->ShieldBar->SetPercent(ShieldPercent);
 
-		FString TextofShield= FString::Printf(TEXT("%d/%d"), FMath::CeilToInt(Shield), FMath::CeilToInt(MaxShield));
+		FString TextofShield = FString::Printf(TEXT("%d/%d"), FMath::CeilToInt(Shield), FMath::CeilToInt(MaxShield));
 		BlasterHUD->CharacterOverlay->ShieldText->SetText(FText::FromString(TextofShield));
 	}
 	else

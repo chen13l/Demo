@@ -6,6 +6,8 @@
 #include "GameFramework/PlayerController.h"
 #include "BlasterPlayerController.generated.h"
 
+DECLARE_DYNAMIC_DELEGATE_OneParam(FHighPingDelegate, bool, bPingTooHigh);
+
 /**
  *
  */
@@ -15,6 +17,8 @@ class BLASTER_API ABlasterPlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
+	FHighPingDelegate HighPingDelegate;
+
 	virtual void Tick(float DeltaTime)override;
 	virtual void OnPossess(APawn* InPawn)override;
 	virtual void ReceivedPlayer() override;
@@ -125,4 +129,7 @@ private:
 		float CheckPingFrequency = 20.f;
 	UPROPERTY(EditDefaultsOnly)
 		float HighPingThreshold = 50.f;
+
+	UFUNCTION(Server, Reliable)
+	void ServerReportPingStatus(bool bHighPing);
 };

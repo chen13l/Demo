@@ -84,8 +84,11 @@ protected:
 	/*
 		Server side rewind
 	*/
-	UPROPERTY(EditDefaultsOnly)
-	bool bUseServerSideRewind =false;
+	UPROPERTY(Replicated, EditDefaultsOnly)
+		bool bUseServerSideRewind = false;
+
+	UFUNCTION()
+		void OnPingTooHigh(bool bPingTooHigh);
 
 	class ABlasterCharacter* BlasterOwnerCharacter = nullptr;
 	class ABlasterPlayerController* BlasterOwnerController = nullptr;
