@@ -194,6 +194,11 @@ private:
 	UFUNCTION(BlueprintCallable)
 		void FinishReloading();
 	bool bLocallyReloading = false;
+
+	UFUNCTION(BlueprintCallable)
+		void FinishSawp();
+	UFUNCTION(BlueprintCallable)
+		void FinishSawpAttachWeapon();
 public:
 	void SetHUDCrosshair(float DeltaTime);
 

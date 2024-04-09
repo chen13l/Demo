@@ -137,6 +137,10 @@ void UCombatComponent::OnRep_CombatState()
 			ShowAttachGrenade(true);
 		}
 		break;
+	case ECombatState::ECS_SwappingWeapon:
+		if (BlasterCharacter && BlasterCharacter->IsLocallyControlled()) {
+			BlasterCharacter->PlaySwapWeaponMontage();
+		}
 	default:
 		break;
 	}
@@ -218,7 +222,32 @@ void UCombatComponent::EquipSecondaryWeapon(AWeaponBase* WeaponToEquip)
 
 void UCombatComponent::SwapWeapons()
 {
-	if (!CanSwapWeapon())return;
+	if (!CanSwapWeapon() || CombatState != ECombatState::ECS_Unoccupied || BlasterCharacter == nullptr)return;
+
+	BlasterCharacter->PlaySwapWeaponMontage();
+	BlasterCharacter->bFinishSawpping = false;
+	CombatState = ECombatState::ECS_SwappingWeapon;
+
+	if (SecondaryWeapon) {
+		SecondaryWeapon->EnableCustomDepth(false);
+	}
+}
+
+void UCombatComponent::FinishSawp()
+{
+	if (BlasterCharacter && BlasterCharacter->HasAuthority()) {
+		CombatState = ECombatState::ECS_Unoccupied;
+	}
+	if (BlasterCharacter) {
+		BlasterCharacter->bFinishSawpping = true;
+	}
+	if (SecondaryWeapon) {
+		SecondaryWeapon->EnableCustomDepth(true);
+	}
+}
+
+void UCombatComponent::FinishSawpAttachWeapon()
+{
 	AWeaponBase* TemWeapon = EquippedWeapon;
 	EquippedWeapon = SecondaryWeapon;
 	SecondaryWeapon = TemWeapon;
@@ -231,6 +260,7 @@ void UCombatComponent::SwapWeapons()
 
 	SecondaryWeapon->SetWeaponState(EWeaponState::EWS_EquippedSecondary);
 	AttachActorToBackpack(SecondaryWeapon);
+
 }
 
 void UCombatComponent::PlayEquipWeaponSound(AWeaponBase* WeaponToEquip)
@@ -716,8 +746,6 @@ void UCombatComponent::JumpToSectionEnd()
 		AnimInstance->Montage_JumpToSection(FName("ShotgunEnd"));
 	}
 }
-
-
 
 void UCombatComponent::ThrowGrenade()
 {

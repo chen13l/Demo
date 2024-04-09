@@ -212,6 +212,8 @@ private:
 		UAnimMontage* ThrowGrenadeMontage;
 	UPROPERTY(EditDefaultsOnly, Category = "Elim")
 		UAnimMontage* ElimMontage;
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+		UAnimMontage* SwapWeaponMontage;
 
 	void PlayHitReactMontage();
 	void PlayElimMontage();
@@ -331,7 +333,8 @@ public:
 	void PlayFireMontage(bool bAiming);
 	void PlayReloadMontage();
 	void PlayThrowGrenadeMontage();
-
+	void PlaySwapWeaponMontage();
+	bool bFinishSawpping = false;
 	/*
 		Camera
 	*/

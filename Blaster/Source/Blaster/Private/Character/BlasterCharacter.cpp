@@ -537,7 +537,7 @@ void ABlasterCharacter::Look(const FInputActionValue& Value)
 
 void ABlasterCharacter::EquipButtonPressed()
 {
-	if (CombatComponent) {
+	if (CombatComponent && CombatComponent->CombatState == ECombatState::ECS_Unoccupied) {
 		ServerEquipButtonPressed();
 	}
 }
@@ -545,14 +545,19 @@ void ABlasterCharacter::EquipButtonPressed()
 void ABlasterCharacter::ServerEquipButtonPressed_Implementation()
 {
 	if (CombatComponent) {
-		CombatComponent->EquipWeapon(OverlappingWeapon);
+		if (OverlappingWeapon) {
+			CombatComponent->EquipWeapon(OverlappingWeapon);
+		}
 	}
 }
 
 void ABlasterCharacter::OnSwapWeapon()
 {
-	if (CombatComponent && CombatComponent->CanSwapWeapon()) {
+	if (CombatComponent && CombatComponent->CanSwapWeapon() && !HasAuthority() && CombatComponent->CombatState == ECombatState::ECS_Unoccupied) {
 		CombatComponent->SwapWeapons();
+		PlaySwapWeaponMontage();
+		GetCombatComponent()->CombatState = ECombatState::ECS_SwappingWeapon;
+		bFinishSawpping = false;
 	}
 }
 
@@ -703,6 +708,14 @@ void ABlasterCharacter::PlayThrowGrenadeMontage()
 	}
 }
 
+void ABlasterCharacter::PlaySwapWeaponMontage()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && SwapWeaponMontage) {
+		AnimInstance->Montage_Play(SwapWeaponMontage);
+	}
+}
+
 void ABlasterCharacter::UpdateDissolveMaterial(float DissolveValue)
 {
 	if (DynamicDissolveMaterialinstance) {
@@ -753,8 +766,8 @@ FVector ABlasterCharacter::GetHitTarget() const
 }
 
 bool ABlasterCharacter::GetLocallyReload()const
-{ 
-	return (CombatComponent ? CombatComponent->GetIsLocallyReload() : false); 
+{
+	return (CombatComponent ? CombatComponent->GetIsLocallyReload() : false);
 }
 
 void ABlasterCharacter::Elim()
