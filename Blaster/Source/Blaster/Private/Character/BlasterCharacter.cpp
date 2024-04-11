@@ -28,6 +28,9 @@
 #include "Weapon/WeaponTypes.h"
 #include "Components/BoxComponent.h"
 #include "BlasterComponents/LagCompensationComponent.h"
+#include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
+#include "GameState/BlasterGameState.h"
 
 // Sets default values
 ABlasterCharacter::ABlasterCharacter()
@@ -198,6 +201,7 @@ void ABlasterCharacter::BeginPlay()
 	if (AttachGrenade) {
 		AttachGrenade->SetVisibility(false);
 	}
+
 }
 
 void ABlasterCharacter::PollInit()
@@ -208,6 +212,11 @@ void ABlasterCharacter::PollInit()
 			BlasterPlayerState->AddToScore(0.f);
 			BlasterPlayerState->AddToDefeats(0);
 		}
+	}
+
+	ABlasterGameState* BlasterGameState = Cast<ABlasterGameState>(UGameplayStatics::GetGameState(this));
+	if (BlasterGameState && BlasterGameState->GetTopPlayers().Contains(BlasterPlayerState)) {
+		MulticastGainLead();
 	}
 }
 
@@ -468,7 +477,9 @@ void ABlasterCharacter::ReceiveDamage(
 		if (BlasterGameMode) {
 			BlasterPlayerController = BlasterPlayerController == nullptr ? Cast<ABlasterPlayerController>(Controller) : BlasterPlayerController;
 			ABlasterPlayerController* AttackerController = Cast<ABlasterPlayerController>(InstigatorController);
-			BlasterGameMode->PlayerEliminated(this, BlasterPlayerController, AttackerController);
+			if (AttackerController) {
+				BlasterGameMode->PlayerEliminated(this, BlasterPlayerController, AttackerController);
+			}
 		}
 	}
 }
@@ -859,6 +870,11 @@ void ABlasterCharacter::MulticastElim_Implementation(bool bPlayerLeftGame)
 		ShowScopeWidget(false);
 	}
 
+	if (CrownComponent)
+	{
+		CrownComponent->DestroyComponent();
+	}
+
 	GetWorldTimerManager().SetTimer(
 		ElimTimer,
 		this,
@@ -906,3 +922,29 @@ void ABlasterCharacter::SetDisableGameplay(bool ShouldDisalbe)
 	}
 }
 
+void ABlasterCharacter::MulticastGainLead_Implementation()
+{
+	if (CrownSystem == nullptr) { return; }
+
+	if (CrownComponent == nullptr) {
+		CrownComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(
+			CrownSystem,
+			GetCapsuleComponent(),
+			FName(),
+			GetActorLocation() + FVector(0.f, 0.f, 110.f),
+			GetActorRotation(),
+			EAttachLocation::KeepWorldPosition,
+			false
+		);
+	}
+	if (CrownComponent) {
+		CrownComponent->Activate();
+	}
+}
+
+void ABlasterCharacter::MulticastLostLead_Implementation()
+{
+	if (CrownComponent) {
+		CrownComponent->DestroyComponent();
+	}
+}

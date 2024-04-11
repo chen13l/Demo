@@ -73,14 +73,34 @@ void ABlasterGameMode::PlayerEliminated(
 
 	ABlasterPlayerState* AttackerPlayerState = AttackerController ? Cast<ABlasterPlayerState>(AttackerController->PlayerState) : nullptr;
 	ABlasterPlayerState* VictimPlayerState = VictimController ? Cast<ABlasterPlayerState>(VictimController->PlayerState) : nullptr;
-	
+
+	TArray<ABlasterPlayerState*> PlayerCurrentlyInTheLead;
+
 	if (AttackerPlayerState && AttackerPlayerState != VictimPlayerState) {
 		AttackerPlayerState->AddToScore(1.f);
 		ABlasterGameState* BlasterGameState = GetGameState<ABlasterGameState>();
 		if (BlasterGameState) {
+			for (auto LeadPlayer : BlasterGameState->GetTopPlayers()) {
+				PlayerCurrentlyInTheLead.Add(LeadPlayer);
+			}
 			BlasterGameState->UpdateTopScore(AttackerPlayerState);
+			if (BlasterGameState->GetTopPlayers().Contains(AttackerPlayerState)) {
+				ABlasterCharacter* Leader = Cast<ABlasterCharacter>(AttackerPlayerState->GetPawn());
+				if (Leader) {
+					Leader->MulticastGainLead();
+				}
+			}
+			for (int32 i = 0; i < PlayerCurrentlyInTheLead.Num(); ++i) {
+				if (!BlasterGameState->GetTopPlayers().Contains(PlayerCurrentlyInTheLead[i])) {
+					ABlasterCharacter* Loser = Cast<ABlasterCharacter>(PlayerCurrentlyInTheLead[i]->GetPawn());
+					if (Loser) {
+						Loser->MulticastLostLead();
+					}
+				}
+			}
 		}
 	}
+
 	if (VictimPlayerState) {
 		VictimPlayerState->AddToDefeats(1);
 	}
@@ -112,7 +132,7 @@ void ABlasterGameMode::PlayerLeftGame(ABlasterPlayerState* PlayerLeaving)
 		BlasterGameState->GetTopPlayers().Remove(PlayerLeaving);
 	}
 
-	ABlasterCharacter* CharacterLeaving =Cast<ABlasterCharacter>(PlayerLeaving->GetPawn());
+	ABlasterCharacter* CharacterLeaving = Cast<ABlasterCharacter>(PlayerLeaving->GetPawn());
 	if (CharacterLeaving) {
 		CharacterLeaving->Elim(true);
 	}

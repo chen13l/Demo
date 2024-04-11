@@ -183,7 +183,7 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess))
 		class UBuffComponent* BuffComponent;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess))
-		 ULagCompensationComponent* LagCompensation;
+		ULagCompensationComponent* LagCompensation;
 
 	UFUNCTION(Server, Reliable)
 		void ServerEquipButtonPressed();
@@ -230,6 +230,12 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Elim")
 		class USoundCue* ElimBotSound;
+
+	UPROPERTY(EditDefaultsOnly)
+		class UNiagaraSystem* CrownSystem;
+
+	UPROPERTY(EditDefaultsOnly)
+		class UNiagaraComponent* CrownComponent;
 
 	/**
 	 * Dissolve Effect
@@ -364,4 +370,9 @@ public:
 
 	UFUNCTION(Server, Reliable)
 		void ServerLeaveGame();
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastGainLead();
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastLostLead();
 };
