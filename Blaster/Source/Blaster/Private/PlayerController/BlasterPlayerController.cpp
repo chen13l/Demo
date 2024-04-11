@@ -5,6 +5,7 @@
 #include "HUD/BlasterHUD.h"
 #include "HUD/CharacterOverlay.h"
 #include "HUD/Announcement.h"
+#include "HUD/ReturnToMainMenuWidget.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 #include "BlasterComponents/CombatComponent.h"
@@ -16,6 +17,8 @@
 #include "GameState/BlasterGameState.h"
 #include "PlayerState/BlasterPlayerState.h"
 #include "Components/Image.h"
+#include "EnhancedInputSubsystems.h"
+#include "EnhancedInputComponent.h"
 
 void ABlasterPlayerController::BeginPlay()
 {
@@ -34,6 +37,39 @@ void ABlasterPlayerController::Tick(float DeltaTime)
 	PollInit();
 
 	CheckPing(DeltaTime);
+}
+
+void ABlasterPlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+
+	if (InputComponent == nullptr) { return; }
+	UEnhancedInputLocalPlayerSubsystem* EnhancedInputSubsystem = Cast<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
+	if (EnhancedInputSubsystem) {
+		EnhancedInputSubsystem->AddMappingContext(PCInputMappingContext, 1);
+		UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
+		if (EnhancedInputComponent) {
+			EnhancedInputComponent->BindAction(EscAtion, ETriggerEvent::Triggered, this, &ThisClass::ShowReurnToMenu);
+		}
+	}
+
+}
+
+void ABlasterPlayerController::ShowReurnToMenu()
+{
+	if (ReturnToMainMenuWidgetClass == nullptr) { return; }
+	if (ReturnToMainMenuWidget == nullptr) {
+		ReturnToMainMenuWidget = CreateWidget<UReturnToMainMenuWidget>(this, ReturnToMainMenuWidgetClass);
+	}
+	if (ReturnToMainMenuWidget) {
+		bReturnToMainMenuOpen = !bReturnToMainMenuOpen;
+		if (bReturnToMainMenuOpen) {
+			ReturnToMainMenuWidget->MenuSetup();
+		}
+		else {
+			ReturnToMainMenuWidget->MenuTearDown();
+		}
+	}
 }
 
 void ABlasterPlayerController::SetHUDTime()

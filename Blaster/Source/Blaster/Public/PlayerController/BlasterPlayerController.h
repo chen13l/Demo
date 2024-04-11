@@ -39,6 +39,7 @@ public:
 	void HandleCooldown();
 protected:
 	virtual void BeginPlay() override;
+	virtual void SetupInputComponent()override;
 	void PollInit();
 
 	void SetHUDTime();
@@ -72,8 +73,31 @@ protected:
 	void HighPingWarning();
 	void StopHighPingWarning();
 
+	/*
+		Input
+	*/
+	void ShowReurnToMenu();
+
 private:
 	class ABlasterHUD* BlasterHUD = nullptr;
+
+	/*
+		Input
+	*/
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess))
+		class UInputMappingContext* PCInputMappingContext;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess))
+		class UInputAction* EscAtion;
+
+	/*
+		return to main menu
+	*/
+	UPROPERTY(EditDefaultsOnly, Category = "HUD")
+		TSubclassOf<class UUserWidget> ReturnToMainMenuWidgetClass;
+	UPROPERTY(EditDefaultsOnly, Category = "HUD")
+		class UReturnToMainMenuWidget* ReturnToMainMenuWidget;
+	bool bReturnToMainMenuOpen = false;
+
 
 	float MatchTime = 0.f;
 	float WarmupTime = 0.f;
@@ -131,5 +155,5 @@ private:
 		float HighPingThreshold = 50.f;
 
 	UFUNCTION(Server, Reliable)
-	void ServerReportPingStatus(bool bHighPing);
+		void ServerReportPingStatus(bool bHighPing);
 };
