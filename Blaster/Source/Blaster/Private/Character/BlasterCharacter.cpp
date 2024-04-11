@@ -770,18 +770,11 @@ bool ABlasterCharacter::GetLocallyReload()const
 	return (CombatComponent ? CombatComponent->GetIsLocallyReload() : false);
 }
 
-void ABlasterCharacter::Elim()
+void ABlasterCharacter::Elim(bool bPlayerLeftGame)
 {
 	DropOrDestroyWeapons();
 
-	MulticastElim();
-
-	GetWorldTimerManager().SetTimer(
-		ElimTimer,
-		this,
-		&ThisClass::ElimTimerFinished,
-		ElimDelay
-	);
+	MulticastElim(bPlayerLeftGame);
 }
 
 void ABlasterCharacter::DropOrDestroyWeapons()
@@ -807,8 +800,10 @@ void ABlasterCharacter::DropOrDestroyWeapons()
 	}
 }
 
-void ABlasterCharacter::MulticastElim_Implementation()
+void ABlasterCharacter::MulticastElim_Implementation(bool bPlayerLeftGame)
 {
+	bLeftGame = bPlayerLeftGame;
+
 	if (BlasterPlayerController) {
 		BlasterPlayerController->SetHUDAmmo(0);
 	}
@@ -863,13 +858,32 @@ void ABlasterCharacter::MulticastElim_Implementation()
 	if (bHideScopeWidget) {
 		ShowScopeWidget(false);
 	}
+
+	GetWorldTimerManager().SetTimer(
+		ElimTimer,
+		this,
+		&ThisClass::ElimTimerFinished,
+		ElimDelay
+	);
 }
 
 void ABlasterCharacter::ElimTimerFinished()
 {
 	ABlasterGameMode* BlasterGameMode = GetWorld()->GetAuthGameMode<ABlasterGameMode>();
-	if (BlasterGameMode) {
+	if (BlasterGameMode && !bLeftGame) {
 		BlasterGameMode->RequestRespawn(this, Controller);
+	}
+	if (bLeftGame && IsLocallyControlled()) {
+		OnLeftGame.Broadcast();
+	}
+}
+
+void ABlasterCharacter::ServerLeaveGame_Implementation()
+{
+	ABlasterGameMode* BlasterGameMode = GetWorld()->GetAuthGameMode<ABlasterGameMode>();
+	BlasterPlayerState = BlasterPlayerState == nullptr ? GetPlayerState<ABlasterPlayerState>() : BlasterPlayerState;
+	if (BlasterGameMode && BlasterPlayerState) {
+		BlasterGameMode->PlayerLeftGame(BlasterPlayerState);
 	}
 }
 

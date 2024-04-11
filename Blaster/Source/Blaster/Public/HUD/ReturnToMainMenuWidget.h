@@ -21,7 +21,10 @@ protected:
 	virtual bool Initialize()override;
 
 	UFUNCTION()
-	void OnDestroySession(bool bWasSussful);
+		void OnDestroySession(bool bWasSussful);
+
+	UFUNCTION()
+		void OnPlayerLeftGame();
 
 private:
 	UPROPERTY()

@@ -29,6 +29,8 @@ public:
 
 	virtual void RequestRespawn(class ACharacter* ElimCharacter, class AController* ElimController);
 
+	void PlayerLeftGame(class ABlasterPlayerState* PlayerLeaving);
+
 	FORCEINLINE float GetWarmupTime()const { return WarmupTime; }
 	FORCEINLINE float GetLevelStartingTime()const { return LevelStartingTime; }
 	FORCEINLINE float GetMatchTime() const { return MatchTime; }

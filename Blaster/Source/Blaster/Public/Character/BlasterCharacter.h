@@ -12,6 +12,8 @@
 #include "Blaster/BlasterTypes/CombatState.h"
 #include "BlasterCharacter.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLeftGame);
+
 class UInputAction;
 class UInputMappingContext;
 class UBoxComponent;
@@ -37,6 +39,8 @@ public:
 	*/
 	TMap<FName, UBoxComponent*> GetHitCollisionBoxes()const { return HitCollisionBoxes; }
 	FORCEINLINE ULagCompensationComponent* GetLagCompensationComponent()const { return LagCompensation; }
+
+	FOnLeftGame OnLeftGame;
 
 protected:
 	// Called when the game starts or when spawned
@@ -283,6 +287,8 @@ private:
 		float ElimDelay = 3.f;
 	void ElimTimerFinished();
 
+	bool bLeftGame = false;
+
 	class ABlasterPlayerState* BlasterPlayerState = nullptr;
 
 	/*
@@ -344,10 +350,10 @@ public:
 		Character Stats
 	*/
 	FORCEINLINE bool GetDisableGameplay()const { return bDisableGameplay; }
-	void Elim();
+	void Elim(bool bPlayerLeftGame);
 	void DropOrDestroyWeapons();
 	UFUNCTION(NetMulticast, Reliable)
-		void MulticastElim();
+		void MulticastElim(bool bPlayerLeftGame);
 	FORCEINLINE bool GetIsElim()const { return bIsElim; }
 
 	bool GetLocallyReload()const;
@@ -355,4 +361,7 @@ public:
 	ECombatState GetCombatState() const;
 
 	void SetDisableGameplay(bool ShouldDisalbe);
+
+	UFUNCTION(Server, Reliable)
+		void ServerLeaveGame();
 };
