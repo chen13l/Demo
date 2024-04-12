@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerState.h"
+#include "Blaster/BlasterTypes/Team.h"
 #include "BlasterPlayerState.generated.h"
 
 /**
@@ -21,7 +22,14 @@ public:
 
 	virtual void OnRep_Score() override;
 	UFUNCTION()
-	virtual void OnRep_Defeats();
+		virtual void OnRep_Defeats();
+	
+	/*
+		team
+	*/
+	FORCEINLINE ETeam GetTeam()const { return Team; }
+	FORCEINLINE void SetTeam(ETeam TeamToSet) { Team = TeamToSet; }
+
 
 private:
 	class ABlasterCharacter* Character = nullptr;
@@ -29,5 +37,11 @@ private:
 
 	UPROPERTY(ReplicatedUsing = OnRep_Defeats)
 		int32 Defeats;
-	
+
+	/*
+		team
+	*/
+	UPROPERTY(Replicated)
+		ETeam Team = ETeam::ET_NoTeam;
+
 };
