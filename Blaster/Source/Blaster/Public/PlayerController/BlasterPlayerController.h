@@ -37,6 +37,9 @@ public:
 
 	void OnMatchStateSet(FName State);
 	void HandleCooldown();
+
+	void BroadCastElim(APlayerState* Attacker, APlayerState* Victim);
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent()override;
@@ -77,6 +80,12 @@ protected:
 		Input
 	*/
 	void ShowReurnToMenu();
+
+	/*
+		announcement
+	*/
+	UFUNCTION(Client, Reliable)
+		void ClientElimAnnouncement(APlayerState* Attacker, APlayerState* Victim);
 
 private:
 	class ABlasterHUD* BlasterHUD = nullptr;

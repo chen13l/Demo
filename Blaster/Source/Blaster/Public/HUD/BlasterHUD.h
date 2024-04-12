@@ -29,20 +29,28 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Player Stats")
 		TSubclassOf<class UUserWidget> CharacterOverlayClass;
 	class UCharacterOverlay* CharacterOverlay = nullptr;
-	void AddCharacterOverlay();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Player Stats")
 		TSubclassOf<UUserWidget> AnnouncementClass;
 	class UAnnouncement* Announcement = nullptr;
-	void AddAnnouncement();
-
 
 private:
+	class APlayerController* OwningPlayerController;
+
 	FHUDPackage HUDPackage;
 	void DrawCrosshairs(UTexture2D* Tuxture, FVector2D ViewportCenter, FVector2D CrosshairSpread, FLinearColor CrosshairColor);
 
 	UPROPERTY(EditDefaultsOnly)
 		float CrosshairSpreadMax = 16;
+
+	UPROPERTY(EditDefaultsOnly)
+		TSubclassOf<class UElimAnnouncement>ElimAnnouncementClass;
+	UPROPERTY(EditDefaultsOnly)
+		float ElimAnnouncementTime = 2.5f;
+	UPROPERTY()
+		TArray<UElimAnnouncement*> ElimMsgs;
+	UFUNCTION()
+		void ElimAnnouncementTimerFinsh(UElimAnnouncement* MsgToRemove);
 
 protected:
 	virtual void BeginPlay() override;
@@ -50,5 +58,8 @@ protected:
 public:
 	FORCEINLINE void SetHUDPackage(const FHUDPackage& Package) { HUDPackage = Package; }
 
+	void AddCharacterOverlay();
+	void AddAnnouncement();
+	void AddElimAnnouncement(FString Attacker, FString Victim);
 
 };
