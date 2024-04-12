@@ -416,6 +416,7 @@ void UCombatComponent::LocalShotgunFire(const  TArray< FVector_NetQuantize>& Tra
 	if (Shotgun == nullptr || BlasterCharacter == nullptr) { return; }
 
 	if (CombatState == ECombatState::ECS_Reloading || CombatState == ECombatState::ECS_Unoccupied) {
+		bLocallyReloading = false;
 		BlasterCharacter->PlayFireMontage(bIsAiming);
 		Shotgun->FireShotgun(TraceHitTargets);
 		CombatState = ECombatState::ECS_Unoccupied;

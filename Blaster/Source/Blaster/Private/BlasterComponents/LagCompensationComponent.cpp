@@ -479,17 +479,17 @@ void ULagCompensationComponent::ServerScoreRequest_Implementation(
 	ABlasterCharacter* HitCharacter,
 	const FVector_NetQuantize& TraceStart,
 	const FVector_NetQuantize& HitLocation,
-	float HitTime,
-	AWeaponBase* DamagerCauser)
+	float HitTime)
 {
 	FServerSideRewindResult Confirm = ServerSideRewind(HitCharacter, TraceStart, HitLocation, HitTime);
 
-	if (BlasterCharacter && HitCharacter && DamagerCauser && Confirm.bHitCinfirm) {
+	if (BlasterCharacter && HitCharacter && BlasterCharacter->GetEquippedWeapon() && Confirm.bHitCinfirm) {
+		const float Damage = Confirm.bHeadShot ? BlasterCharacter->GetEquippedWeapon()->GetHeaddShotDamage() : BlasterCharacter->GetEquippedWeapon()->GetBaseDamage();
 		UGameplayStatics::ApplyDamage(
 			HitCharacter,
-			DamagerCauser->GetBaseDamage(),
+			Damage,
 			BlasterCharacter->Controller,
-			DamagerCauser,
+			BlasterCharacter->GetEquippedWeapon(),
 			UDamageType::StaticClass()
 		);
 	}
@@ -507,7 +507,7 @@ void ULagCompensationComponent::ShotgunServerScoreRequest_Implementation(
 		if (HitCharacter == nullptr || BlasterCharacter->GetEquippedWeapon() == nullptr) { continue; }
 		float TotalDamage = 0.f;
 		if (Confirm.HeadShots.Contains(HitCharacter)) {
-			float HeadShotDamage = Confirm.HeadShots[HitCharacter] * BlasterCharacter->GetEquippedWeapon()->GetBaseDamage();
+			float HeadShotDamage = Confirm.HeadShots[HitCharacter] * BlasterCharacter->GetEquippedWeapon()->GetHeaddShotDamage();
 			TotalDamage += HeadShotDamage;
 		}
 		if (Confirm.BodyShots.Contains(HitCharacter)) {
@@ -533,10 +533,13 @@ void ULagCompensationComponent::ProjectileServerScoreRequest_Implementation(
 {
 	FServerSideRewindResult Confirm = ServerSideRewind(HitCharacter, TraceStart, InitialVelocity, HitTime);
 
-	if (BlasterCharacter && HitCharacter && Confirm.bHitCinfirm) {
+	if (BlasterCharacter && HitCharacter&& BlasterCharacter->GetEquippedWeapon() && Confirm.bHitCinfirm) {
+
+		const float Damage = Confirm.bHeadShot ? BlasterCharacter->GetEquippedWeapon()->GetHeaddShotDamage() : BlasterCharacter->GetEquippedWeapon()->GetBaseDamage();
+
 		UGameplayStatics::ApplyDamage(
 			HitCharacter,
-			BlasterCharacter->GetEquippedWeapon()->GetBaseDamage(),
+			Damage,
 			BlasterCharacter->Controller,
 			BlasterCharacter->GetEquippedWeapon(),
 			UDamageType::StaticClass()

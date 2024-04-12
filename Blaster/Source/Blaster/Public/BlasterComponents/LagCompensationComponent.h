@@ -77,8 +77,7 @@ public:
 			ABlasterCharacter* HitCharacter,
 			const FVector_NetQuantize& TraceStart,
 			const FVector_NetQuantize& HitLocation,
-			float HitTime,
-			class AWeaponBase* DamagerCauser
+			float HitTime
 		);
 
 	UFUNCTION(Server, Reliable)

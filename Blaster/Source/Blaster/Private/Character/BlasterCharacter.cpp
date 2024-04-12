@@ -461,8 +461,8 @@ void ABlasterCharacter::ReceiveDamage(
 			DamageToHealth = 0.f;
 		}
 		else {
-			Shield = 0.f;
 			DamageToHealth = FMath::Clamp(DamageToHealth - Shield, 0, Damage);
+			Shield = 0.f;
 		}
 		UpdateHUDShield();
 	}
