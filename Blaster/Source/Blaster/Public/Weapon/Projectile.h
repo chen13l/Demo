@@ -40,7 +40,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 		class USoundCue* ImpactSound;
 
+	//only set for Grenade or Rocket
+	UPROPERTY(EditDefaultsOnly)
 		float Damage = 20.f;
+	//doesn't matter for Grenade or Rocket
+	UPROPERTY(EditDefaultsOnly)
+		float HeadShotDamage = 1.5f * Damage;
 
 	UPROPERTY(EditDefaultsOnly)
 		class USphereComponent* CollisionSphere;
@@ -92,4 +97,6 @@ public:
 	void SetInitialSpeed(float Speed) { InitialSpeed = Speed; }
 	float GetBaseDamage()const { return Damage; }
 	void SetBaseDamage(float BaseDamage) { Damage = BaseDamage; }
+	float GetHeadShotDamage()const { return HeadShotDamage; }
+	void SetHeadShotDamage(float HeadDamage) { HeadShotDamage = HeadDamage; }
 };

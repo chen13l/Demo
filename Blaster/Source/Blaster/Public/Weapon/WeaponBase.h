@@ -80,6 +80,8 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 		float Damage = 20.f;
+	UPROPERTY(EditDefaultsOnly)
+		float HeadShotDamage = 1.5 * Damage;
 
 	/*
 		Server side rewind
@@ -204,6 +206,7 @@ public:
 	FORCEINLINE EFireType GetFireType()const { return FireType; }
 	FORCEINLINE bool GetUseScatter()const { return bUseScatter; }
 	FORCEINLINE float GetBaseDamage()const { return Damage; }
+	FORCEINLINE float GetHeaddShotDamage()const { return HeadShotDamage; }
 	void SetIsAutoDestroy(bool ShouldAutoDestroy) { bIsAutoDestroyWeapon = ShouldAutoDestroy; }
 	void AddAmmo(int32 AmmoToAdd);
 	bool IsEmpty() { return Ammo <= 0; }
