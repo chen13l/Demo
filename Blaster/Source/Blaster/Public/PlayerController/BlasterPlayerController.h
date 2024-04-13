@@ -177,4 +177,10 @@ private:
 
 	UFUNCTION(Server, Reliable)
 		void ServerReportPingStatus(bool bHighPing);
+
+	/*
+		announcement
+	*/
+	FString GetInfoText(const TArray<class ABlasterPlayerState*>& Players);
+	FString GetTeamsInfoText(class ABlasterGameState* BlasterGameState);
 };
