@@ -50,6 +50,6 @@ public:
 	TArray<ABlasterPlayerState*>GetBlueTeam() { return BlueTeam; }
 	float GetRedTeamScore()const { return RedTeamScore; }
 	float GetBlueTeamScore()const { return BlueTeamScore; }
-	void AddRedTeamScore(float ScoreToAdd) { RedTeamScore += ScoreToAdd; }
-	void AddBlueTeamScore(float ScoreToAdd) { BlueTeamScore += ScoreToAdd; }
+	void UpdateRedTeamScore();
+	void UpdateBlueTeamScore();
 };

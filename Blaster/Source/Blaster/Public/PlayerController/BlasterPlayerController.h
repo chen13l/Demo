@@ -34,8 +34,12 @@ public:
 	void SetMatchTime(float Time);
 	void SetHUDAnnouncementCountdown(float Countdown);
 	void SetHUDGrenade(int32 Grenades);
+	void HideTeamScore();
+	void InitTeamScore();
+	void SetHUDRedTeamScore(int32 RedScore);
+	void SetHUDBlueTeamScore(int32 BlueScore);
 
-	void OnMatchStateSet(FName State);
+	void OnMatchStateSet(FName State, bool bTeamsMatch = false);
 	void HandleCooldown();
 
 	void BroadCastElim(APlayerState* Attacker, APlayerState* Victim);
@@ -46,7 +50,7 @@ protected:
 	void PollInit();
 
 	void SetHUDTime();
-	void HandleMatchStarted();
+	void HandleMatchStarted(bool bTeamsMatch = false);
 	/*
 		sync time between client and server
 	*/
@@ -86,6 +90,14 @@ protected:
 	*/
 	UFUNCTION(Client, Reliable)
 		void ClientElimAnnouncement(APlayerState* Attacker, APlayerState* Victim);
+
+	/*
+		Team
+	*/
+	UPROPERTY(ReplicatedUsing = OnRep_bShowTeamScore)
+		bool bShowTeamScore = false;
+	UFUNCTION()
+		void OnRep_bShowTeamScore();
 
 private:
 	class ABlasterHUD* BlasterHUD = nullptr;

@@ -25,6 +25,15 @@ public:
 		UTextBlock* ScoreText;
 
 	UPROPERTY(meta = (BindWiget))
+		UTextBlock* BlueTeamScore;
+
+	UPROPERTY(meta = (BindWiget))
+		UTextBlock* RedTeamScore;
+
+	UPROPERTY(meta = (BindWiget))
+		UTextBlock* TeamScoreChar;
+
+	UPROPERTY(meta = (BindWiget))
 		UTextBlock* DefeatsText;
 
 	UPROPERTY(meta = (BindWiget))

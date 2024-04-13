@@ -38,10 +38,12 @@ public:
 	FORCEINLINE float GetMatchTime() const { return MatchTime; }
 	FORCEINLINE float GetCooldownTime() const { return CooldownTime; }
 	FORCEINLINE float GetCountdownTime()const { return CountdownTime; }
+	FORCEINLINE bool GetIsTeamsMatch()const { return bTeamsMatch; }
 protected:
 	virtual void BeginPlay() override;
 	virtual void OnMatchStateSet()override;
 
+	bool bTeamsMatch = false; 
 private:
 	UPROPERTY(EditDefaultsOnly)
 		float WarmupTime = 10.f;
