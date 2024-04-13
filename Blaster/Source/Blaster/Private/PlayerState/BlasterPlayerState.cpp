@@ -26,15 +26,11 @@ void ABlasterPlayerState::OnRep_Defeats()
 	}
 }
 
-void ABlasterPlayerState::AddToDefeats(int32 DefeatAmount)
+void ABlasterPlayerState::OnRep_Team()
 {
-	Defeats += DefeatAmount;
-	Character = Character == nullptr ? Cast<ABlasterCharacter>(GetPawn()) : Character;
-	if (Character && Character->Controller) {
-		Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
-		if (Controller) {
-			Controller->SetHUDScore(Defeats);
-		}
+	ABlasterCharacter* BCharacter = Cast<ABlasterCharacter>(GetPawn());
+	if (BCharacter) {
+		BCharacter->SetTeamColor(Team);
 	}
 }
 
@@ -51,6 +47,18 @@ void ABlasterPlayerState::OnRep_Score()
 	}
 }
 
+void ABlasterPlayerState::AddToDefeats(int32 DefeatAmount)
+{
+	Defeats += DefeatAmount;
+	Character = Character == nullptr ? Cast<ABlasterCharacter>(GetPawn()) : Character;
+	if (Character && Character->Controller) {
+		Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
+		if (Controller) {
+			Controller->SetHUDScore(Defeats);
+		}
+	}
+}
+
 void ABlasterPlayerState::AddToScore(float ScoreAmount)
 {
 	SetScore(GetScore() + ScoreAmount);
@@ -63,3 +71,11 @@ void ABlasterPlayerState::AddToScore(float ScoreAmount)
 	}
 }
 
+void ABlasterPlayerState::SetTeam(ETeam TeamToSet)
+{
+	Team = TeamToSet;
+	ABlasterCharacter* BCharacter = Cast<ABlasterCharacter>(GetPawn());
+	if (BCharacter) {
+		BCharacter->SetTeamColor(Team);
+	}
+}

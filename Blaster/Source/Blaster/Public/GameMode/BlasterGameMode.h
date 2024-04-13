@@ -31,6 +31,8 @@ public:
 
 	void PlayerLeftGame(class ABlasterPlayerState* PlayerLeaving);
 
+	virtual float CalculateDamage(AController* Attacker, AController* Victim, float BaseDamage);
+
 	FORCEINLINE float GetWarmupTime()const { return WarmupTime; }
 	FORCEINLINE float GetLevelStartingTime()const { return LevelStartingTime; }
 	FORCEINLINE float GetMatchTime() const { return MatchTime; }

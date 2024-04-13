@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
 #include "Blaster/BlasterTypes/TurningInPlace.h"
+#include "Blaster/BlasterTypes/Team.h"
 #include "Camera/CameraComponent.h"
 #include "Interfaces/CrosshairsInterface.h"
 #include "Components/TimelineComponent.h"
@@ -256,7 +257,7 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Elim")
 		UMaterialInstanceDynamic* DynamicDissolveMaterialinstance;
 	//Material set on Blueprint, used with Dynamic Material Instance
-	UPROPERTY(EditDefaultsOnly, Category = "Elim")
+	UPROPERTY(VisibleAnywhere, Category = "Elim")
 		UMaterialInstance* DissolveMaterialInstance;
 
 	/*
@@ -302,6 +303,26 @@ private:
 	*/
 	UPROPERTY(VisibleAnywhere)
 		UStaticMeshComponent* AttachGrenade;
+
+	/*
+		Team color
+	*/
+	UPROPERTY(EditDefaultsOnly, Category = Elim)
+		UMaterialInstance* RedDissolveMatInst;
+
+	UPROPERTY(EditDefaultsOnly, Category = Elim)
+		UMaterialInstance* RedMaterial;
+
+	UPROPERTY(EditDefaultsOnly, Category = Elim)
+		UMaterialInstance* BlueDissolveMatInst;
+
+	UPROPERTY(EditDefaultsOnly, Category = Elim)
+		UMaterialInstance* BlueMaterial;
+
+	UPROPERTY(EditDefaultsOnly, Category = Elim)
+		UMaterialInstance* OriginalMaterial;
+
+	class ABlasterGameMode* BlasterGameMode;
 
 public:
 	/*
@@ -375,4 +396,9 @@ public:
 		void MulticastGainLead();
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastLostLead();
+
+	/*'
+		Team color
+	*/
+	void SetTeamColor(ETeam Team);
 };
