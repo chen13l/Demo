@@ -49,6 +49,8 @@ protected:
 	//poll for relevent classes & initialize hud
 	virtual void PollInit();
 
+	void OnPlayerStateInitialized();
+
 	/*
 		Input
 	*/
@@ -324,6 +326,12 @@ private:
 
 	class ABlasterGameMode* BlasterGameMode;
 
+	/*
+		Spawn
+	*/
+	void SetSpawnPoint();
+
+
 public:
 	/*
 		Combat
@@ -401,4 +409,8 @@ public:
 		Team color
 	*/
 	void SetTeamColor(ETeam Team);
+
+	//flag
+	bool GetIsHoldingFlag();
+	ETeam GetTeam();
 };
