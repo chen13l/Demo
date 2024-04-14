@@ -31,6 +31,7 @@
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "GameState/BlasterGameState.h"
+#include "PlayerStart/TeamPlayerStart.h"
 
 // Sets default values
 ABlasterCharacter::ABlasterCharacter()
@@ -48,6 +49,7 @@ ABlasterCharacter::ABlasterCharacter()
 	CameraBoom->TargetArmLength = 350.f;
 	CameraBoom->bUsePawnControlRotation = true;
 	CameraBoom->SetRelativeRotation(FRotator(-45.f, 0.f, 0.f));
+	CameraBoom->bEnableCameraRotationLag = true;
 
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
@@ -209,15 +211,44 @@ void ABlasterCharacter::PollInit()
 	if (BlasterPlayerState == nullptr) {
 		BlasterPlayerState = GetPlayerState<ABlasterPlayerState>();
 		if (BlasterPlayerState) {
-			BlasterPlayerState->AddToScore(0.f);
-			BlasterPlayerState->AddToDefeats(0);
-			SetTeamColor(BlasterPlayerState->GetTeam());
+			OnPlayerStateInitialized();
 		}
 	}
 
 	ABlasterGameState* BlasterGameState = Cast<ABlasterGameState>(UGameplayStatics::GetGameState(this));
 	if (BlasterGameState && BlasterGameState->GetTopPlayers().Contains(BlasterPlayerState)) {
 		MulticastGainLead();
+	}
+}
+
+void ABlasterCharacter::OnPlayerStateInitialized()
+{
+	BlasterPlayerState->AddToScore(0.f);
+	BlasterPlayerState->AddToDefeats(0);
+	SetTeamColor(BlasterPlayerState->GetTeam());
+	SetSpawnPoint();
+}
+
+void ABlasterCharacter::SetSpawnPoint()
+{
+	if (HasAuthority() && BlasterPlayerState->GetTeam() != ETeam::ET_NoTeam) {
+		TArray<AActor*> PlayerStarts;
+		UGameplayStatics::GetAllActorsOfClass(this, APlayerStart::StaticClass(), PlayerStarts);
+		TArray<ATeamPlayerStart*> TeamPlayerStarts;
+		for (auto Start : PlayerStarts) {
+			ATeamPlayerStart* TeamStart = Cast<ATeamPlayerStart>(Start);
+			if (TeamStart && TeamStart->GetTeam() == BlasterPlayerState->GetTeam()) {
+				TeamPlayerStarts.Add(TeamStart);
+			}
+		}
+
+		if (TeamPlayerStarts.Num() > 0) {
+			ATeamPlayerStart* ChosenPlayerStart = TeamPlayerStarts[FMath::RandRange(0, TeamPlayerStarts.Num() - 1)];
+			SetActorLocationAndRotation(
+				ChosenPlayerStart->GetActorLocation(),
+				ChosenPlayerStart->GetActorRotation()
+			);
+		}
 	}
 }
 
@@ -247,6 +278,21 @@ void ABlasterCharacter::Tick(float DeltaTime)
 
 void ABlasterCharacter::RotateInPlace(float DeltaTime)
 {
+	if (CombatComponent->bHoldingFlag) {
+		GetCharacterMovement()->bOrientRotationToMovement = false;
+		bUseControllerRotationYaw = true;
+		TurningInPlace = ETurningInPlace::ETIP_NotTurning;
+		return;
+	}
+	else {
+		CameraBoom->CameraRotationLagSpeed = InitCameraRotateSpeed;
+	}
+
+	if (CombatComponent && CombatComponent->EquippedWeapon) {
+		GetCharacterMovement()->bOrientRotationToMovement = false;
+		bUseControllerRotationYaw = true;
+	}
+
 	if (bDisableGameplay) {
 		bUseControllerRotationYaw = false;
 		TurningInPlace = ETurningInPlace::ETIP_NotTurning;
@@ -460,7 +506,7 @@ void ABlasterCharacter::ReceiveDamage(
 	AActor* DamageCauser)
 {
 	BlasterGameMode = BlasterGameMode == nullptr ? GetWorld()->GetAuthGameMode<ABlasterGameMode>() : BlasterGameMode;
-	if (bIsElim || BlasterGameMode==nullptr) { return; }
+	if (bIsElim || BlasterGameMode == nullptr) { return; }
 
 	Damage = BlasterGameMode->CalculateDamage(InstigatorController, Controller, Damage);
 
@@ -506,7 +552,7 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 		if (InputSubsystem) {
 			InputSubsystem->AddMappingContext(IMC_MovementBase, 0);
-			if (!bDisableGameplay) {
+			if (!bDisableGameplay && !bHoldingFlag) {
 				EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ThisClass::Move);
 				EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ThisClass::Look);
 				EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ThisClass::Jump);
@@ -520,6 +566,11 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 				EnhancedInputComponent->BindAction(ReloadAction, ETriggerEvent::Triggered, this, &ThisClass::OnReloadButtonPressed);
 				EnhancedInputComponent->BindAction(ThrowGrenadeAction, ETriggerEvent::Triggered, this, &ThisClass::OnGreandeButtonPressed);
 				EnhancedInputComponent->BindAction(SwapWeaponAction, ETriggerEvent::Triggered, this, &ThisClass::OnSwapWeapon);
+			}
+			else if (bHoldingFlag) {
+				EnhancedInputComponent->ClearActionBindings();
+				EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ThisClass::Look);
+				EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ThisClass::Move);
 			}
 			else {
 				EnhancedInputComponent->ClearActionBindings();
@@ -982,4 +1033,29 @@ void ABlasterCharacter::SetTeamColor(ETeam Team)
 	default:
 		break;
 	}
+}
+
+bool ABlasterCharacter::GetIsHoldingFlag()
+{
+	bHoldingFlag = CombatComponent ? CombatComponent->GetIsHoldingFlag() : false;
+
+	if (bHoldingFlag) { 
+		if (InputComponent) {
+			SetupPlayerInputComponent(InputComponent);
+		}
+	}
+	return bHoldingFlag;
+}
+
+ETeam ABlasterCharacter::GetTeam()
+{
+	BlasterPlayerState = BlasterPlayerState == nullptr ? Cast<ABlasterPlayerState>(GetPlayerState<ABlasterPlayerState>()) : BlasterPlayerState;
+	if (BlasterPlayerState == nullptr) { ETeam::ET_NoTeam; }
+	return BlasterPlayerState->GetTeam();
+}
+
+void ABlasterCharacter::SetHoldFlag(bool ShouldHoldFlag)
+{
+	if (CombatComponent == nullptr) { return; }
+	CombatComponent->bHoldingFlag = ShouldHoldFlag;
 }

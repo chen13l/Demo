@@ -67,6 +67,7 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty
 	DOREPLIFETIME(UCombatComponent, CombatState);
 	DOREPLIFETIME(UCombatComponent, Grenades);
 	DOREPLIFETIME(UCombatComponent, bIsAiming);
+	DOREPLIFETIME(UCombatComponent, bHoldingFlag);
 }
 
 void UCombatComponent::OnRep_CarryAmmo()
@@ -158,6 +159,13 @@ void UCombatComponent::OnRep_Aiming()
 	}
 }
 
+void UCombatComponent::OnRep_HoldingFlag()
+{
+	if (bHoldingFlag && BlasterCharacter && BlasterCharacter->IsLocallyControlled()) {
+		BlasterCharacter->Crouch();
+	}
+}
+
 void UCombatComponent::SpawnDefautlWeapon()
 {
 	ABlasterGameMode* BlasterGameMode = Cast<ABlasterGameMode>(UGameplayStatics::GetGameMode(this));
@@ -175,15 +183,25 @@ void UCombatComponent::EquipWeapon(AWeaponBase* WeaponToEquip)
 {
 	if (BlasterCharacter == nullptr || WeaponToEquip == nullptr) { return; }
 	if (CombatState != ECombatState::ECS_Unoccupied) { return; }
-	if (EquippedWeapon != nullptr && SecondaryWeapon == nullptr) {
-		EquipSecondaryWeapon(WeaponToEquip);
+
+	if (WeaponToEquip->GetWeaponType() == EWeaponType::EWT_Flag) {
+		BlasterCharacter->Crouch();
+		bHoldingFlag = true;
+		WeaponToEquip->SetWeaponState(EWeaponState::EWS_Equipped);
+		WeaponToEquip->SetOwner(BlasterCharacter);
+		AttachFlagToLeftHand(WeaponToEquip);
 	}
 	else {
-		EquipPrimaryWeapon(WeaponToEquip);
-	}
+		if (EquippedWeapon != nullptr && SecondaryWeapon == nullptr) {
+			EquipSecondaryWeapon(WeaponToEquip);
+		}
+		else {
+			EquipPrimaryWeapon(WeaponToEquip);
+		}
 
-	BlasterCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
-	BlasterCharacter->bUseControllerRotationYaw = true;
+		BlasterCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
+		BlasterCharacter->bUseControllerRotationYaw = true;
+	}
 }
 
 void UCombatComponent::EquipPrimaryWeapon(AWeaponBase* WeaponToEquip)
@@ -347,7 +365,7 @@ void UCombatComponent::FireHitScanWeapon()
 	if (EquippedWeapon) {
 		HitTarget = EquippedWeapon->GetUseScatter() ? EquippedWeapon->TraceEndWithScatter(HitTarget) : HitTarget;
 		LocalFire(HitTarget);
-		ServerFire(HitTarget,EquippedWeapon->GetFireRate());
+		ServerFire(HitTarget, EquippedWeapon->GetFireRate());
 	}
 }
 
@@ -881,5 +899,14 @@ void UCombatComponent::AttachActorToBackpack(AActor* AttachActor)
 	const USkeletalMeshSocket* BackpackSocket = BlasterCharacter->GetMesh()->GetSocketByName(FName("BackpackSocket"));
 	if (BackpackSocket) {
 		BackpackSocket->AttachActor(AttachActor, BlasterCharacter->GetMesh());
+	}
+}
+
+void UCombatComponent::AttachFlagToLeftHand(AWeaponBase* Flag)
+{
+	if (BlasterCharacter == nullptr || BlasterCharacter->GetMesh() == nullptr || Flag == nullptr)return;
+	const USkeletalMeshSocket* FlagSocket = BlasterCharacter->GetMesh()->GetSocketByName(FName("FlagSocket"));
+	if (FlagSocket) {
+		FlagSocket->AttachActor(Flag, BlasterCharacter->GetMesh());
 	}
 }

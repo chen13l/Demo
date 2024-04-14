@@ -84,4 +84,7 @@ private:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Stats", meta = (AllowPrivateAccess))
 		bool bTransformRightHand;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Stats", meta = (AllowPrivateAccess))
+		bool bHoldingFlag;
 };

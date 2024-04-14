@@ -49,6 +49,8 @@ protected:
 	//poll for relevent classes & initialize hud
 	virtual void PollInit();
 
+	void OnPlayerStateInitialized();
+
 	/*
 		Input
 	*/
@@ -115,6 +117,7 @@ private:
 	*/
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 		class USpringArmComponent* CameraBoom;
+	float InitCameraRotateSpeed = 0.f;
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 		UCameraComponent* FollowCamera;
 
@@ -305,7 +308,7 @@ private:
 		UStaticMeshComponent* AttachGrenade;
 
 	/*
-		Team color
+		Team 
 	*/
 	UPROPERTY(EditDefaultsOnly, Category = Elim)
 		UMaterialInstance* RedDissolveMatInst;
@@ -323,6 +326,14 @@ private:
 		UMaterialInstance* OriginalMaterial;
 
 	class ABlasterGameMode* BlasterGameMode;
+
+	bool bHoldingFlag = false;
+
+	/*
+		Spawn
+	*/
+	void SetSpawnPoint();
+
 
 public:
 	/*
@@ -401,4 +412,9 @@ public:
 		Team color
 	*/
 	void SetTeamColor(ETeam Team);
+
+	//flag
+	bool GetIsHoldingFlag();
+	void SetHoldFlag(bool ShouldHoldFlag);
+	ETeam GetTeam();
 };

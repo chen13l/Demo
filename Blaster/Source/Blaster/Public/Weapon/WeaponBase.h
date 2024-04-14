@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Weapon/WeaponTypes.h"
+#include "Blaster/BlasterTypes/Team.h"
 #include "WeaponBase.generated.h"
 
 UENUM(BlueprintType)
@@ -39,6 +40,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps)const override;
 	virtual void OnRep_Owner()override;
 
+	virtual void Dropped();
 	/*
 		enable/disable custom depth
 	*/
@@ -167,6 +169,12 @@ private:
 	//default weapon
 	bool bIsAutoDestroyWeapon = false;
 
+	/*
+		team
+	*/
+	UPROPERTY(EditDefaultsOnly)
+		ETeam Team;
+
 public:
 	UPROPERTY(EditDefaultsOnly, Category = "Crosshairs")
 		class UTexture2D* CrosshairsCenter;
@@ -182,16 +190,20 @@ public:
 	void ShowPickupWidget(bool bShouldShowWidget);
 	void SetWeaponState(EWeaponState State);
 	virtual void Fire(const FVector& HitTarget);
-	void Dropped();
 
 	void SetHUDAmmo();
+	/*
+		team
+	*/
+	FORCEINLINE ETeam GetTeam()const { return Team; }
 
 	/*
 		Get Weapon Assets
 	*/
 	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh()const { return WeaponMesh; }
 	FORCEINLINE USoundCue* GetEquipSound()const { return EquippedSound; }
-
+	FORCEINLINE UWidgetComponent* GetPickWidget()const { return PickupWidget; }
+	FORCEINLINE USphereComponent* GetAreaSphere()const { return AreaSphere; }
 	/*
 		Get Weapon Properties
 	*/

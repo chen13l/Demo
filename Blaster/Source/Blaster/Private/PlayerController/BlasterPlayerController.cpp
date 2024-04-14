@@ -139,6 +139,7 @@ void ABlasterPlayerController::PollInit()
 
 void ABlasterPlayerController::CheckPing(float DeltaTime)
 {
+	if (HasAuthority()) { return; }
 	HighPingRunningTime += DeltaTime;
 	if (HighPingRunningTime > CheckPingFrequency) {
 		PlayerState = PlayerState == nullptr ? GetPlayerState<APlayerState>() : PlayerState;

@@ -35,6 +35,7 @@ protected:
 	void AttachActorToRightHand(AActor* AttachActor);
 	void AttachActorToLeftHand(AActor* AttachActor);
 	void AttachActorToBackpack(AActor* AttachActor);
+	void AttachFlagToLeftHand(AWeaponBase* Flag);
 
 	void PlayEquipWeaponSound(AWeaponBase* WeaponToEquip);
 
@@ -88,6 +89,14 @@ protected:
 		void LaunchGrenade();
 	UFUNCTION(Server, Reliable)
 		void ServerLaunchGrenade(const FVector_NetQuantize& Target);
+
+	/*
+		flag
+	*/
+	UPROPERTY(ReplicatedUsing = OnRep_HoldingFlag)
+		bool bHoldingFlag = false;
+	UFUNCTION()
+		void OnRep_HoldingFlag();
 
 private:
 	class ABlasterCharacter* BlasterCharacter = nullptr;
@@ -226,4 +235,9 @@ public:
 	void SpawnDefautlWeapon();
 
 	AWeaponBase* GetSecondaryWeapon()const { return SecondaryWeapon; }
+
+	/*
+		flag
+	*/
+	bool GetIsHoldingFlag()const { return bHoldingFlag; }
 };
