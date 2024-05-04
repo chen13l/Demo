@@ -367,3 +367,8 @@ FodyWeavers.xsd
 /Blaster/Saved
 /Blaster/Blaster.sln
 /Blaster/Platforms/HoloLens/Config
+/Aura/Binaries/Win64
+/Aura/Intermediate
+/Aura/Saved
+/Aura/.vsconfig
+/Aura/Aura.sln
