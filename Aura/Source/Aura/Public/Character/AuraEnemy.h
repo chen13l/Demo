@@ -8,14 +8,21 @@
 #include "AuraEnemy.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class AURA_API AAuraEnemy : public ACharacterBase, public IEnemyInterface
 {
 	GENERATED_BODY()
-	
+
 public:
 	virtual void HighLight() override;
 	virtual void UnHighLight() override;
+
+protected:
+	UPROPERTY(BlueprintReadOnly)
+		bool bShouldHighLight;
+
+private:
+
 };
