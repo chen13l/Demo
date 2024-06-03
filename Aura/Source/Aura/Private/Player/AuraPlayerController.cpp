@@ -23,7 +23,7 @@ void AAuraPlayerController::CursorTrace()
 {
 	FHitResult CursorHit;
 	GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, false, CursorHit);
-	if (!CursorHit.bBlockingHit){return;}
+	if (!CursorHit.bBlockingHit) { return; }
 
 	LastActor = CurrentActor;
 	CurrentActor = Cast<IEnemyInterface>(CursorHit.GetActor());
@@ -33,7 +33,7 @@ void AAuraPlayerController::CursorTrace()
 		1. LastActor == nullptr && Current == nullptr
 			- Do nothing
 		2. LastActor == nullptr && Current != nullptr
-			- HightLight CurrentActor 
+			- HightLight CurrentActor
 		3. LastActor != nullptr && Current == nullptr
 			- UnHightLight LastActor
 		4. LastActor != nullptr && Current == nullptr, LastActor != CurrentActor
@@ -65,7 +65,7 @@ void AAuraPlayerController::CursorTrace()
 			//Case 3
 			LastActor->UnHighLight();
 		}
-		
+
 	}
 }
 
@@ -76,8 +76,9 @@ void AAuraPlayerController::BeginPlay()
 	check(AuraContext);
 
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
-	check(Subsystem);
-	Subsystem->AddMappingContext(AuraContext, 0);
+	if (Subsystem) {
+		Subsystem->AddMappingContext(AuraContext, 0);
+	}
 
 	bShowMouseCursor = true;
 	DefaultMouseCursor = EMouseCursor::Default;
