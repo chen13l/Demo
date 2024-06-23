@@ -24,5 +24,5 @@ protected:
 
 
 private:
-	void InitAbilityActorinfo();
+	virtual void InitAbilityActorinfo() override;
 };

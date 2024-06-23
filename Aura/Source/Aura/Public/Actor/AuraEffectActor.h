@@ -3,32 +3,57 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ActiveGameplayEffectHandle.h"
 #include "GameFramework/Actor.h"
 #include "AuraEffectActor.generated.h"
 
-class USphereComponent;
+class UGameplayEffect;
+class UAbilitySystemComponent;
+
+UENUM(BlueprintType)
+enum class EEffectApplicationPolicy
+{
+	AppliedBeginOverlap,
+	AppliedEndOverlap,
+	NotApplied
+};
+
+UENUM(BlueprintType)
+enum class EEffectRemovalPolicy
+{
+	RemoveEndOverlap,
+	NotRemove
+};
 
 UCLASS()
 class AURA_API AAuraEffectActor : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	AAuraEffectActor();
 
 protected:
-	virtual void BeginPlay()override;
+	virtual void BeginPlay() override;
 
-	virtual void OnOverlap(UPrimitiveComponent* OverlappedComp,AActor* OtherActor,UPrimitiveComponent* OtherComp,int32 OtherBodyIndex,bool bFromSweep,const FHitResult& SweepResult);
-	virtual void EndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	UFUNCTION(BlueprintCallable)
+	void ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGameplayEffect> GameplayEffectClass);
 
-private:
-	UPROPERTY(VisibleAnyWhere)
-		TObjectPtr<USphereComponent> Sphere;
-
-	UPROPERTY(VisibleAnyWhere)
-		TObjectPtr<UStaticMeshComponent>Mesh;
-
-public:	
-
+	UFUNCTION(BlueprintCallable)
+	void OnBeginOverlap(AActor* TargetActor);
+	UFUNCTION(BlueprintCallable)
+	void OnEndOverlap(AActor* TargetActor);
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Applied Effects")
+	TSubclassOf<UGameplayEffect> AppliedGameplayEffect;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Applied Effects")
+	EEffectApplicationPolicy EffectApplicationPolicy = EEffectApplicationPolicy::NotApplied;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Applied Effects")
+	EEffectRemovalPolicy EffectRemovalPolicy = EEffectRemovalPolicy::RemoveEndOverlap;
+	
+	TMap<FActiveGameplayEffectHandle, UAbilitySystemComponent*> ActiveEffectHandles_ASC;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Applied Effects")
+	float ActorLevel = 1.f;
+	
 };

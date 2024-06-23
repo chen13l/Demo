@@ -17,6 +17,10 @@ void ACharacterBase::BeginPlay()
 	
 }
 
+void ACharacterBase::InitAbilityActorinfo()
+{
+}
+
 UAbilitySystemComponent* ACharacterBase::GetAbilitySystemComponent()const
 {
 	return AbilitySystemComponent;
