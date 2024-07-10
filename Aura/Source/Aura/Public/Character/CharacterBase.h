@@ -38,8 +38,12 @@ protected:
 	/*
 	 * Init Primary Attributes
 	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category="Primary Attributes")
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category="Attributes|Primary Attributes")
 	TSubclassOf<UGameplayEffect> DefaultPrimaryAttributes;
 
-	virtual void InitPrimaryAttributes() const;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category="Attributes|Secondary Attributes")
+	TSubclassOf<UGameplayEffect> DefaultSecondaryAttributes;
+
+	void ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GE, float Level) const;
+	void InitDefaultAttributeByGE() const;
 };
