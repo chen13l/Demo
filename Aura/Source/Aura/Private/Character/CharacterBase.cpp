@@ -26,7 +26,8 @@ void ACharacterBase::ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GE, float Le
 	check(GE);
 	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
 	check(ASC);
-	const FGameplayEffectContextHandle EffectContextHandle = ASC->MakeEffectContext();
+	FGameplayEffectContextHandle EffectContextHandle = ASC->MakeEffectContext();
+	EffectContextHandle.AddSourceObject(this);
 	FGameplayEffectSpecHandle GameplayEffectSpecHandle = ASC->MakeOutgoingSpec(GE, Level, EffectContextHandle);
 	ASC->ApplyGameplayEffectSpecToSelf(*GameplayEffectSpecHandle.Data.Get());
 }
@@ -35,6 +36,7 @@ void ACharacterBase::InitDefaultAttributeByGE() const
 {
 	ApplyEffectToSelf(DefaultPrimaryAttributes, 1.f);
 	ApplyEffectToSelf(DefaultSecondaryAttributes, 1.f);
+	ApplyEffectToSelf(DefaultVitalAttributes, 1.f);
 }
 
 UAbilitySystemComponent* ACharacterBase::GetAbilitySystemComponent() const

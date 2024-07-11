@@ -27,8 +27,8 @@ protected:
 	virtual void SetupInputComponent()override;
 
 private:
-	TObjectPtr<IEnemyInterface> LastActor;
-	TObjectPtr<IEnemyInterface> CurrentActor;
+	IEnemyInterface* LastActor;
+	IEnemyInterface* CurrentActor;
 	void CursorTrace();
 
 	UPROPERTY(EditAnywhere, Category = "Input")
