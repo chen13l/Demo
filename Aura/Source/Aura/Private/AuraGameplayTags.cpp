@@ -10,7 +10,7 @@ FAuraGameplayTags FAuraGameplayTags::AuraGameplayTags;
 
 void FAuraGameplayTags::InitNativeGameplayTags()
 {
-	AuraGameplayTags.Attribute_Secondary_MaxMana = UGameplayTagsManager::Get().AddNativeGameplayTag(
+	AuraGameplayTags.Attribute_Primary_Strength = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		"Attributes.Primary.Strength", "Increases physical damage");
 	AuraGameplayTags.Attribute_Primary_Intelligence = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		"Attributes.Primary.Intelligence", "Increases magical damage");
