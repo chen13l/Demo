@@ -10,6 +10,9 @@ FAuraGameplayTags FAuraGameplayTags::AuraGameplayTags;
 
 void FAuraGameplayTags::InitNativeGameplayTags()
 {
+	/*
+	 * Primary Attributes
+	 */
 	AuraGameplayTags.Attribute_Primary_Strength = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		"Attributes.Primary.Strength", "Increases physical damage");
 	AuraGameplayTags.Attribute_Primary_Intelligence = UGameplayTagsManager::Get().AddNativeGameplayTag(
@@ -19,6 +22,9 @@ void FAuraGameplayTags::InitNativeGameplayTags()
 	AuraGameplayTags.Attribute_Primary_Vigor = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		"Attributes.Primary.Vigor", "Increases Health");
 
+	/*
+	 * Secondary Attributes
+	 */
 	AuraGameplayTags.Attribute_Secondary_Armor = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		"Attributes.Secondary.Armor", "Reduces damage taken, improves Block Chance");
 	AuraGameplayTags.Attribute_Secondary_ArmorPenetration = UGameplayTagsManager::Get().AddNativeGameplayTag(
@@ -39,4 +45,20 @@ void FAuraGameplayTags::InitNativeGameplayTags()
 		"Attributes.Secondary.MaxHealth", "Maximum amount of Health obtainable");
 	AuraGameplayTags.Attribute_Secondary_MaxMana = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		"Attributes.Secondary.MaxMana", "Maximum amount of Mana obtainable");
+
+	/*
+	 * Input Tags
+	 */
+	AuraGameplayTags.InputTag_LMB = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		"InputTag.LMB", "Input Tag for left mouse button");
+	AuraGameplayTags.InputTag_RMB = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		"InputTag.RMB", "Input Tag for right mouse button");
+	AuraGameplayTags.InputTag_1 = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		"InputTag.1", "Input Tag for 1 key");
+	AuraGameplayTags.InputTag_2 = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		"InputTag.2", "Input Tag for 2 key");
+	AuraGameplayTags.InputTag_3 = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		"InputTag.3", "Input Tag for 3 key");
+	AuraGameplayTags.InputTag_4 = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		"InputTag.4", "Input Tag for 4 key");
 }
