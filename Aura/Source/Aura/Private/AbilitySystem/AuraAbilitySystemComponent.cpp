@@ -8,7 +8,7 @@
 
 void UAuraAbilitySystemComponent::AbilityActorInfoSet()
 {
-	OnGameplayEffectAppliedDelegateToSelf.AddUObject(this, &UAuraAbilitySystemComponent::EffectApplied);
+	OnGameplayEffectAppliedDelegateToSelf.AddUObject(this, &UAuraAbilitySystemComponent::ClientEffectApplied);
 }
 
 void UAuraAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& Abilities)
@@ -18,7 +18,8 @@ void UAuraAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf
 		FGameplayAbilitySpec GameplayAbilitySpec(AbilityClass, 1);
 		if (UAuraGameplayAbility* AuraAbility = Cast<UAuraGameplayAbility>(GameplayAbilitySpec.Ability))
 		{
-			GiveAbility(AuraAbility);
+			GameplayAbilitySpec.DynamicAbilityTags.AddTag(AuraAbility->StartupInputTag);
+			GiveAbility(GameplayAbilitySpec);
 			//GiveAbilityAndActivateOnce(GameplayAbilitySpec);	
 		}
 	}
@@ -54,7 +55,7 @@ void UAuraAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag& In
 	}
 }
 
-void UAuraAbilitySystemComponent::EffectApplied(UAbilitySystemComponent* ASC,
+void UAuraAbilitySystemComponent::ClientEffectApplied_Implementation(UAbilitySystemComponent* ASC,
                                                 const FGameplayEffectSpec& GameplayEffectSpec,
                                                 FActiveGameplayEffectHandle ActiveGameplayEffectHandle)
 {

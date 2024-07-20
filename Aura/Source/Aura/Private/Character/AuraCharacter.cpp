@@ -32,7 +32,7 @@ void AAuraCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 
-
+	InitAbilityActorinfo();
 }
 
 int32 AAuraCharacter::GetPlayerLevel() const

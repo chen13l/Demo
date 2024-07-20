@@ -31,9 +31,13 @@ protected:
 	virtual void SetupInputComponent() override;
 
 private:
+	/*
+	 * Cursor trace
+	 */
 	IEnemyInterface* LastActor;
 	IEnemyInterface* CurrentActor;
 	void CursorTrace();
+	FHitResult CursorHit;
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<UInputMappingContext> AuraContext;

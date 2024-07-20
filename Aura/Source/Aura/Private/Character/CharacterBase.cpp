@@ -13,6 +13,12 @@ ACharacterBase::ACharacterBase()
 	Weapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
+FVector ACharacterBase::GetCombatSocketLocation() const
+{
+	check(Weapon);
+	return Weapon->GetSocketLocation(WeaponTipSockName);
+}
+
 void ACharacterBase::BeginPlay()
 {
 	Super::BeginPlay();

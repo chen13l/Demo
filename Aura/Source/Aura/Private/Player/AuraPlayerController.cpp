@@ -19,7 +19,6 @@
 AAuraPlayerController::AAuraPlayerController()
 {
 	bReplicates = true;
-
 	Spline = CreateDefaultSubobject<USplineComponent>("Spline");
 }
 
@@ -44,67 +43,23 @@ void AAuraPlayerController::AutoRun()
 		ControlledPawn->AddMovementInput(Direction);
 
 		const float DistanceToDestination = (LocationOnSpline - CachedDestination).Length();
-		if(DistanceToDestination<=AutoAcceptanceRadius)
-		{
-			bAutoRunning = false;
-		}
+		if (DistanceToDestination <= AutoAcceptanceRadius) { bAutoRunning = false; }
 	}
 }
 
 void AAuraPlayerController::CursorTrace()
 {
-	FHitResult CursorHit;
 	GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, false, CursorHit);
 	if (!CursorHit.bBlockingHit) { return; }
 
 	LastActor = CurrentActor;
 	CurrentActor = Cast<IEnemyInterface>(CursorHit.GetActor());
-
-	/*
-		Line Trace from cursor, there are several scenarios:
-		1. LastActor == nullptr && Current == nullptr
-			- Do nothing
-		2. LastActor == nullptr && Current != nullptr
-			- HightLight CurrentActor
-		3. LastActor != nullptr && Current == nullptr
-			- UnHightLight LastActor
-		4. LastActor != nullptr && Current == nullptr, LastActor != CurrentActor
-			- HightLight CurrentActor, UnHighLight LastActor
-		5. LastActor != nullptr && Current != nullptr, LastActor == CurrentActor
-			- Do nothing
-	*/
-	if (LastActor == nullptr)
+	if (CurrentActor) { bTargeting = true; }
+	else { bTargeting = false; }
+	if (LastActor != CurrentActor)
 	{
-		if (CurrentActor != nullptr)
-		{
-			//Case 2
-			CurrentActor->HighLight();
-		}
-		else
-		{
-			//Case 1, both nullptr
-		}
-	}
-	else
-	{
-		if (CurrentActor != nullptr)
-		{
-			if (LastActor != CurrentActor)
-			{
-				//Case 4
-				CurrentActor->HighLight();
-				LastActor->UnHighLight();
-			}
-			else
-			{
-				//Case 5, both valid, but the same Actor
-			}
-		}
-		else
-		{
-			//Case 3
-			LastActor->UnHighLight();
-		}
+		if (LastActor) { LastActor->UnHighLight(); }
+		if (CurrentActor) { CurrentActor->HighLight(); }
 	}
 }
 
@@ -116,10 +71,7 @@ void AAuraPlayerController::BeginPlay()
 
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
 		GetLocalPlayer());
-	if (Subsystem)
-	{
-		Subsystem->AddMappingContext(AuraContext, 0);
-	}
+	if (Subsystem) { Subsystem->AddMappingContext(AuraContext, 0); }
 
 	bShowMouseCursor = true;
 	DefaultMouseCursor = EMouseCursor::Default;
@@ -179,10 +131,7 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 
 	if (bTargeting)
 	{
-		if (GetAuraASC())
-		{
-			GetAuraASC()->AbilityInputTagReleased(InputTag);
-		}
+		if (GetAuraASC()) { GetAuraASC()->AbilityInputTagReleased(InputTag); }
 	}
 	else
 	{
@@ -212,26 +161,20 @@ void AAuraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 {
 	if (!InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB))
 	{
-		if (GetAuraASC())
-		{
-			GetAuraASC()->AbilityInputTagHeld(InputTag);
-		}
+		if (GetAuraASC()) { GetAuraASC()->AbilityInputTagHeld(InputTag); }
 		return;
 	}
 
 	if (bTargeting)
 	{
-		if (GetAuraASC())
-		{
-			GetAuraASC()->AbilityInputTagHeld(InputTag);
-		}
+		if (GetAuraASC()) { GetAuraASC()->AbilityInputTagHeld(InputTag); }
 	}
 	else
 	{
-		FHitResult Hit;
-		if (GetHitResultUnderCursor(ECC_Visibility, false, Hit))
+		if (CursorHit.bBlockingHit)
 		{
-			CachedDestination = Hit.ImpactPoint;
+			FollowTime += GetWorld()->GetDeltaSeconds();
+			if (CursorHit.bBlockingHit) { CachedDestination = CursorHit.ImpactPoint; }
 
 			if (APawn* ControlledPawn = GetPawn())
 			{
