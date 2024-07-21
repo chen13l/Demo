@@ -23,11 +23,10 @@ public:
 	/*Combat Interface*/
 	virtual int32 GetPlayerLevel() const override;
 	/*End Combat Interface*/
-		
+
 protected:
 
 
 private:
 	virtual void InitAbilityActorinfo() override;
-}
-;
+};

@@ -31,6 +31,10 @@ protected:
 	virtual void SetupInputComponent() override;
 
 private:
+	UPROPERTY()
+	TObjectPtr<UAuraAbilitySystemComponent> AuraASC;
+	UAuraAbilitySystemComponent* GetAuraASC();
+
 	/*
 	 * Cursor trace
 	 */
@@ -39,6 +43,9 @@ private:
 	void CursorTrace();
 	FHitResult CursorHit;
 
+	/*
+	 * Input
+	 */
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<UInputMappingContext> AuraContext;
 	UPROPERTY(EditAnywhere, Category = "Input")
@@ -52,9 +59,11 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category="Input")
 	TObjectPtr<UAuraInputConfig> InputConfig;
 
-	UPROPERTY()
-	TObjectPtr<UAuraAbilitySystemComponent> AuraASC;
-	UAuraAbilitySystemComponent* GetAuraASC();
+	UPROPERTY(EditAnywhere, Category="Input")
+	UInputAction* ShiftAction;
+	void ShiftPressed() { bShiftKeyDown = true; };
+	void ShiftReleased() { bShiftKeyDown = false; };
+	bool bShiftKeyDown = false;
 
 	/*
 	 * Click to move

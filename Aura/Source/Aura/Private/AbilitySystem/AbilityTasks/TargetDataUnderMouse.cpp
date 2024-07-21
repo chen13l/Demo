@@ -35,6 +35,8 @@ void UTargetDataUnderMouse::Activate()
 
 void UTargetDataUnderMouse::SendTargetData()
 {
+	FScopedPredictionWindow ScopedPredictionWindow(AbilitySystemComponent.Get());
+
 	APlayerController* PC = Ability->GetCurrentActorInfo()->PlayerController.Get();
 	FHitResult CursorHit;
 	PC->GetHitResultUnderCursor(ECC_Visibility, false, CursorHit);

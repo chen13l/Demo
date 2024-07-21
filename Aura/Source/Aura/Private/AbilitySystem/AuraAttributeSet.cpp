@@ -11,20 +11,20 @@
 UAuraAttributeSet::UAuraAttributeSet()
 {
 	const FAuraGameplayTags& AuraGameplayTags = FAuraGameplayTags::Get();
-/*
- * Primary Attributes
- */
-	TagsToAttributes.Add(AuraGameplayTags.Attribute_Primary_Strength,GetStrengthAttribute);
-	TagsToAttributes.Add(AuraGameplayTags.Attribute_Primary_Intelligence,GetIntelligenceAttribute);
-	TagsToAttributes.Add(AuraGameplayTags.Attribute_Primary_Resilience,GetResilienceAttribute);
+	/*
+	 * Primary Attributes
+	 */
+	TagsToAttributes.Add(AuraGameplayTags.Attribute_Primary_Strength, GetStrengthAttribute);
+	TagsToAttributes.Add(AuraGameplayTags.Attribute_Primary_Intelligence, GetIntelligenceAttribute);
+	TagsToAttributes.Add(AuraGameplayTags.Attribute_Primary_Resilience, GetResilienceAttribute);
 	TagsToAttributes.Add(AuraGameplayTags.Attribute_Primary_Vigor, GetVigorAttribute);
 
 	/*
 	 * Secondary Attributes
 	 */
-	TagsToAttributes.Add(AuraGameplayTags.Attribute_Secondary_Armor,GetArmorAttribute);
-	TagsToAttributes.Add(AuraGameplayTags.Attribute_Secondary_ArmorPenetration,GetArmorPenetrationAttribute);
-	TagsToAttributes.Add(AuraGameplayTags.Attribute_Secondary_BlockChance,GetBlockChanceAttribute);
+	TagsToAttributes.Add(AuraGameplayTags.Attribute_Secondary_Armor, GetArmorAttribute);
+	TagsToAttributes.Add(AuraGameplayTags.Attribute_Secondary_ArmorPenetration, GetArmorPenetrationAttribute);
+	TagsToAttributes.Add(AuraGameplayTags.Attribute_Secondary_BlockChance, GetBlockChanceAttribute);
 	TagsToAttributes.Add(AuraGameplayTags.Attribute_Secondary_CriticalHitChance, GetCriticalHitChanceAttribute);
 	TagsToAttributes.Add(AuraGameplayTags.Attribute_Secondary_CriticalHitDamage, GetCriticalHitDamageAttribute);
 	TagsToAttributes.Add(AuraGameplayTags.Attribute_Secondary_CriticalHitResistance, GetCriticalHitResistanceAttribute);
@@ -58,6 +58,8 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
 		SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
+		UE_LOG(LogTemp, Warning, TEXT("Changed Health on %s, Health: %f"), *Props.TargetAvatorActor->GetName(),
+		       GetHealth())
 	}
 	if (Data.EvaluatedData.Attribute == GetManaAttribute())
 	{
@@ -163,42 +165,42 @@ void UAuraAttributeSet::OnRep_Vigor(const FGameplayAttributeData& OldValue) cons
  */
 void UAuraAttributeSet::OnRep_Armor(const FGameplayAttributeData& OldValue) const
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UAuraAttributeSet,Armor,OldValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAuraAttributeSet, Armor, OldValue);
 }
 
 void UAuraAttributeSet::OnRep_ArmorPenetration(const FGameplayAttributeData& OldValue) const
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UAuraAttributeSet,ArmorPenetration,OldValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAuraAttributeSet, ArmorPenetration, OldValue);
 }
 
 void UAuraAttributeSet::OnRep_BlockChance(const FGameplayAttributeData& OldValue) const
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UAuraAttributeSet,BlockChance,OldValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAuraAttributeSet, BlockChance, OldValue);
 }
 
 void UAuraAttributeSet::OnRep_CriticalHitChance(const FGameplayAttributeData& OldValue) const
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UAuraAttributeSet,CriticalHitChance,OldValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAuraAttributeSet, CriticalHitChance, OldValue);
 }
 
 void UAuraAttributeSet::OnRep_CriticalHitDamage(const FGameplayAttributeData& OldValue) const
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UAuraAttributeSet,CriticalHitDamage,OldValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAuraAttributeSet, CriticalHitDamage, OldValue);
 }
 
 void UAuraAttributeSet::OnRep_CriticalHitResistance(const FGameplayAttributeData& OldValue) const
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UAuraAttributeSet,CriticalHitResistance,OldValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAuraAttributeSet, CriticalHitResistance, OldValue);
 }
 
 void UAuraAttributeSet::OnRep_HealthRegeneration(const FGameplayAttributeData& OldValue) const
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UAuraAttributeSet,HealthRegeneration,OldValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAuraAttributeSet, HealthRegeneration, OldValue);
 }
 
 void UAuraAttributeSet::OnRep_ManaRegeneration(const FGameplayAttributeData& OldValue) const
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UAuraAttributeSet,ManaRegeneration,OldValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAuraAttributeSet, ManaRegeneration, OldValue);
 }
 
 void UAuraAttributeSet::OnRep_MaxHealth(const FGameplayAttributeData& OldValue) const
