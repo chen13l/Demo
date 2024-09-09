@@ -21,6 +21,7 @@
 			"LoadingPhase": "Default"
 		}
 	],
+	
 	"Plugins": [
 		{
 			"Name": "OnlineSubsystem",

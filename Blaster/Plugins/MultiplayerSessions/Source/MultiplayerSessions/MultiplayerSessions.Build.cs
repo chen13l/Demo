@@ -20,7 +20,6 @@ public class MultiplayerSessions : ModuleRules
 				// ... add other private include paths required here ...
 			}
 			);
-			
 		
 		PublicDependencyModuleNames.AddRange(
 			new string[]

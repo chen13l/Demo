@@ -58,6 +58,12 @@ bool UMenu::Initialize()
 	return true;
 }
 
+void UMenu::NativeDestruct()
+{
+	MenuTearDown();
+	Super::NativeDestruct();
+}
+
 void UMenu::OnCreateSession(bool bWasSuccessful)
 {
 	if (bWasSuccessful) {

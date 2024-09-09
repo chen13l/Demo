@@ -4,6 +4,7 @@
 #include "MultiplayerSessionSubsystem.h"
 #include "OnlineSubsystem.h"
 #include "OnlineSessionSettings.h"
+#include "Online/OnlineSessionNames.h"
 
 UMultiplayerSessionSubsystem::UMultiplayerSessionSubsystem() :
 	CreateSessionCompleteDelegate(FOnCreateSessionCompleteDelegate::CreateUObject(this, &ThisClass::OnCreateSessionComplete)),
@@ -27,6 +28,7 @@ void UMultiplayerSessionSubsystem::CreateSession(int32 NumPublicConnections, FSt
 		return;
 	}
 
+	// 检查是否已存在会话
 	auto ExistingSession = SessionInterface->GetNamedSession(NAME_GameSession);
 	if (ExistingSession != nullptr) {
 		bSessionOnDestroy = true;
@@ -39,16 +41,21 @@ void UMultiplayerSessionSubsystem::CreateSession(int32 NumPublicConnections, FSt
 	CreateSessionCompleteHandle = SessionInterface->AddOnCreateSessionCompleteDelegate_Handle(CreateSessionCompleteDelegate);
 
 	LastSessionSettings = MakeShareable(new FOnlineSessionSettings());
+	// 是否为本地网络（LAN
 	LastSessionSettings->bIsLANMatch = IOnlineSubsystem::Get()->GetSubsystemName() == "NULL" ? true : false;
 	LastSessionSettings->bAllowJoinInProgress = true;
+	//是否允许通过在场玩家加入
 	LastSessionSettings->bAllowJoinViaPresence = true;
 	LastSessionSettings->NumPublicConnections = NumPublicConnections;
+	//这场比赛是否在在线服务上公开展示
 	LastSessionSettings->bShouldAdvertise = true;
+	//是否显示用户在场信息
 	LastSessionSettings->bUsesPresence = true;
 	LastSessionSettings->bUseLobbiesIfAvailable = true;
 	LastSessionSettings->BuildUniqueId = 1;
 	LastSessionSettings->Set(FName("MatchType"), MatchType, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 
+	// 创建会话，失败则清除Handle（解除与SessionInterface->AddOnCreateSessionCompleteDelegate的绑定）， 并Broadcast失败信息
 	const ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
 	if (!SessionInterface->CreateSession(*LocalPlayer->GetPreferredUniqueNetId(), NAME_GameSession, *LastSessionSettings)) {
 		SessionInterface->ClearOnCreateSessionCompleteDelegate_Handle(CreateSessionCompleteHandle);
@@ -108,6 +115,7 @@ void UMultiplayerSessionSubsystem::DestroySession()
 
 	SessionInterface->AddOnDestroySessionCompleteDelegate_Handle(DestroySessionCompleteDelegate);
 
+	// 销毁会话， 失败时解除callback绑定，并Broadcast失败
 	if (!SessionInterface->DestroySession(NAME_GameSession)) {
 		SessionInterface->ClearOnDestroySessionCompleteDelegate_Handle(DestroySessionCompleteHandle);
 		MultiplayerOnDestroySessionComplete.Broadcast(false);
